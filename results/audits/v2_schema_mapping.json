@@ -1,0 +1,3467 @@
+{
+  "audit": "v2_schema_mapping",
+  "generated_at_utc": "2026-09-18T21:15:21.963478+00:00",
+  "scope": [
+    "Schema and identifier mapping only.",
+    "No model training, forecasting metrics, data cleaning, or complete statistical audit.",
+    "All paths are relative labels; source drive paths are not written to this report."
+  ],
+  "lv_grids": [
+    {
+      "name": "39_bus_semi_urban_reference_grid",
+      "relative_root": "39_bus_semi_urban_reference_grid",
+      "bus_count": 39,
+      "branch_count": 38,
+      "consumer_count": 29,
+      "p_load_profile_count": 29,
+      "q_load_profile_count": 29,
+      "unique_load_bus_count": 28,
+      "multiple_consumers_per_bus_observed": true,
+      "multiple_consumers_per_bus_allowed_by_mapping": true,
+      "buses_with_multiple_consumers": [
+        {
+          "bus_i": "30",
+          "consumer_count": 2
+        }
+      ],
+      "p_load": {
+        "relative_path": "p_load.csv",
+        "raw_header": [
+          "Date",
+          "16",
+          "14",
+          "19",
+          "35",
+          "6",
+          "13",
+          "26",
+          "17",
+          "15",
+          "31",
+          "39",
+          "37",
+          "9",
+          "10",
+          "22",
+          "33",
+          "29",
+          "11",
+          "36",
+          "23",
+          "2",
+          "24",
+          "27",
+          "20",
+          "4",
+          "7",
+          "30",
+          "30",
+          "5"
+        ],
+        "time": {
+          "status": "success",
+          "row_count": 8760,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2021-01-01 00:00:00",
+          "last_timestamp": "2021-12-31 23:00:00",
+          "min_timestamp": "2021-01-01 00:00:00",
+          "max_timestamp": "2021-12-31 23:00:00",
+          "unique_timestamp_count": 8760,
+          "observed_interval_minutes": [
+            60.0
+          ],
+          "interval_consistent": true,
+          "hourly_interval": true,
+          "strict_8760_hourly": true
+        }
+      },
+      "q_load": {
+        "relative_path": "q_load.csv",
+        "raw_header": [
+          "Date",
+          "16",
+          "14",
+          "19",
+          "35",
+          "6",
+          "13",
+          "26",
+          "17",
+          "15",
+          "31",
+          "39",
+          "37",
+          "9",
+          "10",
+          "22",
+          "33",
+          "29",
+          "11",
+          "36",
+          "23",
+          "2",
+          "24",
+          "27",
+          "20",
+          "4",
+          "7",
+          "30",
+          "30.1",
+          "5"
+        ],
+        "time": {
+          "status": "success",
+          "row_count": 8760,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2021-01-01 00:00:00",
+          "last_timestamp": "2021-12-31 23:00:00",
+          "min_timestamp": "2021-01-01 00:00:00",
+          "max_timestamp": "2021-12-31 23:00:00",
+          "unique_timestamp_count": 8760,
+          "observed_interval_minutes": [
+            60.0
+          ],
+          "interval_consistent": true,
+          "hourly_interval": true,
+          "strict_8760_hourly": true
+        }
+      },
+      "p_q": {
+        "profile_count_equal": true,
+        "load_bus_extra_count_matches": true,
+        "raw_header_tokens_equal_by_position": false,
+        "mapping_uses_raw_column_position": true,
+        "timestamp_alignment": {
+          "row_count_equal": true,
+          "first_timestamp_equal": true,
+          "last_timestamp_equal": true,
+          "timestamp_schema_aligned": true
+        },
+        "profile_one_to_one": true,
+        "note": "Raw duplicate headers and suffix-like headers are not treated as bus IDs; mapping is positional against load_bus_extra.csv."
+      },
+      "profile_mapping": [
+        {
+          "profile_position": 1,
+          "p_raw_header": "16",
+          "q_raw_header": "16",
+          "mapped_bus_i": "16",
+          "consumer": "Single-family house",
+          "consumer_id": "5774",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 2,
+          "p_raw_header": "14",
+          "q_raw_header": "14",
+          "mapped_bus_i": "14",
+          "consumer": "Single-family house",
+          "consumer_id": "1341",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 3,
+          "p_raw_header": "19",
+          "q_raw_header": "19",
+          "mapped_bus_i": "19",
+          "consumer": "Single-family house",
+          "consumer_id": "7532",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 4,
+          "p_raw_header": "35",
+          "q_raw_header": "35",
+          "mapped_bus_i": "35",
+          "consumer": "Single-family house",
+          "consumer_id": "947",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 5,
+          "p_raw_header": "6",
+          "q_raw_header": "6",
+          "mapped_bus_i": "6",
+          "consumer": "Single-family house",
+          "consumer_id": "1860",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 6,
+          "p_raw_header": "13",
+          "q_raw_header": "13",
+          "mapped_bus_i": "13",
+          "consumer": "Single-family house",
+          "consumer_id": "4621",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 7,
+          "p_raw_header": "26",
+          "q_raw_header": "26",
+          "mapped_bus_i": "26",
+          "consumer": "Single-family house",
+          "consumer_id": "3905",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 8,
+          "p_raw_header": "17",
+          "q_raw_header": "17",
+          "mapped_bus_i": "17",
+          "consumer": "Single-family house",
+          "consumer_id": "1803",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 9,
+          "p_raw_header": "15",
+          "q_raw_header": "15",
+          "mapped_bus_i": "15",
+          "consumer": "Single-family house",
+          "consumer_id": "3125",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 10,
+          "p_raw_header": "31",
+          "q_raw_header": "31",
+          "mapped_bus_i": "31",
+          "consumer": "Single-family house",
+          "consumer_id": "2489",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 11,
+          "p_raw_header": "39",
+          "q_raw_header": "39",
+          "mapped_bus_i": "39",
+          "consumer": "Single-family house",
+          "consumer_id": "1071",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 12,
+          "p_raw_header": "37",
+          "q_raw_header": "37",
+          "mapped_bus_i": "37",
+          "consumer": "Single-family house",
+          "consumer_id": "2713",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 13,
+          "p_raw_header": "9",
+          "q_raw_header": "9",
+          "mapped_bus_i": "9",
+          "consumer": "Single-family house",
+          "consumer_id": "1334",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 14,
+          "p_raw_header": "10",
+          "q_raw_header": "10",
+          "mapped_bus_i": "10",
+          "consumer": "Single-family house",
+          "consumer_id": "4247",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 15,
+          "p_raw_header": "22",
+          "q_raw_header": "22",
+          "mapped_bus_i": "22",
+          "consumer": "Single-family house",
+          "consumer_id": "3160",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 16,
+          "p_raw_header": "33",
+          "q_raw_header": "33",
+          "mapped_bus_i": "33",
+          "consumer": "Single-family house",
+          "consumer_id": "902",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 17,
+          "p_raw_header": "29",
+          "q_raw_header": "29",
+          "mapped_bus_i": "29",
+          "consumer": "Single-family house",
+          "consumer_id": "3520",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 18,
+          "p_raw_header": "11",
+          "q_raw_header": "11",
+          "mapped_bus_i": "11",
+          "consumer": "Single-family house",
+          "consumer_id": "2132",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 19,
+          "p_raw_header": "36",
+          "q_raw_header": "36",
+          "mapped_bus_i": "36",
+          "consumer": "Single-family house",
+          "consumer_id": "3054",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 20,
+          "p_raw_header": "23",
+          "q_raw_header": "23",
+          "mapped_bus_i": "23",
+          "consumer": "Single-family house",
+          "consumer_id": "1255",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 21,
+          "p_raw_header": "2",
+          "q_raw_header": "2",
+          "mapped_bus_i": "2",
+          "consumer": "Single-family house",
+          "consumer_id": "850",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 22,
+          "p_raw_header": "24",
+          "q_raw_header": "24",
+          "mapped_bus_i": "24",
+          "consumer": "Single-family house",
+          "consumer_id": "1789",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 23,
+          "p_raw_header": "27",
+          "q_raw_header": "27",
+          "mapped_bus_i": "27",
+          "consumer": "Single-family house",
+          "consumer_id": "2970",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 24,
+          "p_raw_header": "20",
+          "q_raw_header": "20",
+          "mapped_bus_i": "20",
+          "consumer": "Single-family house",
+          "consumer_id": "465",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 25,
+          "p_raw_header": "4",
+          "q_raw_header": "4",
+          "mapped_bus_i": "4",
+          "consumer": "Single-family house",
+          "consumer_id": "1976",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 26,
+          "p_raw_header": "7",
+          "q_raw_header": "7",
+          "mapped_bus_i": "7",
+          "consumer": "Single-family house",
+          "consumer_id": "5226",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 27,
+          "p_raw_header": "30",
+          "q_raw_header": "30",
+          "mapped_bus_i": "30",
+          "consumer": "Townhouse",
+          "consumer_id": "6455",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 28,
+          "p_raw_header": "30",
+          "q_raw_header": "30.1",
+          "mapped_bus_i": "30",
+          "consumer": "Townhouse",
+          "consumer_id": "306",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 29,
+          "p_raw_header": "5",
+          "q_raw_header": "5",
+          "mapped_bus_i": "5",
+          "consumer": "Single-family house",
+          "consumer_id": "2325",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        }
+      ],
+      "unmapped_profiles": [],
+      "mapping_anomalies": []
+    },
+    {
+      "name": "50_bus_rural_reference_grid",
+      "relative_root": "50_bus_rural_reference_grid",
+      "bus_count": 50,
+      "branch_count": 49,
+      "consumer_count": 21,
+      "p_load_profile_count": 21,
+      "q_load_profile_count": 21,
+      "unique_load_bus_count": 21,
+      "multiple_consumers_per_bus_observed": false,
+      "multiple_consumers_per_bus_allowed_by_mapping": true,
+      "buses_with_multiple_consumers": [],
+      "p_load": {
+        "relative_path": "p_load.csv",
+        "raw_header": [
+          "Date",
+          "6",
+          "10",
+          "11",
+          "12",
+          "15",
+          "16",
+          "18",
+          "20",
+          "25",
+          "29",
+          "30",
+          "31",
+          "33",
+          "36",
+          "39",
+          "40",
+          "42",
+          "43",
+          "48",
+          "49",
+          "50"
+        ],
+        "time": {
+          "status": "success",
+          "row_count": 8760,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2021-01-01 00:00:00",
+          "last_timestamp": "2021-12-31 23:00:00",
+          "min_timestamp": "2021-01-01 00:00:00",
+          "max_timestamp": "2021-12-31 23:00:00",
+          "unique_timestamp_count": 8760,
+          "observed_interval_minutes": [
+            60.0
+          ],
+          "interval_consistent": true,
+          "hourly_interval": true,
+          "strict_8760_hourly": true
+        }
+      },
+      "q_load": {
+        "relative_path": "q_load.csv",
+        "raw_header": [
+          "Date",
+          "6",
+          "10",
+          "11",
+          "12",
+          "15",
+          "16",
+          "18",
+          "20",
+          "25",
+          "29",
+          "30",
+          "31",
+          "33",
+          "36",
+          "39",
+          "40",
+          "42",
+          "43",
+          "48",
+          "49",
+          "50"
+        ],
+        "time": {
+          "status": "success",
+          "row_count": 8760,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2021-01-01 00:00:00",
+          "last_timestamp": "2021-12-31 23:00:00",
+          "min_timestamp": "2021-01-01 00:00:00",
+          "max_timestamp": "2021-12-31 23:00:00",
+          "unique_timestamp_count": 8760,
+          "observed_interval_minutes": [
+            60.0
+          ],
+          "interval_consistent": true,
+          "hourly_interval": true,
+          "strict_8760_hourly": true
+        }
+      },
+      "p_q": {
+        "profile_count_equal": true,
+        "load_bus_extra_count_matches": true,
+        "raw_header_tokens_equal_by_position": true,
+        "mapping_uses_raw_column_position": true,
+        "timestamp_alignment": {
+          "row_count_equal": true,
+          "first_timestamp_equal": true,
+          "last_timestamp_equal": true,
+          "timestamp_schema_aligned": true
+        },
+        "profile_one_to_one": true,
+        "note": "Raw duplicate headers and suffix-like headers are not treated as bus IDs; mapping is positional against load_bus_extra.csv."
+      },
+      "profile_mapping": [
+        {
+          "profile_position": 1,
+          "p_raw_header": "6",
+          "q_raw_header": "6",
+          "mapped_bus_i": "6",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 2,
+          "p_raw_header": "10",
+          "q_raw_header": "10",
+          "mapped_bus_i": "10",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 3,
+          "p_raw_header": "11",
+          "q_raw_header": "11",
+          "mapped_bus_i": "11",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 4,
+          "p_raw_header": "12",
+          "q_raw_header": "12",
+          "mapped_bus_i": "12",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 5,
+          "p_raw_header": "15",
+          "q_raw_header": "15",
+          "mapped_bus_i": "15",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 6,
+          "p_raw_header": "16",
+          "q_raw_header": "16",
+          "mapped_bus_i": "16",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 7,
+          "p_raw_header": "18",
+          "q_raw_header": "18",
+          "mapped_bus_i": "18",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 8,
+          "p_raw_header": "20",
+          "q_raw_header": "20",
+          "mapped_bus_i": "20",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 9,
+          "p_raw_header": "25",
+          "q_raw_header": "25",
+          "mapped_bus_i": "25",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 10,
+          "p_raw_header": "29",
+          "q_raw_header": "29",
+          "mapped_bus_i": "29",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 11,
+          "p_raw_header": "30",
+          "q_raw_header": "30",
+          "mapped_bus_i": "30",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 12,
+          "p_raw_header": "31",
+          "q_raw_header": "31",
+          "mapped_bus_i": "31",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 13,
+          "p_raw_header": "33",
+          "q_raw_header": "33",
+          "mapped_bus_i": "33",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 14,
+          "p_raw_header": "36",
+          "q_raw_header": "36",
+          "mapped_bus_i": "36",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 15,
+          "p_raw_header": "39",
+          "q_raw_header": "39",
+          "mapped_bus_i": "39",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 16,
+          "p_raw_header": "40",
+          "q_raw_header": "40",
+          "mapped_bus_i": "40",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 17,
+          "p_raw_header": "42",
+          "q_raw_header": "42",
+          "mapped_bus_i": "42",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 18,
+          "p_raw_header": "43",
+          "q_raw_header": "43",
+          "mapped_bus_i": "43",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 19,
+          "p_raw_header": "48",
+          "q_raw_header": "48",
+          "mapped_bus_i": "48",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 20,
+          "p_raw_header": "49",
+          "q_raw_header": "49",
+          "mapped_bus_i": "49",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 21,
+          "p_raw_header": "50",
+          "q_raw_header": "50",
+          "mapped_bus_i": "50",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        }
+      ],
+      "unmapped_profiles": [],
+      "mapping_anomalies": []
+    },
+    {
+      "name": "56_bus_semi_urban_reference_grid",
+      "relative_root": "56_bus_semi_urban_reference_grid",
+      "bus_count": 56,
+      "branch_count": 55,
+      "consumer_count": 53,
+      "p_load_profile_count": 53,
+      "q_load_profile_count": 53,
+      "unique_load_bus_count": 44,
+      "multiple_consumers_per_bus_observed": true,
+      "multiple_consumers_per_bus_allowed_by_mapping": true,
+      "buses_with_multiple_consumers": [
+        {
+          "bus_i": "3",
+          "consumer_count": 2
+        },
+        {
+          "bus_i": "34",
+          "consumer_count": 2
+        },
+        {
+          "bus_i": "35",
+          "consumer_count": 2
+        },
+        {
+          "bus_i": "52",
+          "consumer_count": 2
+        },
+        {
+          "bus_i": "54",
+          "consumer_count": 6
+        }
+      ],
+      "p_load": {
+        "relative_path": "p_load.csv",
+        "raw_header": [
+          "Date",
+          "54",
+          "54",
+          "54",
+          "54",
+          "54",
+          "54",
+          "35",
+          "35",
+          "48",
+          "23",
+          "55",
+          "24",
+          "49",
+          "18",
+          "45",
+          "28",
+          "34",
+          "34",
+          "47",
+          "4",
+          "5",
+          "17",
+          "3",
+          "3",
+          "40",
+          "56",
+          "27",
+          "29",
+          "16",
+          "20",
+          "6",
+          "9",
+          "39",
+          "52",
+          "52",
+          "33",
+          "30",
+          "12",
+          "44",
+          "11",
+          "38",
+          "46",
+          "22",
+          "36",
+          "51",
+          "50",
+          "7",
+          "21",
+          "26",
+          "32",
+          "43",
+          "13",
+          "15"
+        ],
+        "time": {
+          "status": "success",
+          "row_count": 8760,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2021-01-01 00:00:00",
+          "last_timestamp": "2021-12-31 23:00:00",
+          "min_timestamp": "2021-01-01 00:00:00",
+          "max_timestamp": "2021-12-31 23:00:00",
+          "unique_timestamp_count": 8760,
+          "observed_interval_minutes": [
+            60.0
+          ],
+          "interval_consistent": true,
+          "hourly_interval": true,
+          "strict_8760_hourly": true
+        }
+      },
+      "q_load": {
+        "relative_path": "q_load.csv",
+        "raw_header": [
+          "Date",
+          "54",
+          "54.1",
+          "54.2",
+          "54.3",
+          "54.4",
+          "54.5",
+          "35",
+          "35.1",
+          "48",
+          "23",
+          "55",
+          "24",
+          "49",
+          "18",
+          "45",
+          "28",
+          "34",
+          "34.1",
+          "47",
+          "4",
+          "5",
+          "17",
+          "3",
+          "3.1",
+          "40",
+          "56",
+          "27",
+          "29",
+          "16",
+          "20",
+          "6",
+          "9",
+          "39",
+          "52",
+          "52.1",
+          "33",
+          "30",
+          "12",
+          "44",
+          "11",
+          "38",
+          "46",
+          "22",
+          "36",
+          "51",
+          "50",
+          "7",
+          "21",
+          "26",
+          "32",
+          "43",
+          "13",
+          "15"
+        ],
+        "time": {
+          "status": "success",
+          "row_count": 8760,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2021-01-01 00:00:00",
+          "last_timestamp": "2021-12-31 23:00:00",
+          "min_timestamp": "2021-01-01 00:00:00",
+          "max_timestamp": "2021-12-31 23:00:00",
+          "unique_timestamp_count": 8760,
+          "observed_interval_minutes": [
+            60.0
+          ],
+          "interval_consistent": true,
+          "hourly_interval": true,
+          "strict_8760_hourly": true
+        }
+      },
+      "p_q": {
+        "profile_count_equal": true,
+        "load_bus_extra_count_matches": true,
+        "raw_header_tokens_equal_by_position": false,
+        "mapping_uses_raw_column_position": true,
+        "timestamp_alignment": {
+          "row_count_equal": true,
+          "first_timestamp_equal": true,
+          "last_timestamp_equal": true,
+          "timestamp_schema_aligned": true
+        },
+        "profile_one_to_one": true,
+        "note": "Raw duplicate headers and suffix-like headers are not treated as bus IDs; mapping is positional against load_bus_extra.csv."
+      },
+      "profile_mapping": [
+        {
+          "profile_position": 1,
+          "p_raw_header": "54",
+          "q_raw_header": "54",
+          "mapped_bus_i": "54",
+          "consumer": "Flat",
+          "consumer_id": "1437",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 2,
+          "p_raw_header": "54",
+          "q_raw_header": "54.1",
+          "mapped_bus_i": "54",
+          "consumer": "Flat",
+          "consumer_id": "1004",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 3,
+          "p_raw_header": "54",
+          "q_raw_header": "54.2",
+          "mapped_bus_i": "54",
+          "consumer": "Flat",
+          "consumer_id": "5833",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 4,
+          "p_raw_header": "54",
+          "q_raw_header": "54.3",
+          "mapped_bus_i": "54",
+          "consumer": "Flat",
+          "consumer_id": "671",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 5,
+          "p_raw_header": "54",
+          "q_raw_header": "54.4",
+          "mapped_bus_i": "54",
+          "consumer": "Flat",
+          "consumer_id": "1933",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 6,
+          "p_raw_header": "54",
+          "q_raw_header": "54.5",
+          "mapped_bus_i": "54",
+          "consumer": "Flat",
+          "consumer_id": "2718",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 7,
+          "p_raw_header": "35",
+          "q_raw_header": "35",
+          "mapped_bus_i": "35",
+          "consumer": "Townhouse",
+          "consumer_id": "5825",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 8,
+          "p_raw_header": "35",
+          "q_raw_header": "35.1",
+          "mapped_bus_i": "35",
+          "consumer": "Townhouse",
+          "consumer_id": "1538",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 9,
+          "p_raw_header": "48",
+          "q_raw_header": "48",
+          "mapped_bus_i": "48",
+          "consumer": "Single-family house",
+          "consumer_id": "1860",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 10,
+          "p_raw_header": "23",
+          "q_raw_header": "23",
+          "mapped_bus_i": "23",
+          "consumer": "Single-family house",
+          "consumer_id": "3125",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 11,
+          "p_raw_header": "55",
+          "q_raw_header": "55",
+          "mapped_bus_i": "55",
+          "consumer": "Single-family house",
+          "consumer_id": "2489",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 12,
+          "p_raw_header": "24",
+          "q_raw_header": "24",
+          "mapped_bus_i": "24",
+          "consumer": "Single-family house",
+          "consumer_id": "1803",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 13,
+          "p_raw_header": "49",
+          "q_raw_header": "49",
+          "mapped_bus_i": "49",
+          "consumer": "Single-family house",
+          "consumer_id": "1071",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 14,
+          "p_raw_header": "18",
+          "q_raw_header": "18",
+          "mapped_bus_i": "18",
+          "consumer": "Single-family house",
+          "consumer_id": "1206",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 15,
+          "p_raw_header": "45",
+          "q_raw_header": "45",
+          "mapped_bus_i": "45",
+          "consumer": "Single-family house",
+          "consumer_id": "687",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 16,
+          "p_raw_header": "28",
+          "q_raw_header": "28",
+          "mapped_bus_i": "28",
+          "consumer": "Single-family house",
+          "consumer_id": "1334",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 17,
+          "p_raw_header": "34",
+          "q_raw_header": "34",
+          "mapped_bus_i": "34",
+          "consumer": "Townhouse",
+          "consumer_id": "3108",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 18,
+          "p_raw_header": "34",
+          "q_raw_header": "34.1",
+          "mapped_bus_i": "34",
+          "consumer": "Townhouse",
+          "consumer_id": "6739",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 19,
+          "p_raw_header": "47",
+          "q_raw_header": "47",
+          "mapped_bus_i": "47",
+          "consumer": "Single-family house",
+          "consumer_id": "2713",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 20,
+          "p_raw_header": "4",
+          "q_raw_header": "4",
+          "mapped_bus_i": "4",
+          "consumer": "Single-family house",
+          "consumer_id": "902",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 21,
+          "p_raw_header": "5",
+          "q_raw_header": "5",
+          "mapped_bus_i": "5",
+          "consumer": "Single-family house",
+          "consumer_id": "3520",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 22,
+          "p_raw_header": "17",
+          "q_raw_header": "17",
+          "mapped_bus_i": "17",
+          "consumer": "Single-family house",
+          "consumer_id": "2132",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 23,
+          "p_raw_header": "3",
+          "q_raw_header": "3",
+          "mapped_bus_i": "3",
+          "consumer": "Townhouse",
+          "consumer_id": "2601",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 24,
+          "p_raw_header": "3",
+          "q_raw_header": "3.1",
+          "mapped_bus_i": "3",
+          "consumer": "Townhouse",
+          "consumer_id": "3614",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 25,
+          "p_raw_header": "40",
+          "q_raw_header": "40",
+          "mapped_bus_i": "40",
+          "consumer": "Single-family house",
+          "consumer_id": "6435",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 26,
+          "p_raw_header": "56",
+          "q_raw_header": "56",
+          "mapped_bus_i": "56",
+          "consumer": "Single-family house",
+          "consumer_id": "3054",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 27,
+          "p_raw_header": "27",
+          "q_raw_header": "27",
+          "mapped_bus_i": "27",
+          "consumer": "Single-family house",
+          "consumer_id": "1255",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 28,
+          "p_raw_header": "29",
+          "q_raw_header": "29",
+          "mapped_bus_i": "29",
+          "consumer": "Single-family house",
+          "consumer_id": "5998",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 29,
+          "p_raw_header": "16",
+          "q_raw_header": "16",
+          "mapped_bus_i": "16",
+          "consumer": "Single-family house",
+          "consumer_id": "4029",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 30,
+          "p_raw_header": "20",
+          "q_raw_header": "20",
+          "mapped_bus_i": "20",
+          "consumer": "Single-family house",
+          "consumer_id": "3509",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 31,
+          "p_raw_header": "6",
+          "q_raw_header": "6",
+          "mapped_bus_i": "6",
+          "consumer": "Single-family house",
+          "consumer_id": "850",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 32,
+          "p_raw_header": "9",
+          "q_raw_header": "9",
+          "mapped_bus_i": "9",
+          "consumer": "Single-family house",
+          "consumer_id": "952",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 33,
+          "p_raw_header": "39",
+          "q_raw_header": "39",
+          "mapped_bus_i": "39",
+          "consumer": "Single-family house",
+          "consumer_id": "2535",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 34,
+          "p_raw_header": "52",
+          "q_raw_header": "52",
+          "mapped_bus_i": "52",
+          "consumer": "Townhouse",
+          "consumer_id": "5555",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 35,
+          "p_raw_header": "52",
+          "q_raw_header": "52.1",
+          "mapped_bus_i": "52",
+          "consumer": "Townhouse",
+          "consumer_id": "1207",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 36,
+          "p_raw_header": "33",
+          "q_raw_header": "33",
+          "mapped_bus_i": "33",
+          "consumer": "Single-family house",
+          "consumer_id": "1587",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 37,
+          "p_raw_header": "30",
+          "q_raw_header": "30",
+          "mapped_bus_i": "30",
+          "consumer": "Single-family house",
+          "consumer_id": "4080",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 38,
+          "p_raw_header": "12",
+          "q_raw_header": "12",
+          "mapped_bus_i": "12",
+          "consumer": "Single-family house",
+          "consumer_id": "1224",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 39,
+          "p_raw_header": "44",
+          "q_raw_header": "44",
+          "mapped_bus_i": "44",
+          "consumer": "Single-family house",
+          "consumer_id": "3361",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 40,
+          "p_raw_header": "11",
+          "q_raw_header": "11",
+          "mapped_bus_i": "11",
+          "consumer": "Single-family house",
+          "consumer_id": "2970",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 41,
+          "p_raw_header": "38",
+          "q_raw_header": "38",
+          "mapped_bus_i": "38",
+          "consumer": "Single-family house",
+          "consumer_id": "2763",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 42,
+          "p_raw_header": "46",
+          "q_raw_header": "46",
+          "mapped_bus_i": "46",
+          "consumer": "Single-family house",
+          "consumer_id": "802",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 43,
+          "p_raw_header": "22",
+          "q_raw_header": "22",
+          "mapped_bus_i": "22",
+          "consumer": "Single-family house",
+          "consumer_id": "3598",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 44,
+          "p_raw_header": "36",
+          "q_raw_header": "36",
+          "mapped_bus_i": "36",
+          "consumer": "Single-family house",
+          "consumer_id": "465",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 45,
+          "p_raw_header": "51",
+          "q_raw_header": "51",
+          "mapped_bus_i": "51",
+          "consumer": "Single-family house",
+          "consumer_id": "3167",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 46,
+          "p_raw_header": "50",
+          "q_raw_header": "50",
+          "mapped_bus_i": "50",
+          "consumer": "Single-family house",
+          "consumer_id": "7085",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 47,
+          "p_raw_header": "7",
+          "q_raw_header": "7",
+          "mapped_bus_i": "7",
+          "consumer": "Single-family house",
+          "consumer_id": "6518",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 48,
+          "p_raw_header": "21",
+          "q_raw_header": "21",
+          "mapped_bus_i": "21",
+          "consumer": "Single-family house",
+          "consumer_id": "5226",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 49,
+          "p_raw_header": "26",
+          "q_raw_header": "26",
+          "mapped_bus_i": "26",
+          "consumer": "Single-family house",
+          "consumer_id": "6590",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 50,
+          "p_raw_header": "32",
+          "q_raw_header": "32",
+          "mapped_bus_i": "32",
+          "consumer": "Single-family house",
+          "consumer_id": "930",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 51,
+          "p_raw_header": "43",
+          "q_raw_header": "43",
+          "mapped_bus_i": "43",
+          "consumer": "Single-family house",
+          "consumer_id": "7561",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 52,
+          "p_raw_header": "13",
+          "q_raw_header": "13",
+          "mapped_bus_i": "13",
+          "consumer": "Single-family house",
+          "consumer_id": "2106",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 53,
+          "p_raw_header": "15",
+          "q_raw_header": "15",
+          "mapped_bus_i": "15",
+          "consumer": "Single-family house",
+          "consumer_id": "441",
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        }
+      ],
+      "unmapped_profiles": [],
+      "mapping_anomalies": []
+    },
+    {
+      "name": "80_bus_rural_reference_grid",
+      "relative_root": "80_bus_rural_reference_grid",
+      "bus_count": 80,
+      "branch_count": 79,
+      "consumer_count": 32,
+      "p_load_profile_count": 32,
+      "q_load_profile_count": 32,
+      "unique_load_bus_count": 32,
+      "multiple_consumers_per_bus_observed": false,
+      "multiple_consumers_per_bus_allowed_by_mapping": true,
+      "buses_with_multiple_consumers": [],
+      "p_load": {
+        "relative_path": "p_load.csv",
+        "raw_header": [
+          "Date",
+          "8",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "18",
+          "20",
+          "22",
+          "25",
+          "27",
+          "30",
+          "36",
+          "39",
+          "41",
+          "45",
+          "46",
+          "48",
+          "50",
+          "53",
+          "56",
+          "57",
+          "58",
+          "59",
+          "60",
+          "64",
+          "71",
+          "73",
+          "74",
+          "75",
+          "77",
+          "80"
+        ],
+        "time": {
+          "status": "success",
+          "row_count": 8760,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2021-01-01 00:00:00",
+          "last_timestamp": "2021-12-31 23:00:00",
+          "min_timestamp": "2021-01-01 00:00:00",
+          "max_timestamp": "2021-12-31 23:00:00",
+          "unique_timestamp_count": 8760,
+          "observed_interval_minutes": [
+            60.0
+          ],
+          "interval_consistent": true,
+          "hourly_interval": true,
+          "strict_8760_hourly": true
+        }
+      },
+      "q_load": {
+        "relative_path": "q_load.csv",
+        "raw_header": [
+          "Date",
+          "8",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "18",
+          "20",
+          "22",
+          "25",
+          "27",
+          "30",
+          "36",
+          "39",
+          "41",
+          "45",
+          "46",
+          "48",
+          "50",
+          "53",
+          "56",
+          "57",
+          "58",
+          "59",
+          "60",
+          "64",
+          "71",
+          "73",
+          "74",
+          "75",
+          "77",
+          "80"
+        ],
+        "time": {
+          "status": "success",
+          "row_count": 8760,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2021-01-01 00:00:00",
+          "last_timestamp": "2021-12-31 23:00:00",
+          "min_timestamp": "2021-01-01 00:00:00",
+          "max_timestamp": "2021-12-31 23:00:00",
+          "unique_timestamp_count": 8760,
+          "observed_interval_minutes": [
+            60.0
+          ],
+          "interval_consistent": true,
+          "hourly_interval": true,
+          "strict_8760_hourly": true
+        }
+      },
+      "p_q": {
+        "profile_count_equal": true,
+        "load_bus_extra_count_matches": true,
+        "raw_header_tokens_equal_by_position": true,
+        "mapping_uses_raw_column_position": true,
+        "timestamp_alignment": {
+          "row_count_equal": true,
+          "first_timestamp_equal": true,
+          "last_timestamp_equal": true,
+          "timestamp_schema_aligned": true
+        },
+        "profile_one_to_one": true,
+        "note": "Raw duplicate headers and suffix-like headers are not treated as bus IDs; mapping is positional against load_bus_extra.csv."
+      },
+      "profile_mapping": [
+        {
+          "profile_position": 1,
+          "p_raw_header": "8",
+          "q_raw_header": "8",
+          "mapped_bus_i": "8",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 2,
+          "p_raw_header": "11",
+          "q_raw_header": "11",
+          "mapped_bus_i": "11",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 3,
+          "p_raw_header": "12",
+          "q_raw_header": "12",
+          "mapped_bus_i": "12",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 4,
+          "p_raw_header": "13",
+          "q_raw_header": "13",
+          "mapped_bus_i": "13",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 5,
+          "p_raw_header": "14",
+          "q_raw_header": "14",
+          "mapped_bus_i": "14",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 6,
+          "p_raw_header": "15",
+          "q_raw_header": "15",
+          "mapped_bus_i": "15",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 7,
+          "p_raw_header": "18",
+          "q_raw_header": "18",
+          "mapped_bus_i": "18",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 8,
+          "p_raw_header": "20",
+          "q_raw_header": "20",
+          "mapped_bus_i": "20",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 9,
+          "p_raw_header": "22",
+          "q_raw_header": "22",
+          "mapped_bus_i": "22",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 10,
+          "p_raw_header": "25",
+          "q_raw_header": "25",
+          "mapped_bus_i": "25",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 11,
+          "p_raw_header": "27",
+          "q_raw_header": "27",
+          "mapped_bus_i": "27",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 12,
+          "p_raw_header": "30",
+          "q_raw_header": "30",
+          "mapped_bus_i": "30",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 13,
+          "p_raw_header": "36",
+          "q_raw_header": "36",
+          "mapped_bus_i": "36",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 14,
+          "p_raw_header": "39",
+          "q_raw_header": "39",
+          "mapped_bus_i": "39",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 15,
+          "p_raw_header": "41",
+          "q_raw_header": "41",
+          "mapped_bus_i": "41",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 16,
+          "p_raw_header": "45",
+          "q_raw_header": "45",
+          "mapped_bus_i": "45",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 17,
+          "p_raw_header": "46",
+          "q_raw_header": "46",
+          "mapped_bus_i": "46",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 18,
+          "p_raw_header": "48",
+          "q_raw_header": "48",
+          "mapped_bus_i": "48",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 19,
+          "p_raw_header": "50",
+          "q_raw_header": "50",
+          "mapped_bus_i": "50",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 20,
+          "p_raw_header": "53",
+          "q_raw_header": "53",
+          "mapped_bus_i": "53",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 21,
+          "p_raw_header": "56",
+          "q_raw_header": "56",
+          "mapped_bus_i": "56",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 22,
+          "p_raw_header": "57",
+          "q_raw_header": "57",
+          "mapped_bus_i": "57",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 23,
+          "p_raw_header": "58",
+          "q_raw_header": "58",
+          "mapped_bus_i": "58",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 24,
+          "p_raw_header": "59",
+          "q_raw_header": "59",
+          "mapped_bus_i": "59",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 25,
+          "p_raw_header": "60",
+          "q_raw_header": "60",
+          "mapped_bus_i": "60",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 26,
+          "p_raw_header": "64",
+          "q_raw_header": "64",
+          "mapped_bus_i": "64",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 27,
+          "p_raw_header": "71",
+          "q_raw_header": "71",
+          "mapped_bus_i": "71",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 28,
+          "p_raw_header": "73",
+          "q_raw_header": "73",
+          "mapped_bus_i": "73",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 29,
+          "p_raw_header": "74",
+          "q_raw_header": "74",
+          "mapped_bus_i": "74",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 30,
+          "p_raw_header": "75",
+          "q_raw_header": "75",
+          "mapped_bus_i": "75",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 31,
+          "p_raw_header": "77",
+          "q_raw_header": "77",
+          "mapped_bus_i": "77",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        },
+        {
+          "profile_position": 32,
+          "p_raw_header": "80",
+          "q_raw_header": "80",
+          "mapped_bus_i": "80",
+          "consumer": "Private building",
+          "consumer_id": null,
+          "bus_exists_in_mpc_bus": true,
+          "p_q_columns_present": true,
+          "status": "mapped",
+          "mapping_basis": "profile column position -> load_bus_extra row order"
+        }
+      ],
+      "unmapped_profiles": [],
+      "mapping_anomalies": []
+    }
+  ],
+  "industrial_mvlv": {
+    "name": "norway_industrial_mvlv",
+    "relative_root": "norway_industrial_mvlv",
+    "source_resolution": "unique_signature_match",
+    "bus_count": 76,
+    "bus_id_column": "BUS_I",
+    "load_txt_file_count": 45,
+    "load_txt_files": [
+      {
+        "relative_path": "r1v0.23b2.txt",
+        "unique_bus_ids": [
+          "r1v0.23b2"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.23b3.txt",
+        "unique_bus_ids": [
+          "r1v0.23b3"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b10.txt",
+        "unique_bus_ids": [
+          "r1v0.415b10"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b11.txt",
+        "unique_bus_ids": [
+          "r1v0.415b11"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b12.txt",
+        "unique_bus_ids": [
+          "r1v0.415b12"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b13.txt",
+        "unique_bus_ids": [
+          "r1v0.415b13"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b14.txt",
+        "unique_bus_ids": [
+          "r1v0.415b14"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b15.txt",
+        "unique_bus_ids": [
+          "r1v0.415b15"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b16.txt",
+        "unique_bus_ids": [
+          "r1v0.415b16"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b17.txt",
+        "unique_bus_ids": [
+          "r1v0.415b17"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b18.txt",
+        "unique_bus_ids": [
+          "r1v0.415b18"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b19.txt",
+        "unique_bus_ids": [
+          "r1v0.415b19"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b20.txt",
+        "unique_bus_ids": [
+          "r1v0.415b20"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b21.txt",
+        "unique_bus_ids": [
+          "r1v0.415b21"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b22.txt",
+        "unique_bus_ids": [
+          "r1v0.415b22"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b23.txt",
+        "unique_bus_ids": [
+          "r1v0.415b23"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b24.txt",
+        "unique_bus_ids": [
+          "r1v0.415b24"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b25.txt",
+        "unique_bus_ids": [
+          "r1v0.415b25"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b26.txt",
+        "unique_bus_ids": [
+          "r1v0.415b26"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b27.txt",
+        "unique_bus_ids": [
+          "r1v0.415b27"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b28.txt",
+        "unique_bus_ids": [
+          "r1v0.415b28"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b29.txt",
+        "unique_bus_ids": [
+          "r1v0.415b29"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b30.txt",
+        "unique_bus_ids": [
+          "r1v0.415b30"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b31.txt",
+        "unique_bus_ids": [
+          "r1v0.415b31"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b32.txt",
+        "unique_bus_ids": [
+          "r1v0.415b32"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b33.txt",
+        "unique_bus_ids": [
+          "r1v0.415b33"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b34.txt",
+        "unique_bus_ids": [
+          "r1v0.415b34"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b35.txt",
+        "unique_bus_ids": [
+          "r1v0.415b35"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b36.txt",
+        "unique_bus_ids": [
+          "r1v0.415b36"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b37.txt",
+        "unique_bus_ids": [
+          "r1v0.415b37"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b38.txt",
+        "unique_bus_ids": [
+          "r1v0.415b38"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b39.txt",
+        "unique_bus_ids": [
+          "r1v0.415b39"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b40.txt",
+        "unique_bus_ids": [
+          "r1v0.415b40"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b41.txt",
+        "unique_bus_ids": [
+          "r1v0.415b41"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 16273,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2020-05-08 01:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2020-05-08 01:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 16272,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b42.txt",
+        "unique_bus_ids": [
+          "r1v0.415b42"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b43.txt",
+        "unique_bus_ids": [
+          "r1v0.415b43"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b44.txt",
+        "unique_bus_ids": [
+          "r1v0.415b44"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b7.txt",
+        "unique_bus_ids": [
+          "r1v0.415b7"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b8.txt",
+        "unique_bus_ids": [
+          "r1v0.415b8"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r1v0.415b9.txt",
+        "unique_bus_ids": [
+          "r1v0.415b9"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 21553,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-10-01 01:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-10-01 01:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 21552,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r2v0.415b3.txt",
+        "unique_bus_ids": [
+          "r2v0.415b3"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 13345,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2020-09-07 01:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2020-09-07 01:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 13344,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r2v0.415b4.txt",
+        "unique_bus_ids": [
+          "r2v0.415b4"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 13345,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2020-09-07 01:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2020-09-07 01:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 13344,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r2v0.415b5.txt",
+        "unique_bus_ids": [
+          "r2v0.415b5"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r2v0.415b6.txt",
+        "unique_bus_ids": [
+          "r2v0.415b6"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      },
+      {
+        "relative_path": "r2v0.415b8.txt",
+        "unique_bus_ids": [
+          "r2v0.415b8"
+        ],
+        "unique_bus_id_count": 1,
+        "bus_ids_exist_in_bus_csv": true,
+        "missing_bus_ids": [],
+        "time": {
+          "status": "success",
+          "row_count": 26690,
+          "invalid_timestamp_count": 0,
+          "date_parseable": true,
+          "first_timestamp": "2019-03-01 00:00:00",
+          "last_timestamp": "2022-03-17 00:00:00",
+          "min_timestamp": "2019-03-01 00:00:00",
+          "max_timestamp": "2022-03-17 00:00:00",
+          "unique_timestamp_count": 26689,
+          "observed_interval_minutes": [
+            0.0,
+            60.0
+          ],
+          "interval_consistent": false,
+          "hourly_interval": false,
+          "strict_8760_hourly": false
+        }
+      }
+    ],
+    "temperature_weather_check": {
+      "temperature_files": [],
+      "weather_files": [],
+      "checked_by_filename_only": true,
+      "numeric_values_analyzed": false
+    },
+    "mapping_anomalies": []
+  }
+}
