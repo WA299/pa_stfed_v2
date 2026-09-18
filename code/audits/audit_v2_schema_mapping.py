@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -19,6 +20,7 @@ import pandas as pd
 LV_DATASET = "norway_4_lv_grids"
 INDUSTRIAL_DATASET = "norway_industrial_mvlv"
 LV_FILES = ("p_load.csv", "q_load.csv")
+DUPLICATE_HEADER_SUFFIX = re.compile(r"^(?P<base>.+)\.(?P<suffix>[1-9][0-9]*)$")
 
 
 def parse_args() -> argparse.Namespace:
@@ -146,6 +148,24 @@ def read_load_bus_rows(path: Path) -> list[dict[str, str | None]]:
     return rows
 
 
+def extract_header_bus_token(raw_header: Any, known_bus_ids: set[str]) -> tuple[str | None, str]:
+    """Extract a bus token without stripping arbitrary decimal portions.
+
+    A raw header is accepted as-is when it is a known bus ID. A suffix is
+    removed only when it is a positive integer suffix and the prefix is itself
+    a known bus ID, matching Pandas/CSV duplicate-column names such as 54.1.
+    """
+    raw_token = normalise_identifier(raw_header)
+    if raw_token is None:
+        return None, "missing"
+    if raw_token in known_bus_ids:
+        return raw_token, "exact"
+    match = DUPLICATE_HEADER_SUFFIX.fullmatch(raw_token)
+    if match and match.group("base") in known_bus_ids:
+        return match.group("base"), "duplicate_suffix"
+    return None, "unresolved"
+
+
 def profile_mapping(
     p_headers: list[str], q_headers: list[str], load_rows: list[dict[str, str | None]], bus_ids: set[str]
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
@@ -161,11 +181,23 @@ def profile_mapping(
         has_q = position < len(q_profiles)
         bus_exists = bus_i in bus_ids if bus_i is not None else False
         status = "mapped" if has_p and has_q and load_row and bus_exists else "unmapped"
+        p_header_bus, p_header_bus_source = extract_header_bus_token(
+            p_profiles[position] if has_p else None, bus_ids
+        )
+        q_header_bus, q_header_bus_source = extract_header_bus_token(
+            q_profiles[position] if has_q else None, bus_ids
+        )
         item = {
             "profile_position": position + 1,
             "p_raw_header": p_profiles[position] if has_p else None,
             "q_raw_header": q_profiles[position] if has_q else None,
             "mapped_bus_i": bus_i,
+            "p_header_bus_token": p_header_bus,
+            "p_header_bus_token_source": p_header_bus_source,
+            "q_header_bus_token": q_header_bus,
+            "q_header_bus_token_source": q_header_bus_source,
+            "p_header_bus_matches_mapped": p_header_bus is not None and p_header_bus == bus_i,
+            "q_header_bus_matches_mapped": q_header_bus is not None and q_header_bus == bus_i,
             "consumer": load_row["consumer"] if load_row else None,
             "consumer_id": load_row["consumer_id"] if load_row else None,
             "bus_exists_in_mpc_bus": bus_exists,
@@ -201,6 +233,24 @@ def audit_lv_grid(root: Path, name: str) -> dict[str, Any]:
     bus_ids = read_bus_ids(root / "mpc_bus.csv", ",", "bus_i")
     mapping, unmapped = profile_mapping(p_headers, q_headers, load_rows, bus_ids)
     duplicates = duplicate_bus_summary(load_rows)
+    p_header_mismatches = [item for item in mapping if not item["p_header_bus_matches_mapped"]]
+    q_header_mismatches = [item for item in mapping if not item["q_header_bus_matches_mapped"]]
+    header_mismatch_profiles = [
+        {
+            "profile_position": item["profile_position"],
+            "p_raw_header": item["p_raw_header"],
+            "p_header_bus_token": item["p_header_bus_token"],
+            "p_header_bus_token_source": item["p_header_bus_token_source"],
+            "p_header_bus_matches_mapped": item["p_header_bus_matches_mapped"],
+            "q_raw_header": item["q_raw_header"],
+            "q_header_bus_token": item["q_header_bus_token"],
+            "q_header_bus_token_source": item["q_header_bus_token_source"],
+            "q_header_bus_matches_mapped": item["q_header_bus_matches_mapped"],
+            "mapped_bus_i": item["mapped_bus_i"],
+        }
+        for item in mapping
+        if not item["p_header_bus_matches_mapped"] or not item["q_header_bus_matches_mapped"]
+    ]
 
     p_time = inspect_time_file(p_path, timestamp_column=0, timestamp_format="%Y-%m-%d %H:%M:%S")
     q_time = inspect_time_file(q_path, timestamp_column=0, timestamp_format="%Y-%m-%d %H:%M:%S")
@@ -221,6 +271,7 @@ def audit_lv_grid(root: Path, name: str) -> dict[str, Any]:
         and not unmapped
         and time_alignment["timestamp_schema_aligned"]
     )
+    positional_header_support = not p_header_mismatches and not q_header_mismatches and not unmapped
     raw_header_match = p_headers[1:] == q_headers[1:]
     load_bus_count = len({row["bus_i"] for row in load_rows if row["bus_i"] is not None})
     return {
@@ -235,6 +286,11 @@ def audit_lv_grid(root: Path, name: str) -> dict[str, Any]:
         "multiple_consumers_per_bus_observed": bool(duplicates),
         "multiple_consumers_per_bus_allowed_by_mapping": True,
         "buses_with_multiple_consumers": duplicates,
+        "p_header_bus_mismatch_count": len(p_header_mismatches),
+        "q_header_bus_mismatch_count": len(q_header_mismatches),
+        "header_bus_mismatch_profiles": header_mismatch_profiles,
+        "positional_mapping_header_semantics_supported": positional_header_support,
+        "profile_to_bus_mapping_verified": p_q_one_to_one and positional_header_support,
         "p_load": {
             "relative_path": "p_load.csv",
             "raw_header": p_headers,
@@ -250,10 +306,14 @@ def audit_lv_grid(root: Path, name: str) -> dict[str, Any]:
             "load_bus_extra_count_matches": len(load_rows) == p_profile_count == q_profile_count,
             "raw_header_tokens_equal_by_position": raw_header_match,
             "mapping_uses_raw_column_position": True,
+            "header_bus_consistency_checked": True,
+            "positional_mapping_header_semantics_supported": positional_header_support,
+            "profile_to_bus_mapping_verified": p_q_one_to_one and positional_header_support,
             "timestamp_alignment": time_alignment,
             "profile_one_to_one": p_q_one_to_one,
             "note": (
                 "Raw duplicate headers and suffix-like headers are not treated as bus IDs; "
+                "only a positive integer suffix whose prefix is a known bus ID is normalized; "
                 "mapping is positional against load_bus_extra.csv."
             ),
         },
@@ -263,6 +323,8 @@ def audit_lv_grid(root: Path, name: str) -> dict[str, Any]:
             "p_q_profile_count_mismatch" if p_profile_count != q_profile_count else None,
             "load_bus_extra_count_mismatch" if len(load_rows) != p_profile_count else None,
             "unmapped_profile" if unmapped else None,
+            "p_header_bus_mismatch" if p_header_mismatches else None,
+            "q_header_bus_mismatch" if q_header_mismatches else None,
         ],
     }
 
@@ -423,6 +485,10 @@ def render_markdown(report: dict[str, Any]) -> str:
                 f"Multiple consumers per bus allowed by row mapping: **{md_value(grid['multiple_consumers_per_bus_allowed_by_mapping'])}**.",
                 f"P/Q profile one-to-one: **{md_value(grid['p_q']['profile_one_to_one'])}**.",
                 f"Unmapped profile count: **{len(grid['unmapped_profiles'])}**.",
+                f"p_header_bus_mismatch_count: **{grid['p_header_bus_mismatch_count']}**; "
+                f"q_header_bus_mismatch_count: **{grid['q_header_bus_mismatch_count']}**.",
+                f"Positional mapping has header semantics support: **{md_value(grid['positional_mapping_header_semantics_supported'])}**.",
+                f"profile_to_bus_mapping_verified: **{md_value(grid['profile_to_bus_mapping_verified'])}**.",
                 "",
                 "| File | Date parseable | First | Last | Rows | Interval (min) | Strict 8760 hourly |",
                 "| --- | --- | --- | --- | ---: | --- | --- |",
@@ -441,18 +507,28 @@ def render_markdown(report: dict[str, Any]) -> str:
                 "",
                 "Profile mapping uses raw CSV column position -> `load_bus_extra.csv` row order:",
                 "",
-                "| Position | P raw header | Q raw header | bus_i | Consumer | ID | Bus exists | Status |",
-                "| ---: | --- | --- | --- | --- | --- | --- | --- |",
+                "| Position | P raw header | P header bus | P match | Q raw header | Q header bus | Q match | bus_i | Consumer | ID | Bus exists | Status |",
+                "| ---: | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
             ]
         )
         for item in grid["profile_mapping"]:
             lines.append(
                 f"| {item['profile_position']} | `{md_value(item['p_raw_header'])}` | "
-                f"`{md_value(item['q_raw_header'])}` | `{md_value(item['mapped_bus_i'])}` | "
+                f"`{md_value(item['p_header_bus_token'])}` | {md_value(item['p_header_bus_matches_mapped'])} | "
+                f"`{md_value(item['q_raw_header'])}` | `{md_value(item['q_header_bus_token'])}` | "
+                f"{md_value(item['q_header_bus_matches_mapped'])} | `{md_value(item['mapped_bus_i'])}` | "
                 f"{md_value(item['consumer'])} | `{md_value(item['consumer_id'])}` | "
                 f"{md_value(item['bus_exists_in_mpc_bus'])} | {item['status']} |"
             )
-        lines.extend(["", "Mapping anomalies: " + (", ".join(grid["mapping_anomalies"]) or "none"), ""])
+        lines.extend(
+            [
+                "",
+                "Header mismatch profiles: "
+                + (md_value(grid["header_bus_mismatch_profiles"]) if grid["header_bus_mismatch_profiles"] else "none"),
+                "Mapping anomalies: " + (", ".join(grid["mapping_anomalies"]) or "none"),
+                "",
+            ]
+        )
 
     industrial = report["industrial_mvlv"]
     if industrial is not None:
