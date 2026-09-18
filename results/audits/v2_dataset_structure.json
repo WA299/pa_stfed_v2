@@ -1,0 +1,1883 @@
+{
+  "audit": "v2_dataset_structure",
+  "generated_at_utc": "2026-09-18T20:55:27.974619+00:00",
+  "source_roots": [
+    "norway_4_lv_grids",
+    "norway_industrial_mvlv"
+  ],
+  "datasets": [
+    {
+      "name": "norway_4_lv_grids",
+      "directories": [
+        "39_bus_semi_urban_reference_grid",
+        "50_bus_rural_reference_grid",
+        "56_bus_semi_urban_reference_grid",
+        "80_bus_rural_reference_grid"
+      ],
+      "files": [
+        {
+          "relative_path": "39_bus_semi_urban_reference_grid/branch_data_extra.csv",
+          "extension": ".csv",
+          "size_bytes": 1184,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Unnamed: 0",
+              "fbus",
+              "tbus",
+              "Branch type",
+              "Length [km]"
+            ],
+            "shape": [
+              38,
+              5
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "39_bus_semi_urban_reference_grid/load_bus_extra.csv",
+          "extension": ".csv",
+          "size_bytes": 834,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "bus_i",
+              "Consumer type",
+              "ID"
+            ],
+            "shape": [
+              29,
+              3
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "39_bus_semi_urban_reference_grid/mpc_base_mva.csv",
+          "extension": ".csv",
+          "size_bytes": 19,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Unnamed: 0",
+              "Base MVA"
+            ],
+            "shape": [
+              1,
+              2
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "39_bus_semi_urban_reference_grid/mpc_branch.csv",
+          "extension": ".csv",
+          "size_bytes": 4140,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Unnamed: 0",
+              "fbus",
+              "tbus",
+              "r",
+              "x",
+              "b",
+              "rateA",
+              "rateB",
+              "rateC",
+              "ratio",
+              "angle",
+              "status",
+              "angmin",
+              "angmax"
+            ],
+            "shape": [
+              38,
+              14
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "39_bus_semi_urban_reference_grid/mpc_bus.csv",
+          "extension": ".csv",
+          "size_bytes": 2819,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "bus_i",
+              "type",
+              "Pd",
+              "Qd",
+              "Gs",
+              "Bs",
+              "area",
+              "Vm",
+              "Va",
+              "basekV",
+              "zone",
+              "maxVm",
+              "minVm",
+              "Vmax",
+              "Vmin"
+            ],
+            "shape": [
+              39,
+              15
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "39_bus_semi_urban_reference_grid/p_load.csv",
+          "extension": ".csv",
+          "size_bytes": 2774133,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Date",
+              "16",
+              "14",
+              "19",
+              "35",
+              "6",
+              "13",
+              "26",
+              "17",
+              "15",
+              "31",
+              "39",
+              "37",
+              "9",
+              "10",
+              "22",
+              "33",
+              "29",
+              "11",
+              "36",
+              "23",
+              "2",
+              "24",
+              "27",
+              "20",
+              "4",
+              "7",
+              "30",
+              "30.1",
+              "5"
+            ],
+            "shape": [
+              8760,
+              30
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "39_bus_semi_urban_reference_grid/q_load.csv",
+          "extension": ".csv",
+          "size_bytes": 5852398,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Date",
+              "16",
+              "14",
+              "19",
+              "35",
+              "6",
+              "13",
+              "26",
+              "17",
+              "15",
+              "31",
+              "39",
+              "37",
+              "9",
+              "10",
+              "22",
+              "33",
+              "29",
+              "11",
+              "36",
+              "23",
+              "2",
+              "24",
+              "27",
+              "20",
+              "4",
+              "7",
+              "30",
+              "30.1",
+              "5"
+            ],
+            "shape": [
+              8760,
+              30
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "50_bus_rural_reference_grid/branch_extra.csv",
+          "extension": ".csv",
+          "size_bytes": 1957,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Unnamed: 0",
+              "From Bus",
+              "To Bus",
+              "Length [km]",
+              "Branch type"
+            ],
+            "shape": [
+              49,
+              5
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "50_bus_rural_reference_grid/load_bus_extra.csv",
+          "extension": ".csv",
+          "size_bytes": 515,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Unnamed: 0",
+              "bus_i",
+              "Consumer type"
+            ],
+            "shape": [
+              21,
+              3
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "50_bus_rural_reference_grid/mpc_base_mva.csv",
+          "extension": ".csv",
+          "size_bytes": 18,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Base MVA"
+            ],
+            "shape": [
+              1,
+              1
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "50_bus_rural_reference_grid/mpc_branch.csv",
+          "extension": ".csv",
+          "size_bytes": 3997,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Unnamed: 0",
+              "fbus",
+              "tbus",
+              "r",
+              "x",
+              "b",
+              "rateA",
+              "rateB",
+              "rateC",
+              "ratio",
+              "angle",
+              "status",
+              "angmin",
+              "angmax"
+            ],
+            "shape": [
+              49,
+              14
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "50_bus_rural_reference_grid/mpc_bus.csv",
+          "extension": ".csv",
+          "size_bytes": 2751,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "bus_i",
+              "type",
+              "Pd",
+              "Qd",
+              "Gs",
+              "Bs",
+              "area",
+              "Vm",
+              "Va",
+              "basekV",
+              "zone",
+              "Vmax",
+              "Vmin"
+            ],
+            "shape": [
+              50,
+              13
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "50_bus_rural_reference_grid/p_load.csv",
+          "extension": ".csv",
+          "size_bytes": 2007314,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Date",
+              "6",
+              "10",
+              "11",
+              "12",
+              "15",
+              "16",
+              "18",
+              "20",
+              "25",
+              "29",
+              "30",
+              "31",
+              "33",
+              "36",
+              "39",
+              "40",
+              "42",
+              "43",
+              "48",
+              "49",
+              "50"
+            ],
+            "shape": [
+              8760,
+              22
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "50_bus_rural_reference_grid/q_load.csv",
+          "extension": ".csv",
+          "size_bytes": 1674108,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Date",
+              "6",
+              "10",
+              "11",
+              "12",
+              "15",
+              "16",
+              "18",
+              "20",
+              "25",
+              "29",
+              "30",
+              "31",
+              "33",
+              "36",
+              "39",
+              "40",
+              "42",
+              "43",
+              "48",
+              "49",
+              "50"
+            ],
+            "shape": [
+              8760,
+              22
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "56_bus_semi_urban_reference_grid/branch_data_extra.csv",
+          "extension": ".csv",
+          "size_bytes": 1769,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Unnamed: 0",
+              "fbus",
+              "tbus",
+              "Branch type",
+              "Length [km]"
+            ],
+            "shape": [
+              55,
+              5
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "56_bus_semi_urban_reference_grid/load_bus_extra.csv",
+          "extension": ".csv",
+          "size_bytes": 1375,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "bus_i",
+              "Consumer type",
+              "ID"
+            ],
+            "shape": [
+              53,
+              3
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "56_bus_semi_urban_reference_grid/mpc_base_mva.csv",
+          "extension": ".csv",
+          "size_bytes": 19,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Unnamed: 0",
+              "Base MVA"
+            ],
+            "shape": [
+              1,
+              2
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "56_bus_semi_urban_reference_grid/mpc_branch.csv",
+          "extension": ".csv",
+          "size_bytes": 5988,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Unnamed: 0",
+              "fbus",
+              "tbus",
+              "r",
+              "x",
+              "b",
+              "rateA",
+              "rateB",
+              "rateC",
+              "ratio",
+              "angle",
+              "status",
+              "angmin",
+              "angmax"
+            ],
+            "shape": [
+              55,
+              14
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "56_bus_semi_urban_reference_grid/mpc_bus.csv",
+          "extension": ".csv",
+          "size_bytes": 4044,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "bus_i",
+              "type",
+              "Pd",
+              "Qd",
+              "Gs",
+              "Bs",
+              "area",
+              "Vm",
+              "Va",
+              "basekV",
+              "zone",
+              "maxVm",
+              "minVm",
+              "Vmax",
+              "Vmin"
+            ],
+            "shape": [
+              56,
+              15
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "56_bus_semi_urban_reference_grid/p_load.csv",
+          "extension": ".csv",
+          "size_bytes": 4914816,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Date",
+              "54",
+              "54.1",
+              "54.2",
+              "54.3",
+              "54.4",
+              "54.5",
+              "35",
+              "35.1",
+              "48",
+              "23",
+              "55",
+              "24",
+              "49",
+              "18",
+              "45",
+              "28",
+              "34",
+              "34.1",
+              "47",
+              "4",
+              "5",
+              "17",
+              "3",
+              "3.1",
+              "40",
+              "56",
+              "27",
+              "29",
+              "16",
+              "20",
+              "6",
+              "9",
+              "39",
+              "52",
+              "52.1",
+              "33",
+              "30",
+              "12",
+              "44",
+              "11",
+              "38",
+              "46",
+              "22",
+              "36",
+              "51",
+              "50",
+              "7",
+              "21",
+              "26",
+              "32",
+              "43",
+              "13",
+              "15"
+            ],
+            "shape": [
+              8760,
+              54
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "56_bus_semi_urban_reference_grid/q_load.csv",
+          "extension": ".csv",
+          "size_bytes": 10530088,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Date",
+              "54",
+              "54.1",
+              "54.2",
+              "54.3",
+              "54.4",
+              "54.5",
+              "35",
+              "35.1",
+              "48",
+              "23",
+              "55",
+              "24",
+              "49",
+              "18",
+              "45",
+              "28",
+              "34",
+              "34.1",
+              "47",
+              "4",
+              "5",
+              "17",
+              "3",
+              "3.1",
+              "40",
+              "56",
+              "27",
+              "29",
+              "16",
+              "20",
+              "6",
+              "9",
+              "39",
+              "52",
+              "52.1",
+              "33",
+              "30",
+              "12",
+              "44",
+              "11",
+              "38",
+              "46",
+              "22",
+              "36",
+              "51",
+              "50",
+              "7",
+              "21",
+              "26",
+              "32",
+              "43",
+              "13",
+              "15"
+            ],
+            "shape": [
+              8760,
+              54
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "80_bus_rural_reference_grid/branch_extra.csv",
+          "extension": ".csv",
+          "size_bytes": 3150,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Unnamed: 0",
+              "From Bus",
+              "To Bus",
+              "Length [km]",
+              "Branch type"
+            ],
+            "shape": [
+              79,
+              5
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "80_bus_rural_reference_grid/load_bus_extra.csv",
+          "extension": ".csv",
+          "size_bytes": 779,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Unnamed: 0",
+              "bus_i",
+              "Consumer type"
+            ],
+            "shape": [
+              32,
+              3
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "80_bus_rural_reference_grid/mpc_base_mva.csv",
+          "extension": ".csv",
+          "size_bytes": 20,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Base MVA"
+            ],
+            "shape": [
+              1,
+              1
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "80_bus_rural_reference_grid/mpc_branch.csv",
+          "extension": ".csv",
+          "size_bytes": 6463,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Unnamed: 0",
+              "fbus",
+              "tbus",
+              "r",
+              "x",
+              "b",
+              "rateA",
+              "rateB",
+              "rateC",
+              "ratio",
+              "angle",
+              "status",
+              "angmin",
+              "angmax"
+            ],
+            "shape": [
+              79,
+              14
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "80_bus_rural_reference_grid/mpc_bus.csv",
+          "extension": ".csv",
+          "size_bytes": 4520,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "bus_i",
+              "type",
+              "Pd",
+              "Qd",
+              "Gs",
+              "Bs",
+              "area",
+              "Vm",
+              "Va",
+              "basekV",
+              "zone",
+              "Vmax",
+              "Vmin"
+            ],
+            "shape": [
+              80,
+              13
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "80_bus_rural_reference_grid/p_load.csv",
+          "extension": ".csv",
+          "size_bytes": 2924750,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Date",
+              "8",
+              "11",
+              "12",
+              "13",
+              "14",
+              "15",
+              "18",
+              "20",
+              "22",
+              "25",
+              "27",
+              "30",
+              "36",
+              "39",
+              "41",
+              "45",
+              "46",
+              "48",
+              "50",
+              "53",
+              "56",
+              "57",
+              "58",
+              "59",
+              "60",
+              "64",
+              "71",
+              "73",
+              "74",
+              "75",
+              "77",
+              "80"
+            ],
+            "shape": [
+              8760,
+              33
+            ],
+            "delimiter": ","
+          }
+        },
+        {
+          "relative_path": "80_bus_rural_reference_grid/q_load.csv",
+          "extension": ".csv",
+          "size_bytes": 2174132,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Date",
+              "8",
+              "11",
+              "12",
+              "13",
+              "14",
+              "15",
+              "18",
+              "20",
+              "22",
+              "25",
+              "27",
+              "30",
+              "36",
+              "39",
+              "41",
+              "45",
+              "46",
+              "48",
+              "50",
+              "53",
+              "56",
+              "57",
+              "58",
+              "59",
+              "60",
+              "64",
+              "71",
+              "73",
+              "74",
+              "75",
+              "77",
+              "80"
+            ],
+            "shape": [
+              8760,
+              33
+            ],
+            "delimiter": ","
+          }
+        }
+      ],
+      "summary": {
+        "directory_count": 4,
+        "file_count": 28,
+        "table_file_count": 28,
+        "table_read_success_count": 28
+      }
+    },
+    {
+      "name": "norway_industrial_mvlv",
+      "directories": [],
+      "files": [
+        {
+          "relative_path": "branch.csv",
+          "extension": ".csv",
+          "size_bytes": 5768,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "F_BUS",
+              "T_BUS",
+              "BR_R",
+              "BR_X",
+              "BR_B",
+              "RATE_A",
+              "RATE_B",
+              "RATE_C",
+              "TAP",
+              "SHIFT",
+              "BR_STATUS",
+              "ANGMIN",
+              "ANGMAX",
+              "PF",
+              "QF",
+              "PT",
+              "QT",
+              "MU_SF",
+              "MU_ST",
+              "MU_ANGMIN",
+              "MU_ANGMAX"
+            ],
+            "shape": [
+              75,
+              21
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "bus.csv",
+          "extension": ".csv",
+          "size_bytes": 3513,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "BUS_I",
+              "BUS_TYPE",
+              "PD",
+              "QD",
+              "GS",
+              "BS",
+              "BUS_AREA",
+              "VM",
+              "VA",
+              "BASE_KV",
+              "ZONE",
+              "VMAX",
+              "VMIN"
+            ],
+            "shape": [
+              76,
+              13
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "gen.csv",
+          "extension": ".csv",
+          "size_bytes": 154,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "GEN_BUS",
+              "PG",
+              "QG",
+              "QMAX",
+              "QMIN",
+              "VG",
+              "MBASE",
+              "GEN_STATUS",
+              "PMAX",
+              "PC1",
+              "PC2",
+              "QC1MIN",
+              "QC1MAX",
+              "QC2MIN",
+              "QC2MAX",
+              "RAMP_AGC",
+              "RAMP_10",
+              "RAMP_30",
+              "RAMP_Q",
+              "APF",
+              "MU_PMAX",
+              "MU_PMIN",
+              "MU_QMAX",
+              "MU_QMIN"
+            ],
+            "shape": [
+              0,
+              24
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.23b2.txt",
+          "extension": ".txt",
+          "size_bytes": 991004,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.23b3.txt",
+          "extension": ".txt",
+          "size_bytes": 981776,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b10.txt",
+          "extension": ".txt",
+          "size_bytes": 1039730,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b11.txt",
+          "extension": ".txt",
+          "size_bytes": 1021074,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b12.txt",
+          "extension": ".txt",
+          "size_bytes": 1011090,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b13.txt",
+          "extension": ".txt",
+          "size_bytes": 1039484,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b14.txt",
+          "extension": ".txt",
+          "size_bytes": 1033476,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b15.txt",
+          "extension": ".txt",
+          "size_bytes": 1038646,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b16.txt",
+          "extension": ".txt",
+          "size_bytes": 1039648,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b17.txt",
+          "extension": ".txt",
+          "size_bytes": 1040395,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b18.txt",
+          "extension": ".txt",
+          "size_bytes": 1011143,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b19.txt",
+          "extension": ".txt",
+          "size_bytes": 1012246,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b20.txt",
+          "extension": ".txt",
+          "size_bytes": 1034252,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b21.txt",
+          "extension": ".txt",
+          "size_bytes": 1036515,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b22.txt",
+          "extension": ".txt",
+          "size_bytes": 1041256,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b23.txt",
+          "extension": ".txt",
+          "size_bytes": 1033283,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b24.txt",
+          "extension": ".txt",
+          "size_bytes": 1040616,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b25.txt",
+          "extension": ".txt",
+          "size_bytes": 1046948,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b26.txt",
+          "extension": ".txt",
+          "size_bytes": 1017657,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b27.txt",
+          "extension": ".txt",
+          "size_bytes": 1034067,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b28.txt",
+          "extension": ".txt",
+          "size_bytes": 1009733,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b29.txt",
+          "extension": ".txt",
+          "size_bytes": 1010729,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b30.txt",
+          "extension": ".txt",
+          "size_bytes": 1012141,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b31.txt",
+          "extension": ".txt",
+          "size_bytes": 1011940,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b32.txt",
+          "extension": ".txt",
+          "size_bytes": 1010850,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b33.txt",
+          "extension": ".txt",
+          "size_bytes": 1008657,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b34.txt",
+          "extension": ".txt",
+          "size_bytes": 1010493,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b35.txt",
+          "extension": ".txt",
+          "size_bytes": 1036201,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b36.txt",
+          "extension": ".txt",
+          "size_bytes": 1010229,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b37.txt",
+          "extension": ".txt",
+          "size_bytes": 1044038,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b38.txt",
+          "extension": ".txt",
+          "size_bytes": 1037359,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b39.txt",
+          "extension": ".txt",
+          "size_bytes": 978986,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b40.txt",
+          "extension": ".txt",
+          "size_bytes": 1012861,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b41.txt",
+          "extension": ".txt",
+          "size_bytes": 614224,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              16273,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b42.txt",
+          "extension": ".txt",
+          "size_bytes": 1051987,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b43.txt",
+          "extension": ".txt",
+          "size_bytes": 1051160,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b44.txt",
+          "extension": ".txt",
+          "size_bytes": 1039838,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b7.txt",
+          "extension": ".txt",
+          "size_bytes": 1060840,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b8.txt",
+          "extension": ".txt",
+          "size_bytes": 1027439,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r1v0.415b9.txt",
+          "extension": ".txt",
+          "size_bytes": 799620,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              21553,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r2v0.415b3.txt",
+          "extension": ".txt",
+          "size_bytes": 509821,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              13345,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r2v0.415b4.txt",
+          "extension": ".txt",
+          "size_bytes": 520825,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              13345,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r2v0.415b5.txt",
+          "extension": ".txt",
+          "size_bytes": 1050454,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r2v0.415b6.txt",
+          "extension": ".txt",
+          "size_bytes": 1025979,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        },
+        {
+          "relative_path": "r2v0.415b8.txt",
+          "extension": ".txt",
+          "size_bytes": 1024739,
+          "table": {
+            "attempted": true,
+            "status": "success",
+            "fields": [
+              "Bus_ID",
+              "Timestamp",
+              "Load_kWh"
+            ],
+            "shape": [
+              26690,
+              3
+            ],
+            "delimiter": ";"
+          }
+        }
+      ],
+      "summary": {
+        "directory_count": 0,
+        "file_count": 48,
+        "table_file_count": 48,
+        "table_read_success_count": 48
+      }
+    }
+  ],
+  "missing_datasets": [],
+  "constraints": [
+    "Recursive file and directory structure listing only.",
+    "No source data is modified.",
+    "No forecasting metrics, model training, data cleaning, or full audit is performed.",
+    "Paths in this report are relative to each dataset root."
+  ]
+}
