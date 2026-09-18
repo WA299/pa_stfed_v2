@@ -1,0 +1,12 @@
+﻿data/
+raw/
+external_data/
+*.zip
+*.7z
+*.rar
+
+__pycache__/
+.venv/
+.idea/
+.vscode/
+*.log
