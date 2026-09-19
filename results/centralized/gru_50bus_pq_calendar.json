@@ -1,0 +1,1081 @@
+{
+  "config": {
+    "grid_name": "50_bus_rural_reference_grid",
+    "feature_mode": "pq_calendar",
+    "input_size": 7,
+    "history_length": 168,
+    "forecast_horizon": 1,
+    "hidden_size": 32,
+    "num_layers": 1,
+    "seed": 42,
+    "max_epochs": 50,
+    "patience": 8,
+    "batch_size": 32,
+    "learning_rate": 0.001,
+    "device": "cuda",
+    "topology_used": false
+  },
+  "validation": {
+    "gru": {
+      "node_macro": {
+        "mae": 0.0003335853684288833,
+        "rmse": 0.0005140725413703928,
+        "wape_pct": 32.08579540209359,
+        "smape_pct": 34.755962607919415
+      },
+      "grid_aggregate": {
+        "mae": 0.0027596560497398248,
+        "rmse": 0.0035772947134237857,
+        "wape_pct": 7.157117858117284,
+        "smape_pct": 7.192369434935278
+      },
+      "node_count": 21,
+      "sample_count": 1314
+    },
+    "persistence_1h": {
+      "node_macro": {
+        "mae": 0.00037455700510863115,
+        "rmse": 0.0005640588817814529,
+        "wape_pct": 34.56525886482546,
+        "smape_pct": 33.336043989422656
+      },
+      "grid_aggregate": {
+        "mae": 0.0025365296868941345,
+        "rmse": 0.003331363116791131,
+        "wape_pct": 6.578443686788203,
+        "smape_pct": 6.571413140450934
+      },
+      "node_count": 21,
+      "sample_count": 1314
+    }
+  },
+  "comparison": {
+    "node_macro": {
+      "mae": "gru_lower",
+      "rmse": "gru_lower",
+      "wape_pct": "gru_lower",
+      "smape_pct": "gru_higher"
+    },
+    "grid_aggregate": {
+      "mae": "gru_higher",
+      "rmse": "gru_higher",
+      "wape_pct": "gru_higher",
+      "smape_pct": "gru_higher"
+    }
+  },
+  "summary": {
+    "best_epoch": 50,
+    "best_validation_node_macro_mae": 0.0003335853684288833,
+    "best_train_scaled_mae": 0.10508334457396186,
+    "epochs_run": 50
+  },
+  "metric_units": {
+    "mae": "P units",
+    "rmse": "P units",
+    "wape_pct": "%",
+    "smape_pct": "%"
+  },
+  "training_history": [
+    {
+      "epoch": 1,
+      "train_scaled_mae": 0.25855994595085235,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00044758414589264524,
+          "rmse": 0.0006330707700062297,
+          "wape_pct": 35.91358428783525,
+          "smape_pct": 36.562178124659326
+        },
+        "grid_aggregate": {
+          "mae": 0.003434480307097121,
+          "rmse": 0.004375092773417784,
+          "wape_pct": 8.907262316836327,
+          "smape_pct": 9.022364022863737
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 2,
+      "train_scaled_mae": 0.14145677727970848,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003693387140292724,
+          "rmse": 0.0005565777008580875,
+          "wape_pct": 34.53159010318701,
+          "smape_pct": 38.29445596062562
+        },
+        "grid_aggregate": {
+          "mae": 0.00284247818206129,
+          "rmse": 0.0036540379938725235,
+          "wape_pct": 7.371915554497308,
+          "smape_pct": 7.417946476536322
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 3,
+      "train_scaled_mae": 0.1221846752466365,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00035470417647870086,
+          "rmse": 0.0005378768852319988,
+          "wape_pct": 34.2973377119229,
+          "smape_pct": 39.28676922969376
+        },
+        "grid_aggregate": {
+          "mae": 0.0027375788062760386,
+          "rmse": 0.0035296377252585914,
+          "wape_pct": 7.09986092804893,
+          "smape_pct": 7.142345780901508
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 4,
+      "train_scaled_mae": 0.1166039752290848,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003522294826160732,
+          "rmse": 0.0005322077675740378,
+          "wape_pct": 35.65644577797978,
+          "smape_pct": 42.49404368856989
+        },
+        "grid_aggregate": {
+          "mae": 0.00271510065416722,
+          "rmse": 0.0035003286264859304,
+          "wape_pct": 7.041564248688953,
+          "smape_pct": 7.0901948403805735
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 5,
+      "train_scaled_mae": 0.11363037392736118,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00034983690110714324,
+          "rmse": 0.0005277098280757692,
+          "wape_pct": 35.26917400800731,
+          "smape_pct": 42.11966538220669
+        },
+        "grid_aggregate": {
+          "mae": 0.0026887931786278773,
+          "rmse": 0.0034622428061493143,
+          "wape_pct": 6.97333628854067,
+          "smape_pct": 7.021695474953325
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 6,
+      "train_scaled_mae": 0.11194743538763434,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00034927437453159335,
+          "rmse": 0.000526798038371232,
+          "wape_pct": 35.893245920281245,
+          "smape_pct": 43.3170071792049
+        },
+        "grid_aggregate": {
+          "mae": 0.0027311533939087217,
+          "rmse": 0.00351240454180245,
+          "wape_pct": 7.083196737740058,
+          "smape_pct": 7.139214756963091
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 7,
+      "train_scaled_mae": 0.11084768012723821,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00034656783420994493,
+          "rmse": 0.0005235993043056839,
+          "wape_pct": 34.77303045917603,
+          "smape_pct": 41.337853937016966
+        },
+        "grid_aggregate": {
+          "mae": 0.0027094758365938084,
+          "rmse": 0.0034921612826980903,
+          "wape_pct": 7.026976386441731,
+          "smape_pct": 7.076823052495951
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 8,
+      "train_scaled_mae": 0.10988285703295693,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003486505811730923,
+          "rmse": 0.0005178339778182667,
+          "wape_pct": 35.47402636421854,
+          "smape_pct": 37.05794602283189
+        },
+        "grid_aggregate": {
+          "mae": 0.0025008877775929464,
+          "rmse": 0.0032409088112374898,
+          "wape_pct": 6.486007042741875,
+          "smape_pct": 6.482117051472347
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 9,
+      "train_scaled_mae": 0.10953882599578184,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00034246860577169416,
+          "rmse": 0.0005185832998695428,
+          "wape_pct": 32.545043590932934,
+          "smape_pct": 35.8869627166241
+        },
+        "grid_aggregate": {
+          "mae": 0.0026611509824628742,
+          "rmse": 0.0034441503804716494,
+          "wape_pct": 6.901646754684168,
+          "smape_pct": 6.93586468608073
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 10,
+      "train_scaled_mae": 0.10908348922104759,
+      "validation": {
+        "node_macro": {
+          "mae": 0.000341399719282461,
+          "rmse": 0.0005165365915052792,
+          "wape_pct": 31.99227277594801,
+          "smape_pct": 33.659193841180524
+        },
+        "grid_aggregate": {
+          "mae": 0.002604848568087467,
+          "rmse": 0.0033799549437312617,
+          "wape_pct": 6.755627465280572,
+          "smape_pct": 6.778919856408414
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 11,
+      "train_scaled_mae": 0.10884815000276514,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003409391848391283,
+          "rmse": 0.0005175273835499026,
+          "wape_pct": 32.26127994728576,
+          "smape_pct": 35.184623027383964
+        },
+        "grid_aggregate": {
+          "mae": 0.0026733487990231817,
+          "rmse": 0.0034609523687153514,
+          "wape_pct": 6.933281570458419,
+          "smape_pct": 6.969518754387188
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 12,
+      "train_scaled_mae": 0.10859430856245725,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00034301819639548695,
+          "rmse": 0.0005190424974037036,
+          "wape_pct": 34.165117808183886,
+          "smape_pct": 39.50643268528721
+        },
+        "grid_aggregate": {
+          "mae": 0.0026838420649409034,
+          "rmse": 0.003481778718816902,
+          "wape_pct": 6.960495665090531,
+          "smape_pct": 7.0016442926647295
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 13,
+      "train_scaled_mae": 0.108263997510474,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003415955987997792,
+          "rmse": 0.0005146325864008341,
+          "wape_pct": 32.92771357844341,
+          "smape_pct": 35.687716458160175
+        },
+        "grid_aggregate": {
+          "mae": 0.002552316506572398,
+          "rmse": 0.0033211061377757534,
+          "wape_pct": 6.619386517562226,
+          "smape_pct": 6.632462318366376
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 14,
+      "train_scaled_mae": 0.10815788478774821,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003438102921880084,
+          "rmse": 0.0005214487178377698,
+          "wape_pct": 35.607805059689355,
+          "smape_pct": 42.13917605256967
+        },
+        "grid_aggregate": {
+          "mae": 0.002767769921474428,
+          "rmse": 0.0035827973823632855,
+          "wape_pct": 7.178161037137974,
+          "smape_pct": 7.236384409352284
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 15,
+      "train_scaled_mae": 0.10791098115278437,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033960858932460423,
+          "rmse": 0.0005158781707619036,
+          "wape_pct": 32.29336601284973,
+          "smape_pct": 34.7557366036521
+        },
+        "grid_aggregate": {
+          "mae": 0.0026500842529586523,
+          "rmse": 0.003438803772207113,
+          "wape_pct": 6.872945392652807,
+          "smape_pct": 6.895573472932898
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 16,
+      "train_scaled_mae": 0.10784821682435305,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033997625276608803,
+          "rmse": 0.0005161521370155064,
+          "wape_pct": 32.98435543079153,
+          "smape_pct": 36.48360215569158
+        },
+        "grid_aggregate": {
+          "mae": 0.002659075948752223,
+          "rmse": 0.0034559112740991946,
+          "wape_pct": 6.896265192431836,
+          "smape_pct": 6.9252688497186705
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 17,
+      "train_scaled_mae": 0.10763973555462883,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033884509394279397,
+          "rmse": 0.0005159689519602263,
+          "wape_pct": 32.33778383783788,
+          "smape_pct": 35.11142425676802
+        },
+        "grid_aggregate": {
+          "mae": 0.002676697504967514,
+          "rmse": 0.0034720478628243266,
+          "wape_pct": 6.941966378522824,
+          "smape_pct": 6.969501732773957
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 18,
+      "train_scaled_mae": 0.1075519165970425,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033870994960024937,
+          "rmse": 0.0005161625488804472,
+          "wape_pct": 32.50447957537553,
+          "smape_pct": 35.6870341016039
+        },
+        "grid_aggregate": {
+          "mae": 0.0026858166253466366,
+          "rmse": 0.003484331515757016,
+          "wape_pct": 6.965616651650844,
+          "smape_pct": 6.993878675891399
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 19,
+      "train_scaled_mae": 0.10747592326472788,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033843080349217706,
+          "rmse": 0.000515247262708327,
+          "wape_pct": 32.313248607497805,
+          "smape_pct": 34.8569662159135
+        },
+        "grid_aggregate": {
+          "mae": 0.002658824617770369,
+          "rmse": 0.003450715600603255,
+          "wape_pct": 6.895613370093797,
+          "smape_pct": 6.916057456152856
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 20,
+      "train_scaled_mae": 0.10733226379927467,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003382552709595136,
+          "rmse": 0.0005161216993468312,
+          "wape_pct": 32.508922164749634,
+          "smape_pct": 35.787392718237996
+        },
+        "grid_aggregate": {
+          "mae": 0.002708209022992099,
+          "rmse": 0.003510705286720766,
+          "wape_pct": 7.023690928367144,
+          "smape_pct": 7.052294143960104
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 21,
+      "train_scaled_mae": 0.10729492089168273,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003391681375796451,
+          "rmse": 0.0005175045859758591,
+          "wape_pct": 33.38362929747905,
+          "smape_pct": 37.95471130770706
+        },
+        "grid_aggregate": {
+          "mae": 0.0027573201566233898,
+          "rmse": 0.0035691760257824776,
+          "wape_pct": 7.1510597617324585,
+          "smape_pct": 7.189430650739549
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 22,
+      "train_scaled_mae": 0.10717391162951362,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00034058022710343723,
+          "rmse": 0.0005129420728811603,
+          "wape_pct": 33.73925854681594,
+          "smape_pct": 35.13870922699779
+        },
+        "grid_aggregate": {
+          "mae": 0.002510169403673603,
+          "rmse": 0.0032679143031510063,
+          "wape_pct": 6.510078771456218,
+          "smape_pct": 6.498359838008992
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 23,
+      "train_scaled_mae": 0.10694333735634298,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003401587263559482,
+          "rmse": 0.0005120322110249157,
+          "wape_pct": 33.85310860069577,
+          "smape_pct": 35.259278556603725
+        },
+        "grid_aggregate": {
+          "mae": 0.002493285181783983,
+          "rmse": 0.003245331482341996,
+          "wape_pct": 6.46628984855113,
+          "smape_pct": 6.451286091318545
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 24,
+      "train_scaled_mae": 0.10690330984917554,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003387777795486863,
+          "rmse": 0.0005179302477052253,
+          "wape_pct": 33.954373624200485,
+          "smape_pct": 39.57153382413393
+        },
+        "grid_aggregate": {
+          "mae": 0.0027702484669369634,
+          "rmse": 0.0036041488748469984,
+          "wape_pct": 7.184589099792281,
+          "smape_pct": 7.2226557612750515
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 25,
+      "train_scaled_mae": 0.10691233106794204,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033848092270799264,
+          "rmse": 0.0005115137649165924,
+          "wape_pct": 33.06151384919066,
+          "smape_pct": 34.60071104032992
+        },
+        "grid_aggregate": {
+          "mae": 0.002516168466700775,
+          "rmse": 0.003273335103149626,
+          "wape_pct": 6.525637232492619,
+          "smape_pct": 6.513568668167038
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 26,
+      "train_scaled_mae": 0.1067072761887535,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033625552037259114,
+          "rmse": 0.0005126537081322406,
+          "wape_pct": 32.01243693155424,
+          "smape_pct": 34.11069871057796
+        },
+        "grid_aggregate": {
+          "mae": 0.002625172545148077,
+          "rmse": 0.003425018791072638,
+          "wape_pct": 6.808337330766227,
+          "smape_pct": 6.819547166801443
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 27,
+      "train_scaled_mae": 0.10669908409609515,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003363644377960253,
+          "rmse": 0.0005155151772312596,
+          "wape_pct": 32.44500469534599,
+          "smape_pct": 35.86761728420181
+        },
+        "grid_aggregate": {
+          "mae": 0.0027573943061689984,
+          "rmse": 0.0035850746171095685,
+          "wape_pct": 7.151252067232667,
+          "smape_pct": 7.187936923241075
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 28,
+      "train_scaled_mae": 0.10657092685846084,
+      "validation": {
+        "node_macro": {
+          "mae": 0.000336043876590707,
+          "rmse": 0.0005150680014408863,
+          "wape_pct": 32.21706173365254,
+          "smape_pct": 35.21458710831993
+        },
+        "grid_aggregate": {
+          "mae": 0.002740109768027959,
+          "rmse": 0.003565864785123309,
+          "wape_pct": 7.106424931398037,
+          "smape_pct": 7.139824820860367
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 29,
+      "train_scaled_mae": 0.10650565925447698,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033663792514674397,
+          "rmse": 0.0005164325658381352,
+          "wape_pct": 32.66788464462939,
+          "smape_pct": 36.39626213884189
+        },
+        "grid_aggregate": {
+          "mae": 0.0027975650110947945,
+          "rmse": 0.003627453283623674,
+          "wape_pct": 7.255434061081023,
+          "smape_pct": 7.293964239251946
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 30,
+      "train_scaled_mae": 0.10641960249865119,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003369470852622549,
+          "rmse": 0.0005173757918319589,
+          "wape_pct": 33.16637867455871,
+          "smape_pct": 37.60089420195135
+        },
+        "grid_aggregate": {
+          "mae": 0.002840307075596514,
+          "rmse": 0.0036800306950860247,
+          "wape_pct": 7.366284829301542,
+          "smape_pct": 7.41130950546409
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 31,
+      "train_scaled_mae": 0.10631622708736256,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033677339331069446,
+          "rmse": 0.0005174685564391709,
+          "wape_pct": 32.938284093804995,
+          "smape_pct": 36.983966310078486
+        },
+        "grid_aggregate": {
+          "mae": 0.002849967195713517,
+          "rmse": 0.003688315995367766,
+          "wape_pct": 7.391338175426859,
+          "smape_pct": 7.435876074315397
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 32,
+      "train_scaled_mae": 0.10621160340500388,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003358479928952626,
+          "rmse": 0.0005159517658438037,
+          "wape_pct": 32.227739014904174,
+          "smape_pct": 35.04182428112439
+        },
+        "grid_aggregate": {
+          "mae": 0.0027978887253620813,
+          "rmse": 0.00363048784567557,
+          "wape_pct": 7.256273608155574,
+          "smape_pct": 7.288681134842278
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 33,
+      "train_scaled_mae": 0.10621059247676064,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033632269006220254,
+          "rmse": 0.0005168402269096657,
+          "wape_pct": 32.74144875980751,
+          "smape_pct": 36.495370344483476
+        },
+        "grid_aggregate": {
+          "mae": 0.0028291021988989824,
+          "rmse": 0.0036640712226801227,
+          "wape_pct": 7.337225185032659,
+          "smape_pct": 7.380676812951907
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 34,
+      "train_scaled_mae": 0.1061246429774213,
+      "validation": {
+        "node_macro": {
+          "mae": 0.000336521994921428,
+          "rmse": 0.0005121703762893992,
+          "wape_pct": 32.62166041704165,
+          "smape_pct": 34.07937665376332
+        },
+        "grid_aggregate": {
+          "mae": 0.0026139378017165345,
+          "rmse": 0.003398100764993671,
+          "wape_pct": 6.779200227664975,
+          "smape_pct": 6.784410733923389
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 35,
+      "train_scaled_mae": 0.10602389766092607,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033578848551503774,
+          "rmse": 0.0005160154325854812,
+          "wape_pct": 32.72220066877667,
+          "smape_pct": 36.31087152785082
+        },
+        "grid_aggregate": {
+          "mae": 0.002817956394227627,
+          "rmse": 0.003643645622827096,
+          "wape_pct": 7.3083187429911,
+          "smape_pct": 7.349662103789151
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 36,
+      "train_scaled_mae": 0.10600303093539203,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033569020936581085,
+          "rmse": 0.0005161713394450123,
+          "wape_pct": 32.831182474404066,
+          "smape_pct": 36.692697045022946
+        },
+        "grid_aggregate": {
+          "mae": 0.002826859585994523,
+          "rmse": 0.0036537137141345343,
+          "wape_pct": 7.33140900918391,
+          "smape_pct": 7.375542347961933
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 37,
+      "train_scaled_mae": 0.10595237563319385,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003352582690359607,
+          "rmse": 0.0005158144642362073,
+          "wape_pct": 32.372669097181266,
+          "smape_pct": 35.46638433084739
+        },
+        "grid_aggregate": {
+          "mae": 0.0028020283300464986,
+          "rmse": 0.003630785429178112,
+          "wape_pct": 7.2670095977420965,
+          "smape_pct": 7.304316730888673
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 38,
+      "train_scaled_mae": 0.10582837247274776,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033517828205721585,
+          "rmse": 0.0005158687807580057,
+          "wape_pct": 32.535743590490775,
+          "smape_pct": 35.99250208430979
+        },
+        "grid_aggregate": {
+          "mae": 0.0028211399315242643,
+          "rmse": 0.0036526251518926626,
+          "wape_pct": 7.316575189166664,
+          "smape_pct": 7.355991173339052
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 39,
+      "train_scaled_mae": 0.10580230974417956,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003354039399117232,
+          "rmse": 0.0005165912050197353,
+          "wape_pct": 32.88247906874953,
+          "smape_pct": 36.84287147583634
+        },
+        "grid_aggregate": {
+          "mae": 0.0028405644268706003,
+          "rmse": 0.003676552601775147,
+          "wape_pct": 7.366952265158175,
+          "smape_pct": 7.410320671308492
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 40,
+      "train_scaled_mae": 0.10575136793329117,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033458877921013134,
+          "rmse": 0.0005144607128902085,
+          "wape_pct": 32.09279523830941,
+          "smape_pct": 34.531680149351274
+        },
+        "grid_aggregate": {
+          "mae": 0.00276899336983055,
+          "rmse": 0.0035870688023336168,
+          "wape_pct": 7.181334028235508,
+          "smape_pct": 7.213969363170792
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 41,
+      "train_scaled_mae": 0.10565800984753644,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033468122971950885,
+          "rmse": 0.0005155604756284404,
+          "wape_pct": 32.16769062107913,
+          "smape_pct": 34.92120563069253
+        },
+        "grid_aggregate": {
+          "mae": 0.0028154504422126885,
+          "rmse": 0.003646112624760146,
+          "wape_pct": 7.301819601940754,
+          "smape_pct": 7.3411023581061965
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 42,
+      "train_scaled_mae": 0.10563057673009321,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033452901981294677,
+          "rmse": 0.0005140245572068951,
+          "wape_pct": 31.816078397339776,
+          "smape_pct": 33.61108208144461
+        },
+        "grid_aggregate": {
+          "mae": 0.0027480639926638316,
+          "rmse": 0.0035637509178827746,
+          "wape_pct": 7.12705406856687,
+          "smape_pct": 7.153927630119633
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 43,
+      "train_scaled_mae": 0.10555380120634396,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033502920165012935,
+          "rmse": 0.000516821702438622,
+          "wape_pct": 32.60537553656744,
+          "smape_pct": 36.16073196772011
+        },
+        "grid_aggregate": {
+          "mae": 0.002857838953481508,
+          "rmse": 0.003695777225494616,
+          "wape_pct": 7.4117534362711845,
+          "smape_pct": 7.459741612279866
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 44,
+      "train_scaled_mae": 0.1054871981156701,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003340923993251148,
+          "rmse": 0.0005147751249428045,
+          "wape_pct": 32.21405473859738,
+          "smape_pct": 35.1570234048044
+        },
+        "grid_aggregate": {
+          "mae": 0.002781549263959606,
+          "rmse": 0.003608026635322442,
+          "wape_pct": 7.213897511682719,
+          "smape_pct": 7.248325580023367
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 45,
+      "train_scaled_mae": 0.10538311960066066,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003342660867482296,
+          "rmse": 0.0005155840337297752,
+          "wape_pct": 32.31221620240222,
+          "smape_pct": 35.426712231417035
+        },
+        "grid_aggregate": {
+          "mae": 0.0028256077692705326,
+          "rmse": 0.003658806595448167,
+          "wape_pct": 7.32816244523939,
+          "smape_pct": 7.369999402272209
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 46,
+      "train_scaled_mae": 0.10534833801940163,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033414108751699125,
+          "rmse": 0.0005155458267409261,
+          "wape_pct": 32.2337229156102,
+          "smape_pct": 35.24814075462959
+        },
+        "grid_aggregate": {
+          "mae": 0.002817258515170883,
+          "rmse": 0.0036474185997255604,
+          "wape_pct": 7.306508806328775,
+          "smape_pct": 7.351397919261617
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 47,
+      "train_scaled_mae": 0.10527300432244724,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033400390533639123,
+          "rmse": 0.000515444729206711,
+          "wape_pct": 32.324853339212176,
+          "smape_pct": 35.52358785968302
+        },
+        "grid_aggregate": {
+          "mae": 0.0028163742886177187,
+          "rmse": 0.0036509988490945385,
+          "wape_pct": 7.304215580817983,
+          "smape_pct": 7.3453888533646055
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 48,
+      "train_scaled_mae": 0.10520367690904893,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003337041952037945,
+          "rmse": 0.0005145155501345732,
+          "wape_pct": 32.15740524197878,
+          "smape_pct": 34.976729149960484
+        },
+        "grid_aggregate": {
+          "mae": 0.0027722157515055884,
+          "rmse": 0.0035942262358671425,
+          "wape_pct": 7.189691216601161,
+          "smape_pct": 7.2251393011147895
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 49,
+      "train_scaled_mae": 0.1051346270795812,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003336588257849911,
+          "rmse": 0.0005143292660236676,
+          "wape_pct": 32.06614553349175,
+          "smape_pct": 34.66243731096241
+        },
+        "grid_aggregate": {
+          "mae": 0.002769246597350656,
+          "rmse": 0.003588959391182192,
+          "wape_pct": 7.181990769211068,
+          "smape_pct": 7.219192800104736
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 50,
+      "train_scaled_mae": 0.10508334457396186,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003335853684288833,
+          "rmse": 0.0005140725413703928,
+          "wape_pct": 32.08579540209359,
+          "smape_pct": 34.755962607919415
+        },
+        "grid_aggregate": {
+          "mae": 0.0027596560497398248,
+          "rmse": 0.0035772947134237857,
+          "wape_pct": 7.157117858117284,
+          "smape_pct": 7.192369434935278
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    }
+  ],
+  "test_evaluated": false
+}
