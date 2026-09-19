@@ -8,11 +8,19 @@ from code.models.centralized_gru import masked_scaled_mae
 from code.models.stgcn_baseline import (
     TORCH_AVAILABLE,
     STGCNBaseline,
+    build_adjacency,
     build_binary_physical_normalized_adjacency,
 )
 
 
 class STGCNTopologyTest(unittest.TestCase):
+    @unittest.skipUnless(TORCH_AVAILABLE, "PyTorch is not installed")
+    def test_identity_adjacency_is_identity(self) -> None:
+        import torch
+
+        adjacency = build_adjacency(np.asarray([[0], [1]], dtype=np.int64), 4, "identity")
+        self.assertTrue(torch.equal(adjacency, torch.eye(4)))
+
     @unittest.skipUnless(TORCH_AVAILABLE, "PyTorch is not installed")
     def test_adjacency_is_bidirectional_self_looped_symmetric_and_shaped(self) -> None:
         import torch
@@ -46,6 +54,25 @@ class STGCNTopologyTest(unittest.TestCase):
             loss = masked_scaled_mae(prediction, target, mask)
             loss.backward()
             self.assertIsNotNone(model.input_projection.weight.grad)
+
+    @unittest.skipUnless(TORCH_AVAILABLE, "PyTorch is not installed")
+    def test_binary_mode_matches_original_adjacency_builder(self) -> None:
+        import torch
+
+        edge_index = np.asarray([[0, 1], [1, 2]], dtype=np.int64)
+        original = build_binary_physical_normalized_adjacency(edge_index, 3)
+        selected = build_adjacency(edge_index, 3, "binary_physical")
+        self.assertTrue(torch.equal(original, selected))
+
+    @unittest.skipUnless(TORCH_AVAILABLE, "PyTorch is not installed")
+    def test_both_adjacency_modes_have_same_output_shape(self) -> None:
+        import torch
+
+        edge_index = np.asarray([[0, 1], [1, 2]], dtype=np.int64)
+        x = torch.randn(2, 168, 3, 6)
+        binary = STGCNBaseline(edge_index, 3, adjacency_mode="binary_physical")
+        identity = STGCNBaseline(edge_index, 3, adjacency_mode="identity")
+        self.assertEqual(tuple(binary(x).shape), tuple(identity(x).shape))
 
 
 if __name__ == "__main__":

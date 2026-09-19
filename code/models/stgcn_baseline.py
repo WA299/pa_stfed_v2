@@ -58,6 +58,25 @@ def build_binary_physical_normalized_adjacency(
     return normalized
 
 
+def build_adjacency(
+    edge_index: Any,
+    num_nodes: int,
+    adjacency_mode: str = "binary_physical",
+    *,
+    dtype: Any = None,
+) -> Tensor:
+    """Build the selected fixed adjacency used by :class:`STGCNBaseline`."""
+
+    _require_torch()
+    if adjacency_mode == "identity":
+        if int(num_nodes) <= 0:
+            raise ValueError("num_nodes must be positive")
+        return torch.eye(int(num_nodes), dtype=dtype or torch.float32)
+    if adjacency_mode == "binary_physical":
+        return build_binary_physical_normalized_adjacency(edge_index, num_nodes, dtype=dtype)
+    raise ValueError("adjacency_mode must be 'binary_physical' or 'identity'")
+
+
 if TORCH_AVAILABLE:
 
     class STGCNBaseline(nn.Module):
@@ -70,6 +89,7 @@ if TORCH_AVAILABLE:
             input_size: int = 6,
             hidden_dim: int = 32,
             temporal_kernel_size: int = 3,
+            adjacency_mode: str = "binary_physical",
         ) -> None:
             super().__init__()
             if int(input_size) != 6:
@@ -82,6 +102,9 @@ if TORCH_AVAILABLE:
             self.hidden_dim = int(hidden_dim)
             self.num_nodes = int(num_nodes)
             self.temporal_kernel_size = int(temporal_kernel_size)
+            if adjacency_mode not in {"binary_physical", "identity"}:
+                raise ValueError("adjacency_mode must be 'binary_physical' or 'identity'")
+            self.adjacency_mode = adjacency_mode
             self.input_projection = nn.Linear(self.input_size, self.hidden_dim)
             padding = self.temporal_kernel_size // 2
             self.temporal_conv1 = nn.Conv2d(
@@ -100,7 +123,7 @@ if TORCH_AVAILABLE:
             self.output_projection = nn.Linear(self.hidden_dim, 1)
             self.register_buffer(
                 "adjacency_norm",
-                build_binary_physical_normalized_adjacency(edge_index, self.num_nodes),
+                build_adjacency(edge_index, self.num_nodes, adjacency_mode),
             )
 
         def forward(self, x: Tensor) -> Tensor:

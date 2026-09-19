@@ -56,6 +56,7 @@ DEFAULT_PATIENCE = 8
 DEFAULT_BATCH_SIZE = 32
 DEFAULT_LEARNING_RATE = 1e-3
 REPORT_METRICS = ("mae", "rmse", "wape_pct", "smape_pct")
+ADJACENCY_MODES = ("binary_physical", "identity")
 
 
 def parse_grid_name(value: str) -> str:
@@ -64,9 +65,11 @@ def parse_grid_name(value: str) -> str:
     return value
 
 
-def output_paths(grid_name: str, output_dir: Path) -> tuple[Path, Path]:
+def output_paths(grid_name: str, output_dir: Path, adjacency_mode: str = "binary_physical") -> tuple[Path, Path]:
     parse_grid_name(grid_name)
-    stem = f"stgcn_{GRID_SHORT_NAMES[grid_name]}_{FEATURE_MODE}"
+    if adjacency_mode not in ADJACENCY_MODES:
+        raise ValueError(f"unsupported adjacency mode: {adjacency_mode}")
+    stem = f"stgcn_{GRID_SHORT_NAMES[grid_name]}_{FEATURE_MODE}_{adjacency_mode}"
     return output_dir / f"{stem}.json", output_dir / f"{stem}.md"
 
 
@@ -141,6 +144,8 @@ def run_training(args: argparse.Namespace) -> dict[str, Any]:
     if not TORCH_AVAILABLE:
         raise RuntimeError("PyTorch is required for training; install torch and rerun this script locally")
     parse_grid_name(args.grid)
+    if args.adjacency_mode not in ADJACENCY_MODES:
+        raise ValueError(f"unsupported adjacency mode: {args.adjacency_mode}")
     import torch
 
     _set_seed(args.seed)
@@ -156,6 +161,7 @@ def run_training(args: argparse.Namespace) -> dict[str, Any]:
         input_size=INPUT_SIZE,
         hidden_dim=HIDDEN_DIM,
         temporal_kernel_size=TEMPORAL_KERNEL_SIZE,
+        adjacency_mode=args.adjacency_mode,
     ).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate)
     mask = torch.from_numpy(grid.load_bus_mask)
@@ -207,8 +213,9 @@ def run_training(args: argparse.Namespace) -> dict[str, Any]:
             "batch_size": args.batch_size,
             "learning_rate": args.learning_rate,
             "device": str(device),
-            "topology_used": True,
-            "adjacency_type": "binary_physical_normalized",
+            "adjacency_mode": args.adjacency_mode,
+            "topology_used": args.adjacency_mode == "binary_physical",
+            "adjacency_type": "binary_physical_normalized" if args.adjacency_mode == "binary_physical" else "identity",
             "electrical_edge_features_used": False,
         },
         "validation": {"stgcn": validation, "persistence_1h": persistence},
@@ -256,8 +263,9 @@ def render_markdown(report: dict[str, Any]) -> str:
         lines.append(f"| {scope} | {relation['mae']} | {relation['rmse']} | {relation['wape_pct']} | {relation['smape_pct']} |")
     lines.extend([
         "",
-        "topology_used: True",
-        "adjacency_type: binary_physical_normalized",
+        f"adjacency_mode: {report['config']['adjacency_mode']}",
+        f"topology_used: {report['config']['topology_used']}",
+        f"adjacency_type: {report['config']['adjacency_type']}",
         "electrical_edge_features_used: False",
         "test_evaluated: False",
         "",
@@ -268,6 +276,7 @@ def render_markdown(report: dict[str, Any]) -> str:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--grid", choices=GRID_NAMES, default=GRID_NAMES[0])
+    parser.add_argument("--adjacency-mode", choices=ADJACENCY_MODES, default="binary_physical")
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--seed", type=int, default=DEFAULT_SEED)
     parser.add_argument("--max-epochs", type=int, default=DEFAULT_MAX_EPOCHS)
@@ -282,7 +291,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = build_parser().parse_args()
-    output_json, output_md = output_paths(args.grid, args.output_dir)
+    output_json, output_md = output_paths(args.grid, args.output_dir, args.adjacency_mode)
     report = run_training(args)
     output_json.parent.mkdir(parents=True, exist_ok=True)
     output_json.write_text(json.dumps(report, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
