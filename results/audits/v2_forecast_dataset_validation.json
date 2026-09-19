@@ -1,0 +1,1157 @@
+{
+  "audit": "v2_forecast_dataset_validation",
+  "generated_at_utc": "2026-09-19T10:12:52.497623+00:00",
+  "scope": [
+    "Supervised next-hour windows only; no model training and no test metric.",
+    "All physical buses remain in each graph; loss/metric masks are load_bus_mask only.",
+    "Target split is determined by target timestamp; validation history may use prior train observations."
+  ],
+  "task": {
+    "history_length": 168,
+    "forecast_horizon": 1,
+    "target": "next-hour active power P",
+    "feature_modes": {
+      "p_calendar": [
+        "p",
+        "hour_sin",
+        "hour_cos",
+        "day_of_week_sin",
+        "day_of_week_cos",
+        "weekend"
+      ],
+      "pq_calendar": [
+        "p",
+        "q",
+        "hour_sin",
+        "hour_cos",
+        "day_of_week_sin",
+        "day_of_week_cos",
+        "weekend"
+      ]
+    },
+    "split": "chronological 70/15/15; no shuffle"
+  },
+  "grids": [
+    {
+      "grid_name": "39_bus_semi_urban_reference_grid",
+      "modes": {
+        "p_calendar": {
+          "metadata": {
+            "grid_name": "39_bus_semi_urban_reference_grid",
+            "feature_mode": "p_calendar",
+            "feature_names": [
+              "p",
+              "hour_sin",
+              "hour_cos",
+              "day_of_week_sin",
+              "day_of_week_cos",
+              "weekend"
+            ],
+            "history_length": 168,
+            "forecast_horizon": 1,
+            "target": "next-hour active power P",
+            "num_samples": 8592,
+            "num_nodes": 39,
+            "num_features": 6,
+            "history_shape": [
+              168,
+              39,
+              6
+            ],
+            "target_shape": [
+              39
+            ],
+            "x_shape": [
+              8592,
+              168,
+              39,
+              6
+            ],
+            "y_shape": [
+              8592,
+              39
+            ],
+            "first_target_timestamp": "2021-01-08 00:00:00",
+            "last_target_timestamp": "2021-12-31 23:00:00",
+            "load_bus_count": 28,
+            "branch_type_code_used": false,
+            "target_indices": {
+              "train": [
+                168,
+                6131,
+                5964
+              ],
+              "validation": [
+                6132,
+                7445,
+                1314
+              ],
+              "test": [
+                7446,
+                8759,
+                1314
+              ]
+            }
+          },
+          "split_checks": {
+            "train": {
+              "sample_count": 5964,
+              "first_target_timestamp": "2021-01-08 00:00:00",
+              "last_target_timestamp": "2021-09-13 11:00:00",
+              "first_target_index": 168,
+              "last_target_index": 6131,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                39,
+                6
+              ],
+              "target_shape": [
+                39
+              ],
+              "first_history_end_index": 168,
+              "first_target_index_for_leakage_check": 168
+            },
+            "validation": {
+              "sample_count": 1314,
+              "first_target_timestamp": "2021-09-13 12:00:00",
+              "last_target_timestamp": "2021-11-07 05:00:00",
+              "first_target_index": 6132,
+              "last_target_index": 7445,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                39,
+                6
+              ],
+              "target_shape": [
+                39
+              ],
+              "first_history_end_index": 6132,
+              "first_target_index_for_leakage_check": 6132
+            },
+            "test": {
+              "sample_count": 1314,
+              "first_target_timestamp": "2021-11-07 06:00:00",
+              "last_target_timestamp": "2021-12-31 23:00:00",
+              "first_target_index": 7446,
+              "last_target_index": 8759,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                39,
+                6
+              ],
+              "target_shape": [
+                39
+              ],
+              "first_history_end_index": 7446,
+              "first_target_index_for_leakage_check": 7446
+            }
+          },
+          "target_split_bounds_valid": true,
+          "no_future_leakage": true,
+          "scaler": {
+            "feature_names": [
+              "p",
+              "hour_sin",
+              "hour_cos",
+              "day_of_week_sin",
+              "day_of_week_cos",
+              "weekend"
+            ],
+            "fit_split": "train",
+            "fit_start_index": 0,
+            "fit_end_index": 6132,
+            "fit_timestamp_end": "2021-09-13 11:00:00",
+            "fit_value_count": 239148,
+            "train_only": true
+          },
+          "branch_type_code_used": false,
+          "test_labels_evaluated": false,
+          "all_checks_pass": true
+        },
+        "pq_calendar": {
+          "metadata": {
+            "grid_name": "39_bus_semi_urban_reference_grid",
+            "feature_mode": "pq_calendar",
+            "feature_names": [
+              "p",
+              "q",
+              "hour_sin",
+              "hour_cos",
+              "day_of_week_sin",
+              "day_of_week_cos",
+              "weekend"
+            ],
+            "history_length": 168,
+            "forecast_horizon": 1,
+            "target": "next-hour active power P",
+            "num_samples": 8592,
+            "num_nodes": 39,
+            "num_features": 7,
+            "history_shape": [
+              168,
+              39,
+              7
+            ],
+            "target_shape": [
+              39
+            ],
+            "x_shape": [
+              8592,
+              168,
+              39,
+              7
+            ],
+            "y_shape": [
+              8592,
+              39
+            ],
+            "first_target_timestamp": "2021-01-08 00:00:00",
+            "last_target_timestamp": "2021-12-31 23:00:00",
+            "load_bus_count": 28,
+            "branch_type_code_used": false,
+            "target_indices": {
+              "train": [
+                168,
+                6131,
+                5964
+              ],
+              "validation": [
+                6132,
+                7445,
+                1314
+              ],
+              "test": [
+                7446,
+                8759,
+                1314
+              ]
+            }
+          },
+          "split_checks": {
+            "train": {
+              "sample_count": 5964,
+              "first_target_timestamp": "2021-01-08 00:00:00",
+              "last_target_timestamp": "2021-09-13 11:00:00",
+              "first_target_index": 168,
+              "last_target_index": 6131,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                39,
+                7
+              ],
+              "target_shape": [
+                39
+              ],
+              "first_history_end_index": 168,
+              "first_target_index_for_leakage_check": 168
+            },
+            "validation": {
+              "sample_count": 1314,
+              "first_target_timestamp": "2021-09-13 12:00:00",
+              "last_target_timestamp": "2021-11-07 05:00:00",
+              "first_target_index": 6132,
+              "last_target_index": 7445,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                39,
+                7
+              ],
+              "target_shape": [
+                39
+              ],
+              "first_history_end_index": 6132,
+              "first_target_index_for_leakage_check": 6132
+            },
+            "test": {
+              "sample_count": 1314,
+              "first_target_timestamp": "2021-11-07 06:00:00",
+              "last_target_timestamp": "2021-12-31 23:00:00",
+              "first_target_index": 7446,
+              "last_target_index": 8759,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                39,
+                7
+              ],
+              "target_shape": [
+                39
+              ],
+              "first_history_end_index": 7446,
+              "first_target_index_for_leakage_check": 7446
+            }
+          },
+          "target_split_bounds_valid": true,
+          "no_future_leakage": true,
+          "scaler": {
+            "feature_names": [
+              "p",
+              "q",
+              "hour_sin",
+              "hour_cos",
+              "day_of_week_sin",
+              "day_of_week_cos",
+              "weekend"
+            ],
+            "fit_split": "train",
+            "fit_start_index": 0,
+            "fit_end_index": 6132,
+            "fit_timestamp_end": "2021-09-13 11:00:00",
+            "fit_value_count": 239148,
+            "train_only": true
+          },
+          "branch_type_code_used": false,
+          "test_labels_evaluated": false,
+          "all_checks_pass": true
+        }
+      },
+      "all_checks_pass": true
+    },
+    {
+      "grid_name": "50_bus_rural_reference_grid",
+      "modes": {
+        "p_calendar": {
+          "metadata": {
+            "grid_name": "50_bus_rural_reference_grid",
+            "feature_mode": "p_calendar",
+            "feature_names": [
+              "p",
+              "hour_sin",
+              "hour_cos",
+              "day_of_week_sin",
+              "day_of_week_cos",
+              "weekend"
+            ],
+            "history_length": 168,
+            "forecast_horizon": 1,
+            "target": "next-hour active power P",
+            "num_samples": 8592,
+            "num_nodes": 50,
+            "num_features": 6,
+            "history_shape": [
+              168,
+              50,
+              6
+            ],
+            "target_shape": [
+              50
+            ],
+            "x_shape": [
+              8592,
+              168,
+              50,
+              6
+            ],
+            "y_shape": [
+              8592,
+              50
+            ],
+            "first_target_timestamp": "2021-01-08 00:00:00",
+            "last_target_timestamp": "2021-12-31 23:00:00",
+            "load_bus_count": 21,
+            "branch_type_code_used": false,
+            "target_indices": {
+              "train": [
+                168,
+                6131,
+                5964
+              ],
+              "validation": [
+                6132,
+                7445,
+                1314
+              ],
+              "test": [
+                7446,
+                8759,
+                1314
+              ]
+            }
+          },
+          "split_checks": {
+            "train": {
+              "sample_count": 5964,
+              "first_target_timestamp": "2021-01-08 00:00:00",
+              "last_target_timestamp": "2021-09-13 11:00:00",
+              "first_target_index": 168,
+              "last_target_index": 6131,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                50,
+                6
+              ],
+              "target_shape": [
+                50
+              ],
+              "first_history_end_index": 168,
+              "first_target_index_for_leakage_check": 168
+            },
+            "validation": {
+              "sample_count": 1314,
+              "first_target_timestamp": "2021-09-13 12:00:00",
+              "last_target_timestamp": "2021-11-07 05:00:00",
+              "first_target_index": 6132,
+              "last_target_index": 7445,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                50,
+                6
+              ],
+              "target_shape": [
+                50
+              ],
+              "first_history_end_index": 6132,
+              "first_target_index_for_leakage_check": 6132
+            },
+            "test": {
+              "sample_count": 1314,
+              "first_target_timestamp": "2021-11-07 06:00:00",
+              "last_target_timestamp": "2021-12-31 23:00:00",
+              "first_target_index": 7446,
+              "last_target_index": 8759,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                50,
+                6
+              ],
+              "target_shape": [
+                50
+              ],
+              "first_history_end_index": 7446,
+              "first_target_index_for_leakage_check": 7446
+            }
+          },
+          "target_split_bounds_valid": true,
+          "no_future_leakage": true,
+          "scaler": {
+            "feature_names": [
+              "p",
+              "hour_sin",
+              "hour_cos",
+              "day_of_week_sin",
+              "day_of_week_cos",
+              "weekend"
+            ],
+            "fit_split": "train",
+            "fit_start_index": 0,
+            "fit_end_index": 6132,
+            "fit_timestamp_end": "2021-09-13 11:00:00",
+            "fit_value_count": 306600,
+            "train_only": true
+          },
+          "branch_type_code_used": false,
+          "test_labels_evaluated": false,
+          "all_checks_pass": true
+        },
+        "pq_calendar": {
+          "metadata": {
+            "grid_name": "50_bus_rural_reference_grid",
+            "feature_mode": "pq_calendar",
+            "feature_names": [
+              "p",
+              "q",
+              "hour_sin",
+              "hour_cos",
+              "day_of_week_sin",
+              "day_of_week_cos",
+              "weekend"
+            ],
+            "history_length": 168,
+            "forecast_horizon": 1,
+            "target": "next-hour active power P",
+            "num_samples": 8592,
+            "num_nodes": 50,
+            "num_features": 7,
+            "history_shape": [
+              168,
+              50,
+              7
+            ],
+            "target_shape": [
+              50
+            ],
+            "x_shape": [
+              8592,
+              168,
+              50,
+              7
+            ],
+            "y_shape": [
+              8592,
+              50
+            ],
+            "first_target_timestamp": "2021-01-08 00:00:00",
+            "last_target_timestamp": "2021-12-31 23:00:00",
+            "load_bus_count": 21,
+            "branch_type_code_used": false,
+            "target_indices": {
+              "train": [
+                168,
+                6131,
+                5964
+              ],
+              "validation": [
+                6132,
+                7445,
+                1314
+              ],
+              "test": [
+                7446,
+                8759,
+                1314
+              ]
+            }
+          },
+          "split_checks": {
+            "train": {
+              "sample_count": 5964,
+              "first_target_timestamp": "2021-01-08 00:00:00",
+              "last_target_timestamp": "2021-09-13 11:00:00",
+              "first_target_index": 168,
+              "last_target_index": 6131,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                50,
+                7
+              ],
+              "target_shape": [
+                50
+              ],
+              "first_history_end_index": 168,
+              "first_target_index_for_leakage_check": 168
+            },
+            "validation": {
+              "sample_count": 1314,
+              "first_target_timestamp": "2021-09-13 12:00:00",
+              "last_target_timestamp": "2021-11-07 05:00:00",
+              "first_target_index": 6132,
+              "last_target_index": 7445,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                50,
+                7
+              ],
+              "target_shape": [
+                50
+              ],
+              "first_history_end_index": 6132,
+              "first_target_index_for_leakage_check": 6132
+            },
+            "test": {
+              "sample_count": 1314,
+              "first_target_timestamp": "2021-11-07 06:00:00",
+              "last_target_timestamp": "2021-12-31 23:00:00",
+              "first_target_index": 7446,
+              "last_target_index": 8759,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                50,
+                7
+              ],
+              "target_shape": [
+                50
+              ],
+              "first_history_end_index": 7446,
+              "first_target_index_for_leakage_check": 7446
+            }
+          },
+          "target_split_bounds_valid": true,
+          "no_future_leakage": true,
+          "scaler": {
+            "feature_names": [
+              "p",
+              "q",
+              "hour_sin",
+              "hour_cos",
+              "day_of_week_sin",
+              "day_of_week_cos",
+              "weekend"
+            ],
+            "fit_split": "train",
+            "fit_start_index": 0,
+            "fit_end_index": 6132,
+            "fit_timestamp_end": "2021-09-13 11:00:00",
+            "fit_value_count": 306600,
+            "train_only": true
+          },
+          "branch_type_code_used": false,
+          "test_labels_evaluated": false,
+          "all_checks_pass": true
+        }
+      },
+      "all_checks_pass": true
+    },
+    {
+      "grid_name": "56_bus_semi_urban_reference_grid",
+      "modes": {
+        "p_calendar": {
+          "metadata": {
+            "grid_name": "56_bus_semi_urban_reference_grid",
+            "feature_mode": "p_calendar",
+            "feature_names": [
+              "p",
+              "hour_sin",
+              "hour_cos",
+              "day_of_week_sin",
+              "day_of_week_cos",
+              "weekend"
+            ],
+            "history_length": 168,
+            "forecast_horizon": 1,
+            "target": "next-hour active power P",
+            "num_samples": 8592,
+            "num_nodes": 56,
+            "num_features": 6,
+            "history_shape": [
+              168,
+              56,
+              6
+            ],
+            "target_shape": [
+              56
+            ],
+            "x_shape": [
+              8592,
+              168,
+              56,
+              6
+            ],
+            "y_shape": [
+              8592,
+              56
+            ],
+            "first_target_timestamp": "2021-01-08 00:00:00",
+            "last_target_timestamp": "2021-12-31 23:00:00",
+            "load_bus_count": 44,
+            "branch_type_code_used": false,
+            "target_indices": {
+              "train": [
+                168,
+                6131,
+                5964
+              ],
+              "validation": [
+                6132,
+                7445,
+                1314
+              ],
+              "test": [
+                7446,
+                8759,
+                1314
+              ]
+            }
+          },
+          "split_checks": {
+            "train": {
+              "sample_count": 5964,
+              "first_target_timestamp": "2021-01-08 00:00:00",
+              "last_target_timestamp": "2021-09-13 11:00:00",
+              "first_target_index": 168,
+              "last_target_index": 6131,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                56,
+                6
+              ],
+              "target_shape": [
+                56
+              ],
+              "first_history_end_index": 168,
+              "first_target_index_for_leakage_check": 168
+            },
+            "validation": {
+              "sample_count": 1314,
+              "first_target_timestamp": "2021-09-13 12:00:00",
+              "last_target_timestamp": "2021-11-07 05:00:00",
+              "first_target_index": 6132,
+              "last_target_index": 7445,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                56,
+                6
+              ],
+              "target_shape": [
+                56
+              ],
+              "first_history_end_index": 6132,
+              "first_target_index_for_leakage_check": 6132
+            },
+            "test": {
+              "sample_count": 1314,
+              "first_target_timestamp": "2021-11-07 06:00:00",
+              "last_target_timestamp": "2021-12-31 23:00:00",
+              "first_target_index": 7446,
+              "last_target_index": 8759,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                56,
+                6
+              ],
+              "target_shape": [
+                56
+              ],
+              "first_history_end_index": 7446,
+              "first_target_index_for_leakage_check": 7446
+            }
+          },
+          "target_split_bounds_valid": true,
+          "no_future_leakage": true,
+          "scaler": {
+            "feature_names": [
+              "p",
+              "hour_sin",
+              "hour_cos",
+              "day_of_week_sin",
+              "day_of_week_cos",
+              "weekend"
+            ],
+            "fit_split": "train",
+            "fit_start_index": 0,
+            "fit_end_index": 6132,
+            "fit_timestamp_end": "2021-09-13 11:00:00",
+            "fit_value_count": 343392,
+            "train_only": true
+          },
+          "branch_type_code_used": false,
+          "test_labels_evaluated": false,
+          "all_checks_pass": true
+        },
+        "pq_calendar": {
+          "metadata": {
+            "grid_name": "56_bus_semi_urban_reference_grid",
+            "feature_mode": "pq_calendar",
+            "feature_names": [
+              "p",
+              "q",
+              "hour_sin",
+              "hour_cos",
+              "day_of_week_sin",
+              "day_of_week_cos",
+              "weekend"
+            ],
+            "history_length": 168,
+            "forecast_horizon": 1,
+            "target": "next-hour active power P",
+            "num_samples": 8592,
+            "num_nodes": 56,
+            "num_features": 7,
+            "history_shape": [
+              168,
+              56,
+              7
+            ],
+            "target_shape": [
+              56
+            ],
+            "x_shape": [
+              8592,
+              168,
+              56,
+              7
+            ],
+            "y_shape": [
+              8592,
+              56
+            ],
+            "first_target_timestamp": "2021-01-08 00:00:00",
+            "last_target_timestamp": "2021-12-31 23:00:00",
+            "load_bus_count": 44,
+            "branch_type_code_used": false,
+            "target_indices": {
+              "train": [
+                168,
+                6131,
+                5964
+              ],
+              "validation": [
+                6132,
+                7445,
+                1314
+              ],
+              "test": [
+                7446,
+                8759,
+                1314
+              ]
+            }
+          },
+          "split_checks": {
+            "train": {
+              "sample_count": 5964,
+              "first_target_timestamp": "2021-01-08 00:00:00",
+              "last_target_timestamp": "2021-09-13 11:00:00",
+              "first_target_index": 168,
+              "last_target_index": 6131,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                56,
+                7
+              ],
+              "target_shape": [
+                56
+              ],
+              "first_history_end_index": 168,
+              "first_target_index_for_leakage_check": 168
+            },
+            "validation": {
+              "sample_count": 1314,
+              "first_target_timestamp": "2021-09-13 12:00:00",
+              "last_target_timestamp": "2021-11-07 05:00:00",
+              "first_target_index": 6132,
+              "last_target_index": 7445,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                56,
+                7
+              ],
+              "target_shape": [
+                56
+              ],
+              "first_history_end_index": 6132,
+              "first_target_index_for_leakage_check": 6132
+            },
+            "test": {
+              "sample_count": 1314,
+              "first_target_timestamp": "2021-11-07 06:00:00",
+              "last_target_timestamp": "2021-12-31 23:00:00",
+              "first_target_index": 7446,
+              "last_target_index": 8759,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                56,
+                7
+              ],
+              "target_shape": [
+                56
+              ],
+              "first_history_end_index": 7446,
+              "first_target_index_for_leakage_check": 7446
+            }
+          },
+          "target_split_bounds_valid": true,
+          "no_future_leakage": true,
+          "scaler": {
+            "feature_names": [
+              "p",
+              "q",
+              "hour_sin",
+              "hour_cos",
+              "day_of_week_sin",
+              "day_of_week_cos",
+              "weekend"
+            ],
+            "fit_split": "train",
+            "fit_start_index": 0,
+            "fit_end_index": 6132,
+            "fit_timestamp_end": "2021-09-13 11:00:00",
+            "fit_value_count": 343392,
+            "train_only": true
+          },
+          "branch_type_code_used": false,
+          "test_labels_evaluated": false,
+          "all_checks_pass": true
+        }
+      },
+      "all_checks_pass": true
+    },
+    {
+      "grid_name": "80_bus_rural_reference_grid",
+      "modes": {
+        "p_calendar": {
+          "metadata": {
+            "grid_name": "80_bus_rural_reference_grid",
+            "feature_mode": "p_calendar",
+            "feature_names": [
+              "p",
+              "hour_sin",
+              "hour_cos",
+              "day_of_week_sin",
+              "day_of_week_cos",
+              "weekend"
+            ],
+            "history_length": 168,
+            "forecast_horizon": 1,
+            "target": "next-hour active power P",
+            "num_samples": 8592,
+            "num_nodes": 80,
+            "num_features": 6,
+            "history_shape": [
+              168,
+              80,
+              6
+            ],
+            "target_shape": [
+              80
+            ],
+            "x_shape": [
+              8592,
+              168,
+              80,
+              6
+            ],
+            "y_shape": [
+              8592,
+              80
+            ],
+            "first_target_timestamp": "2021-01-08 00:00:00",
+            "last_target_timestamp": "2021-12-31 23:00:00",
+            "load_bus_count": 32,
+            "branch_type_code_used": false,
+            "target_indices": {
+              "train": [
+                168,
+                6131,
+                5964
+              ],
+              "validation": [
+                6132,
+                7445,
+                1314
+              ],
+              "test": [
+                7446,
+                8759,
+                1314
+              ]
+            }
+          },
+          "split_checks": {
+            "train": {
+              "sample_count": 5964,
+              "first_target_timestamp": "2021-01-08 00:00:00",
+              "last_target_timestamp": "2021-09-13 11:00:00",
+              "first_target_index": 168,
+              "last_target_index": 6131,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                80,
+                6
+              ],
+              "target_shape": [
+                80
+              ],
+              "first_history_end_index": 168,
+              "first_target_index_for_leakage_check": 168
+            },
+            "validation": {
+              "sample_count": 1314,
+              "first_target_timestamp": "2021-09-13 12:00:00",
+              "last_target_timestamp": "2021-11-07 05:00:00",
+              "first_target_index": 6132,
+              "last_target_index": 7445,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                80,
+                6
+              ],
+              "target_shape": [
+                80
+              ],
+              "first_history_end_index": 6132,
+              "first_target_index_for_leakage_check": 6132
+            },
+            "test": {
+              "sample_count": 1314,
+              "first_target_timestamp": "2021-11-07 06:00:00",
+              "last_target_timestamp": "2021-12-31 23:00:00",
+              "first_target_index": 7446,
+              "last_target_index": 8759,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                80,
+                6
+              ],
+              "target_shape": [
+                80
+              ],
+              "first_history_end_index": 7446,
+              "first_target_index_for_leakage_check": 7446
+            }
+          },
+          "target_split_bounds_valid": true,
+          "no_future_leakage": true,
+          "scaler": {
+            "feature_names": [
+              "p",
+              "hour_sin",
+              "hour_cos",
+              "day_of_week_sin",
+              "day_of_week_cos",
+              "weekend"
+            ],
+            "fit_split": "train",
+            "fit_start_index": 0,
+            "fit_end_index": 6132,
+            "fit_timestamp_end": "2021-09-13 11:00:00",
+            "fit_value_count": 490560,
+            "train_only": true
+          },
+          "branch_type_code_used": false,
+          "test_labels_evaluated": false,
+          "all_checks_pass": true
+        },
+        "pq_calendar": {
+          "metadata": {
+            "grid_name": "80_bus_rural_reference_grid",
+            "feature_mode": "pq_calendar",
+            "feature_names": [
+              "p",
+              "q",
+              "hour_sin",
+              "hour_cos",
+              "day_of_week_sin",
+              "day_of_week_cos",
+              "weekend"
+            ],
+            "history_length": 168,
+            "forecast_horizon": 1,
+            "target": "next-hour active power P",
+            "num_samples": 8592,
+            "num_nodes": 80,
+            "num_features": 7,
+            "history_shape": [
+              168,
+              80,
+              7
+            ],
+            "target_shape": [
+              80
+            ],
+            "x_shape": [
+              8592,
+              168,
+              80,
+              7
+            ],
+            "y_shape": [
+              8592,
+              80
+            ],
+            "first_target_timestamp": "2021-01-08 00:00:00",
+            "last_target_timestamp": "2021-12-31 23:00:00",
+            "load_bus_count": 32,
+            "branch_type_code_used": false,
+            "target_indices": {
+              "train": [
+                168,
+                6131,
+                5964
+              ],
+              "validation": [
+                6132,
+                7445,
+                1314
+              ],
+              "test": [
+                7446,
+                8759,
+                1314
+              ]
+            }
+          },
+          "split_checks": {
+            "train": {
+              "sample_count": 5964,
+              "first_target_timestamp": "2021-01-08 00:00:00",
+              "last_target_timestamp": "2021-09-13 11:00:00",
+              "first_target_index": 168,
+              "last_target_index": 6131,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                80,
+                7
+              ],
+              "target_shape": [
+                80
+              ],
+              "first_history_end_index": 168,
+              "first_target_index_for_leakage_check": 168
+            },
+            "validation": {
+              "sample_count": 1314,
+              "first_target_timestamp": "2021-09-13 12:00:00",
+              "last_target_timestamp": "2021-11-07 05:00:00",
+              "first_target_index": 6132,
+              "last_target_index": 7445,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                80,
+                7
+              ],
+              "target_shape": [
+                80
+              ],
+              "first_history_end_index": 6132,
+              "first_target_index_for_leakage_check": 6132
+            },
+            "test": {
+              "sample_count": 1314,
+              "first_target_timestamp": "2021-11-07 06:00:00",
+              "last_target_timestamp": "2021-12-31 23:00:00",
+              "first_target_index": 7446,
+              "last_target_index": 8759,
+              "target_in_split_bounds": true,
+              "history_shape": [
+                168,
+                80,
+                7
+              ],
+              "target_shape": [
+                80
+              ],
+              "first_history_end_index": 7446,
+              "first_target_index_for_leakage_check": 7446
+            }
+          },
+          "target_split_bounds_valid": true,
+          "no_future_leakage": true,
+          "scaler": {
+            "feature_names": [
+              "p",
+              "q",
+              "hour_sin",
+              "hour_cos",
+              "day_of_week_sin",
+              "day_of_week_cos",
+              "weekend"
+            ],
+            "fit_split": "train",
+            "fit_start_index": 0,
+            "fit_end_index": 6132,
+            "fit_timestamp_end": "2021-09-13 11:00:00",
+            "fit_value_count": 490560,
+            "train_only": true
+          },
+          "branch_type_code_used": false,
+          "test_labels_evaluated": false,
+          "all_checks_pass": true
+        }
+      },
+      "all_checks_pass": true
+    }
+  ],
+  "all_checks_pass": true
+}
