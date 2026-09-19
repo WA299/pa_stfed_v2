@@ -22,6 +22,22 @@ class GlobalAttentionBaselineTest(unittest.TestCase):
         self.assertTrue(torch.allclose(weights.sum(dim=-1), torch.ones(2, 4), atol=1e-6))
         self.assertTrue(torch.all(weights[:, 0, 3] > 0))
 
+    def test_load_source_mask_zeroes_non_load_sources_but_keeps_all_queries(self) -> None:
+        import torch
+
+        model = GlobalAttentionBaseline()
+        source_mask = torch.tensor([True, False, True, False])
+        prediction, weights = model(
+            torch.randn(2, 168, 4, 6),
+            source_mask=source_mask,
+            return_attention=True,
+        )
+        self.assertEqual(tuple(prediction.shape), (2, 4))
+        self.assertEqual(tuple(weights.shape), (2, 4, 4))
+        self.assertTrue(torch.all(weights[..., ~source_mask] == 0))
+        self.assertTrue(torch.allclose(weights.sum(dim=-1), torch.ones(2, 4), atol=1e-6))
+        self.assertTrue(torch.all(weights[..., source_mask] > 0))
+
     def test_different_node_counts_and_masked_backward(self) -> None:
         import torch
 
