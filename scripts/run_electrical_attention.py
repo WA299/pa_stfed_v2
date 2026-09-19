@@ -50,7 +50,7 @@ DEFAULT_MAX_EPOCHS = 50
 DEFAULT_PATIENCE = 8
 DEFAULT_BATCH_SIZE = 32
 DEFAULT_LEARNING_RATE = 1e-3
-LAMBDA_INITIAL = 1.0
+DEFAULT_LAMBDA_INITIAL = 1.0
 REPORT_METRICS = ("mae", "rmse", "wape_pct", "smape_pct")
 
 
@@ -60,9 +60,21 @@ def parse_grid_name(value: str) -> str:
     return value
 
 
-def output_paths(grid_name: str, output_dir: Path) -> tuple[Path, Path]:
+def _lambda_suffix(lambda_initial: float) -> str:
+    if float(lambda_initial) == 1.0:
+        return ""
+    value = format(float(lambda_initial), ".12g")
+    value = value.replace("-", "m").replace("+", "p").replace(".", "p")
+    return f"_lambda{value}"
+
+
+def output_paths(
+    grid_name: str,
+    output_dir: Path,
+    lambda_initial: float = DEFAULT_LAMBDA_INITIAL,
+) -> tuple[Path, Path]:
     parse_grid_name(grid_name)
-    stem = f"electrical_attn_{GRID_SHORT_NAMES[grid_name]}_{FEATURE_MODE}"
+    stem = f"electrical_attn_{GRID_SHORT_NAMES[grid_name]}_{FEATURE_MODE}{_lambda_suffix(lambda_initial)}"
     return output_dir / f"{stem}.json", output_dir / f"{stem}.md"
 
 
@@ -131,7 +143,7 @@ def run_training(args: argparse.Namespace) -> dict[str, Any]:
         input_size=INPUT_SIZE,
         hidden_size=HIDDEN_SIZE,
         num_layers=NUM_LAYERS,
-        lambda_initial=LAMBDA_INITIAL,
+        lambda_initial=args.lambda_initial,
     ).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate)
     mask = torch.from_numpy(grid.load_bus_mask)
@@ -187,7 +199,7 @@ def run_training(args: argparse.Namespace) -> dict[str, Any]:
             "electrical_distance_type": "impedance_abs_distance",
             "distance_normalization": "median_positive_offdiagonal_then_log1p",
             "lambda_learnable": True,
-            "lambda_initial": float(LAMBDA_INITIAL),
+            "lambda_initial": float(args.lambda_initial),
             "lambda_final": float(model.lambda_value.detach().cpu()),
             "electrical_edge_features_used": False,
         },
@@ -243,6 +255,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--patience", type=int, default=DEFAULT_PATIENCE)
     parser.add_argument("--batch-size", type=int, default=DEFAULT_BATCH_SIZE)
     parser.add_argument("--learning-rate", type=float, default=DEFAULT_LEARNING_RATE)
+    parser.add_argument("--lambda-initial", type=float, default=DEFAULT_LAMBDA_INITIAL)
     parser.add_argument("--data-root", type=Path, default=REPO_ROOT.parent / "pa_stfed_data_v2" / "raw")
     parser.add_argument("--mapping-json", type=Path, default=REPO_ROOT / "results" / "audits" / "v2_schema_mapping.json")
     parser.add_argument("--output-dir", type=Path, default=REPO_ROOT / "results" / "centralized")
@@ -251,7 +264,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = build_parser().parse_args()
-    output_json, output_md = output_paths(args.grid, args.output_dir)
+    output_json, output_md = output_paths(args.grid, args.output_dir, args.lambda_initial)
     report = run_training(args)
     output_json.parent.mkdir(parents=True, exist_ok=True)
     output_json.write_text(json.dumps(report, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
