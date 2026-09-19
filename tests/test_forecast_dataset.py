@@ -74,17 +74,51 @@ class ForecastDatasetTest(unittest.TestCase):
 
     def test_scaler_is_train_only(self) -> None:
         for grid in self.loader.load_all().values():
-            dataset = ForecastWindowDataset.from_grid(grid, "pq_calendar")
-            scaler = dataset.fit_scaler()
             train = grid.splits["train"]
-            self.assertEqual(scaler.fit_split, "train")
-            self.assertEqual(scaler.fit_start_index, train.start_index)
-            self.assertEqual(scaler.fit_end_index, train.end_index)
-            self.assertEqual(scaler.fit_value_count, train.sample_count * grid.num_nodes)
-            with self.assertRaises(ValueError):
-                scaler.fit(dataset, split="validation")
-            sample = dataset[0]["x"]
-            self.assertEqual(scaler.transform(sample).shape, sample.shape)
+            load_mask = grid.load_bus_mask
+            expected_count = train.sample_count * int(load_mask.sum())
+            for mode in FEATURE_MODES:
+                dataset = ForecastWindowDataset.from_grid(grid, mode)
+                scaler = dataset.fit_scaler()
+                self.assertEqual(scaler.fit_split, "train")
+                self.assertEqual(scaler.fit_start_index, train.start_index)
+                self.assertEqual(scaler.fit_end_index, train.end_index)
+                self.assertEqual(scaler.fit_value_count, expected_count)
+                self.assertEqual(scaler.fit_load_bus_count, int(load_mask.sum()))
+                self.assertEqual(scaler.fit_value_count_by_feature["p"], expected_count)
+                train_p = grid.p[train.start_index : train.end_index][:, load_mask]
+                self.assertAlmostEqual(scaler.p_mean_, float(np.mean(train_p)), places=8)
+                self.assertAlmostEqual(scaler.p_scale_, float(np.std(train_p)), places=8)
+                if mode == "pq_calendar":
+                    self.assertEqual(scaler.fit_value_count_by_feature["q"], expected_count)
+                    train_q = grid.q[train.start_index : train.end_index][:, load_mask]
+                    self.assertAlmostEqual(scaler.q_mean_, float(np.mean(train_q)), places=8)
+                    self.assertAlmostEqual(scaler.q_scale_, float(np.std(train_q)), places=8)
+                else:
+                    self.assertIsNone(scaler.q_mean_)
+                    self.assertIsNone(scaler.q_scale_)
+                with self.assertRaises(ValueError):
+                    scaler.fit(dataset, split="validation")
+
+                sample = dataset[0]["x"]
+                transformed = scaler.transform(sample)
+                restored_features = scaler.inverse_transform(transformed)
+                self.assertEqual(transformed.shape, sample.shape)
+                calendar_names = {"hour_sin", "hour_cos", "day_of_week_sin", "day_of_week_cos", "weekend"}
+                for position, name in enumerate(dataset.feature_names):
+                    if name in calendar_names:
+                        self.assertTrue(np.array_equal(transformed[..., position], sample[..., position]))
+                        self.assertTrue(np.array_equal(restored_features[..., position], sample[..., position]))
+                    if name in {"p", "q"}:
+                        self.assertTrue(np.all(transformed[..., ~load_mask, position] == 0.0))
+                        self.assertTrue(np.all(restored_features[..., ~load_mask, position] == 0.0))
+
+                target = dataset[0]["y"]
+                target_scaled = scaler.transform_target(target)
+                target_restored = scaler.inverse_transform_target(target_scaled)
+                self.assertTrue(np.allclose(target_restored, target))
+                self.assertTrue(np.all(target_scaled[~load_mask] == 0.0))
+                self.assertTrue(np.all(target_restored[~load_mask] == 0.0))
 
 
 if __name__ == "__main__":
