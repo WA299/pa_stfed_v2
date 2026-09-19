@@ -7,3 +7,13 @@
 原始数据存放于仓库外部，不提交 GitHub。
 
 当前阶段：数据审计与实验环境初始化，尚未开始正式模型训练。
+
+## Centralized GRU smoke baseline
+
+Install PyTorch locally, then run the 39-bus validation-only baseline:
+
+python scripts/run_gru_smoke_39bus.py
+
+The script uses p_calendar, shared-node GRU hidden size 32, seed 42, maximum
+30 epochs and patience 5. It writes results/centralized/gru_smoke_39bus.json
+and .md, and does not compute test metrics.
