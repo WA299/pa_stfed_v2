@@ -25,6 +25,8 @@ from code.models.centralized_gru import (
     TORCH_AVAILABLE,
     SharedNodeGRU,
     evaluate_validation,
+    best_epoch_summary,
+    compare_gru_persistence,
     masked_scaled_mae,
     persistence_1h_predictions,
 )
@@ -113,6 +115,7 @@ def run_training(args: argparse.Namespace) -> dict[str, Any]:
     persistence_prediction = persistence_1h_predictions(grid.p, validation_dataset.target_indices)
     persistence_actual = grid.p[validation_dataset.target_indices]
     persistence = evaluate_validation(persistence_actual, persistence_prediction, grid.load_bus_mask)
+    summary = best_epoch_summary(history)
     return {
         "config": {"grid_name": GRID_NAME, "feature_mode": FEATURE_MODE, "history_length": 168,
                    "forecast_horizon": 1, "hidden_size": HIDDEN_SIZE, "num_layers": NUM_LAYERS,
@@ -120,7 +123,11 @@ def run_training(args: argparse.Namespace) -> dict[str, Any]:
                    "batch_size": args.batch_size, "learning_rate": args.learning_rate,
                    "device": str(device), "topology_used": False},
         "validation": {"gru": validation, "persistence_1h": persistence},
+        "comparison": compare_gru_persistence(validation, persistence),
+        "summary": summary,
+        "metric_units": {"mae": "P units", "rmse": "P units", "wape_pct": "%", "smape_pct": "%"},
         "training_history": history,
+        "test_evaluated": False,
         "test_metric_computed": False,
     }
 
@@ -128,15 +135,26 @@ def run_training(args: argparse.Namespace) -> dict[str, Any]:
 def render_markdown(report: dict[str, Any]) -> str:
     lines = ["# Centralized GRU Smoke Baseline: 39-bus", "",
              "Validation-only metrics. Test labels and test metrics are intentionally not used.", "",
-             "| Method | Scope | MAE | RMSE | WAPE | sMAPE |",
+             "| Method | Scope | MAE | RMSE | WAPE (%) | sMAPE (%) |",
              "| --- | --- | ---: | ---: | ---: | ---: |"]
     pairs = (("SharedNodeGRU", report["validation"]["gru"]),
              ("Persistence 1h", report["validation"]["persistence_1h"]))
     for method, result in pairs:
         for scope in ("node_macro", "grid_aggregate"):
             values = result[scope]
-            lines.append(f"| {method} | {scope} | {values['mae']:.6g} | {values['rmse']:.6g} | {values['wape']:.6g} | {values['smape']:.6g} |")
-    lines.extend(["", f"Epochs run: {len(report['training_history'])}", "", "Test metric computed: False"])
+            lines.append(f"| {method} | {scope} | {values['mae']:.6g} | {values['rmse']:.6g} | {values['wape_pct']:.6g} | {values['smape_pct']:.6g} |")
+    lines.extend(["", "## Best epoch summary", "",
+                  f"- best_epoch: {report['summary']['best_epoch']}",
+                  f"- best_validation_node_macro_mae: {report['summary']['best_validation_node_macro_mae']:.6g}",
+                  f"- best_train_scaled_mae: {report['summary']['best_train_scaled_mae']:.6g}",
+                  f"- epochs_run: {report['summary']['epochs_run']}", "",
+                  "## GRU vs persistence_1h factual comparison", "",
+                  "| Scope | MAE | RMSE | WAPE (%) | sMAPE (%) |",
+                  "| --- | --- | --- | --- | --- |"])
+    for scope in ("node_macro", "grid_aggregate"):
+        relation = report["comparison"][scope]
+        lines.append(f"| {scope} | {relation['mae']} | {relation['rmse']} | {relation['wape_pct']} | {relation['smape_pct']} |")
+    lines.extend(["", "test_evaluated: False"])
     return "\n".join(lines) + "\n"
 
 

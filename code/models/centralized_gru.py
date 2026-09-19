@@ -77,24 +77,24 @@ def _masked_numpy(values: np.ndarray, load_bus_mask: np.ndarray) -> np.ndarray:
 
 def _safe_wape(actual: np.ndarray, prediction: np.ndarray, epsilon: float = 1e-8) -> float:
     denominator = float(np.sum(np.abs(actual)))
-    return float(np.sum(np.abs(prediction - actual)) / max(denominator, epsilon))
+    return float(100.0 * np.sum(np.abs(prediction - actual)) / max(denominator, epsilon))
 
 
 def _smape(actual: np.ndarray, prediction: np.ndarray, epsilon: float = 1e-8) -> float:
     denominator = np.abs(actual) + np.abs(prediction)
-    return float(np.mean(2.0 * np.abs(prediction - actual) / np.maximum(denominator, epsilon)))
+    return float(100.0 * np.mean(2.0 * np.abs(prediction - actual) / np.maximum(denominator, epsilon)))
 
 
 def regression_metrics(actual: np.ndarray, prediction: np.ndarray, load_bus_mask: np.ndarray) -> dict[str, float]:
-    """Compute masked MAE/RMSE/WAPE/sMAPE in original P units."""
+    """Compute masked metrics in original P units; WAPE/sMAPE are percentages."""
     actual_load = _masked_numpy(actual, load_bus_mask)
     prediction_load = _masked_numpy(prediction, load_bus_mask)
     errors = prediction_load - actual_load
     return {
         "mae": float(np.mean(np.abs(errors))),
         "rmse": float(np.sqrt(np.mean(errors**2))),
-        "wape": _safe_wape(actual_load, prediction_load),
-        "smape": _smape(actual_load, prediction_load),
+        "wape_pct": _safe_wape(actual_load, prediction_load),
+        "smape_pct": _smape(actual_load, prediction_load),
     }
 
 
@@ -109,7 +109,7 @@ def evaluate_validation(actual: np.ndarray, prediction: np.ndarray, load_bus_mas
     ]
     node_macro = {
         metric: float(np.mean([item[metric] for item in node_metrics]))
-        for metric in ("mae", "rmse", "wape", "smape")
+        for metric in ("mae", "rmse", "wape_pct", "smape_pct")
     }
     aggregate_actual = np.sum(actual_load, axis=1, keepdims=True)
     aggregate_prediction = np.sum(prediction_load, axis=1, keepdims=True)
@@ -128,5 +128,41 @@ def persistence_1h_predictions(p_values: np.ndarray, target_indices: np.ndarray)
     if p_values.ndim != 2 or np.any(target_indices <= 0) or np.any(target_indices >= len(p_values)):
         raise ValueError("invalid P array or target indices for persistence baseline")
     return p_values[target_indices - 1].copy()
+
+
+REPORT_METRICS = ("mae", "rmse", "wape_pct", "smape_pct")
+
+
+def best_epoch_summary(training_history: list[dict[str, Any]]) -> dict[str, Any]:
+    """Summarize the epoch with minimum validation node-macro MAE."""
+    if not training_history:
+        raise ValueError("training_history must contain at least one epoch")
+    best = min(training_history, key=lambda item: float(item["validation"]["node_macro"]["mae"]))
+    return {
+        "best_epoch": int(best["epoch"]),
+        "best_validation_node_macro_mae": float(best["validation"]["node_macro"]["mae"]),
+        "best_train_scaled_mae": float(best["train_scaled_mae"]),
+        "epochs_run": int(len(training_history)),
+    }
+
+
+def compare_gru_persistence(
+    gru: dict[str, Any], persistence: dict[str, Any]
+) -> dict[str, dict[str, str]]:
+    """Compare each metric factually, without an overall model judgement."""
+    comparison: dict[str, dict[str, str]] = {}
+    for scope in ("node_macro", "grid_aggregate"):
+        comparison[scope] = {}
+        for metric in REPORT_METRICS:
+            gru_value = float(gru[scope][metric])
+            persistence_value = float(persistence[scope][metric])
+            if np.isclose(gru_value, persistence_value, rtol=1e-12, atol=1e-12):
+                relation = "equal"
+            elif gru_value < persistence_value:
+                relation = "gru_lower"
+            else:
+                relation = "gru_higher"
+            comparison[scope][metric] = relation
+    return comparison
 
 

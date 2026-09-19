@@ -4,7 +4,13 @@ import unittest
 
 import numpy as np
 
-from code.models.centralized_gru import TORCH_AVAILABLE, evaluate_validation, persistence_1h_predictions
+from code.models.centralized_gru import (
+    TORCH_AVAILABLE,
+    best_epoch_summary,
+    compare_gru_persistence,
+    evaluate_validation,
+    persistence_1h_predictions,
+)
 
 
 class CentralizedGRUSmokeTest(unittest.TestCase):
@@ -16,6 +22,47 @@ class CentralizedGRUSmokeTest(unittest.TestCase):
         self.assertEqual(result["sample_count"], 2)
         self.assertAlmostEqual(result["node_macro"]["mae"], 0.75)
         self.assertAlmostEqual(result["grid_aggregate"]["mae"], 0.75)
+
+    def test_percentage_metric_units(self) -> None:
+        result = evaluate_validation(
+            np.array([[1.0], [1.0]]),
+            np.array([[1.1], [1.1]]),
+            np.array([True]),
+        )
+        self.assertAlmostEqual(result["node_macro"]["wape_pct"], 10.0)
+        self.assertAlmostEqual(result["node_macro"]["smape_pct"], 9.5238095238)
+
+    def test_best_epoch_summary(self) -> None:
+        history = [
+            {"epoch": 1, "train_scaled_mae": 0.8, "validation": {"node_macro": {"mae": 2.0}}},
+            {"epoch": 2, "train_scaled_mae": 0.6, "validation": {"node_macro": {"mae": 1.0}}},
+        ]
+        self.assertEqual(
+            best_epoch_summary(history),
+            {
+                "best_epoch": 2,
+                "best_validation_node_macro_mae": 1.0,
+                "best_train_scaled_mae": 0.6,
+                "epochs_run": 2,
+            },
+        )
+
+    def test_comparison_helper_is_metric_and_scope_specific(self) -> None:
+        gru = {
+            "node_macro": {"mae": 1.0, "rmse": 2.0, "wape_pct": 3.0, "smape_pct": 4.0},
+            "grid_aggregate": {"mae": 5.0, "rmse": 6.0, "wape_pct": 7.0, "smape_pct": 8.0},
+        }
+        persistence = {
+            "node_macro": {"mae": 1.0, "rmse": 1.0, "wape_pct": 4.0, "smape_pct": 5.0},
+            "grid_aggregate": {"mae": 4.0, "rmse": 7.0, "wape_pct": 7.0, "smape_pct": 9.0},
+        }
+        comparison = compare_gru_persistence(gru, persistence)
+        self.assertEqual(comparison["node_macro"], {
+            "mae": "equal", "rmse": "gru_higher", "wape_pct": "gru_lower", "smape_pct": "gru_lower",
+        })
+        self.assertEqual(comparison["grid_aggregate"], {
+            "mae": "gru_higher", "rmse": "gru_lower", "wape_pct": "equal", "smape_pct": "gru_lower",
+        })
 
     def test_persistence_uses_previous_timestamp(self) -> None:
         p = np.arange(12, dtype=float).reshape(4, 3)
