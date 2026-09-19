@@ -52,7 +52,7 @@ DEFAULT_BATCH_SIZE = 32
 DEFAULT_LEARNING_RATE = 1e-3
 REPORT_METRICS = ("mae", "rmse", "wape_pct", "smape_pct")
 ATTENTION_SOURCES = ("all_nodes", "load_buses")
-ATTENTION_SCOPES = ("all_nodes", "physical_hop2")
+ATTENTION_SCOPES = ("all_nodes", "physical_hop2", "electrical_load_knn3")
 
 
 def parse_grid_name(value: str) -> str:
@@ -66,8 +66,8 @@ def validate_attention_options(attention_scope: str, attention_source: str) -> N
         raise ValueError(f"unsupported attention scope: {attention_scope}")
     if attention_source not in ATTENTION_SOURCES:
         raise ValueError(f"unsupported attention source: {attention_source}")
-    if attention_scope == "physical_hop2" and attention_source == "load_buses":
-        raise ValueError("physical_hop2 cannot be combined with load_buses attention source")
+    if attention_scope in ("physical_hop2", "electrical_load_knn3") and attention_source == "load_buses":
+        raise ValueError(f"{attention_scope} cannot be combined with load_buses attention source")
 
 
 def build_physical_hop2_mask(hop_distance: Any) -> np.ndarray:
@@ -75,6 +75,31 @@ def build_physical_hop2_mask(hop_distance: Any) -> np.ndarray:
     if hop.ndim != 2 or hop.shape[0] != hop.shape[1]:
         raise ValueError("hop_distance must be a square matrix")
     return np.asarray(hop <= 2, dtype=bool)
+
+
+def build_electrical_load_knn_mask(
+    impedance_distance: Any, load_bus_mask: Any, k: int = 3
+) -> np.ndarray:
+    """Build self + nearest load-bus candidate mask from canonical distances."""
+    distance = np.asarray(impedance_distance, dtype=float)
+    load = np.asarray(load_bus_mask, dtype=bool)
+    if distance.ndim != 2 or distance.shape[0] != distance.shape[1]:
+        raise ValueError("impedance_abs_distance must be square")
+    if load.ndim != 1 or len(load) != distance.shape[0] or not np.any(load):
+        raise ValueError("load_bus_mask must align with distance matrix and select a bus")
+    if k < 0:
+        raise ValueError("k must be non-negative")
+    n = distance.shape[0]
+    mask = np.zeros((n, n), dtype=bool)
+    load_indices = np.flatnonzero(load)
+    for i in range(n):
+        mask[i, i] = True
+        if not load[i]:
+            continue
+        others = [int(j) for j in load_indices if int(j) != i]
+        others.sort(key=lambda j: (float(distance[i, j]), j))
+        mask[i, others[:k]] = True
+    return mask
 
 
 def output_paths(
@@ -85,7 +110,7 @@ def output_paths(
 ) -> tuple[Path, Path]:
     parse_grid_name(grid_name)
     validate_attention_options(attention_scope, attention_source)
-    suffix = "_hop2" if attention_scope == "physical_hop2" else ""
+    suffix = {"physical_hop2": "_hop2", "electrical_load_knn3": "_elecknn3"}.get(attention_scope, "")
     if attention_source == "load_buses":
         suffix += "_loadsrc"
     stem = f"global_attn_{GRID_SHORT_NAMES[grid_name]}_{FEATURE_MODE}{suffix}"
@@ -178,6 +203,12 @@ def run_training(args: argparse.Namespace) -> dict[str, Any]:
         candidate_mask = torch.from_numpy(
             build_physical_hop2_mask(grid.distance_matrices["hop_distance"])
         ).to(device)
+    elif args.attention_scope == "electrical_load_knn3":
+        candidate_mask = torch.from_numpy(
+            build_electrical_load_knn_mask(
+                grid.distance_matrices["impedance_abs_distance"], grid.load_bus_mask, k=3
+            )
+        ).to(device)
     model = GlobalAttentionBaseline(input_size=INPUT_SIZE, hidden_size=HIDDEN_SIZE, num_layers=NUM_LAYERS).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate)
     mask = torch.from_numpy(grid.load_bus_mask)
@@ -251,10 +282,13 @@ def run_training(args: argparse.Namespace) -> dict[str, Any]:
             "device": str(device),
             "temporal_encoder": "shared_gru",
             "spatial_attention": "global_scaled_dot_product",
-            "topology_used": args.attention_scope == "physical_hop2",
+            "topology_used": args.attention_scope in ("physical_hop2", "electrical_load_knn3"),
             "attention_scope": args.attention_scope,
-            "attention_source": "all_nodes" if args.attention_source == "all_nodes" else "load_buses_only",
-            "electrical_distance_used": False,
+            "attention_source": "candidate_mask_defined" if args.attention_scope == "electrical_load_knn3" else ("all_nodes" if args.attention_source == "all_nodes" else "load_buses_only"),
+            "electrical_distance_used": args.attention_scope == "electrical_load_knn3",
+            "electrical_distance_role": "candidate_selection_only" if args.attention_scope == "electrical_load_knn3" else None,
+            "electrical_bias_used": False if args.attention_scope == "electrical_load_knn3" else None,
+            "knn_k": 3 if args.attention_scope == "electrical_load_knn3" else None,
             "electrical_edge_features_used": False,
         },
         "validation": {"global_attention": validation, "persistence_1h": persistence},
@@ -293,7 +327,11 @@ def render_markdown(report: dict[str, Any]) -> str:
         "", f"temporal_encoder: {config['temporal_encoder']}", f"spatial_attention: {config['spatial_attention']}",
         f"topology_used: {config['topology_used']}", f"attention_scope: {config['attention_scope']}",
         f"attention_source: {config['attention_source']}",
-        "electrical_distance_used: False", "electrical_edge_features_used: False", "test_evaluated: False", "",
+        f"electrical_distance_used: {config.get('electrical_distance_used', False)}",
+        f"electrical_distance_role: {config.get('electrical_distance_role')}",
+        f"electrical_bias_used: {config.get('electrical_bias_used', False)}",
+        f"knn_k: {config.get('knn_k')}",
+        "electrical_edge_features_used: False", "test_evaluated: False", "",
     ])
     return "\n".join(lines)
 
