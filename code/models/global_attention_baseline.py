@@ -1,0 +1,95 @@
+"""Topology-free shared-GRU plus global scaled dot-product attention baseline."""
+
+from __future__ import annotations
+
+import math
+from typing import Any
+
+try:
+    import torch
+    from torch import Tensor, nn
+
+    TORCH_AVAILABLE = True
+except ImportError:  # pragma: no cover
+    torch = None  # type: ignore[assignment]
+    Tensor = Any  # type: ignore[misc,assignment]
+    nn = None  # type: ignore[assignment]
+    TORCH_AVAILABLE = False
+
+
+def _require_torch() -> None:
+    if not TORCH_AVAILABLE:
+        raise ImportError("GlobalAttentionBaseline requires PyTorch; install torch to run the model")
+
+
+if TORCH_AVAILABLE:
+
+    class GlobalAttentionBaseline(nn.Module):
+        """Shared-node GRU followed by global single-head self-attention."""
+
+        def __init__(
+            self,
+            input_size: int = 6,
+            hidden_size: int = 32,
+            num_layers: int = 1,
+        ) -> None:
+            super().__init__()
+            if int(input_size) != 6:
+                raise ValueError("global attention baseline requires the six p_calendar features")
+            if int(hidden_size) != 32:
+                raise ValueError("global attention baseline requires hidden_size=32")
+            if int(num_layers) != 1:
+                raise ValueError("global attention baseline requires num_layers=1")
+            self.input_size = int(input_size)
+            self.hidden_size = int(hidden_size)
+            self.num_layers = int(num_layers)
+            self.gru = nn.GRU(
+                input_size=self.input_size,
+                hidden_size=self.hidden_size,
+                num_layers=self.num_layers,
+                batch_first=False,
+            )
+            self.query_projection = nn.Linear(self.hidden_size, self.hidden_size)
+            self.key_projection = nn.Linear(self.hidden_size, self.hidden_size)
+            self.value_projection = nn.Linear(self.hidden_size, self.hidden_size)
+            self.spatial_projection = nn.Linear(self.hidden_size, self.hidden_size)
+            self.output = nn.Linear(self.hidden_size, 1)
+            self.last_attention_weights: Tensor | None = None
+
+        def _temporal_encode(self, x: Tensor) -> Tensor:
+            batch_size, history_length, node_count, feature_count = x.shape
+            node_sequences = x.permute(1, 0, 2, 3).reshape(
+                history_length, batch_size * node_count, feature_count
+            )
+            _, hidden = self.gru(node_sequences)
+            return hidden[-1].reshape(batch_size, node_count, self.hidden_size)
+
+        def _global_attention(self, temporal_hidden: Tensor) -> tuple[Tensor, Tensor]:
+            queries = self.query_projection(temporal_hidden)
+            keys = self.key_projection(temporal_hidden)
+            values = self.value_projection(temporal_hidden)
+            scores = torch.matmul(queries, keys.transpose(-2, -1)) / math.sqrt(self.hidden_size)
+            weights = torch.softmax(scores, dim=-1)
+            attended = torch.matmul(weights, values)
+            spatial_hidden = temporal_hidden + self.spatial_projection(attended)
+            return spatial_hidden, weights
+
+        def forward(self, x: Tensor, return_attention: bool = False) -> Tensor | tuple[Tensor, Tensor]:
+            if x.ndim != 4:
+                raise ValueError("x must have shape (batch, history, nodes, features)")
+            _, history_length, _, feature_count = x.shape
+            if feature_count != self.input_size:
+                raise ValueError(f"expected {self.input_size} features, got {feature_count}")
+            if history_length <= 0:
+                raise ValueError("history length must be positive")
+            temporal_hidden = self._temporal_encode(x)
+            spatial_hidden, weights = self._global_attention(temporal_hidden)
+            self.last_attention_weights = weights
+            prediction = self.output(spatial_hidden).squeeze(-1)
+            return (prediction, weights) if return_attention else prediction
+
+else:
+
+    class GlobalAttentionBaseline:  # type: ignore[no-redef]
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            _require_torch()
