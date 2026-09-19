@@ -68,11 +68,23 @@ if TORCH_AVAILABLE:
             self,
             temporal_hidden: Tensor,
             source_mask: Tensor | None = None,
+            candidate_mask: Tensor | None = None,
         ) -> tuple[Tensor, Tensor]:
             queries = self.query_projection(temporal_hidden)
             keys = self.key_projection(temporal_hidden)
             values = self.value_projection(temporal_hidden)
             scores = torch.matmul(queries, keys.transpose(-2, -1)) / math.sqrt(self.hidden_size)
+            node_count = temporal_hidden.shape[1]
+            allowed = torch.ones((node_count, node_count), dtype=torch.bool, device=scores.device)
+            if candidate_mask is not None:
+                if not isinstance(candidate_mask, torch.Tensor):
+                    raise TypeError("candidate_mask must be a torch.Tensor or None")
+                if candidate_mask.ndim != 2 or candidate_mask.shape != (node_count, node_count):
+                    raise ValueError("candidate_mask must have shape (nodes, nodes)")
+                if candidate_mask.dtype != torch.bool:
+                    raise ValueError("candidate_mask must have bool dtype")
+                candidate_mask = candidate_mask.to(device=scores.device)
+                allowed = allowed & candidate_mask
             if source_mask is not None:
                 if not isinstance(source_mask, torch.Tensor):
                     raise TypeError("source_mask must be a torch.Tensor or None")
@@ -83,7 +95,10 @@ if TORCH_AVAILABLE:
                 if not bool(source_mask.any()):
                     raise ValueError("source_mask must select at least one source node")
                 source_mask = source_mask.to(device=scores.device)
-                scores = scores.masked_fill(~source_mask.view(1, 1, -1), float("-inf"))
+                allowed = allowed & source_mask.view(1, -1)
+            if not bool(allowed.any(dim=-1).all()):
+                raise ValueError("each query row must have at least one allowed source")
+            scores = scores.masked_fill(~allowed.unsqueeze(0), float("-inf"))
             weights = torch.softmax(scores, dim=-1)
             attended = torch.matmul(weights, values)
             spatial_hidden = temporal_hidden + self.spatial_projection(attended)
@@ -94,6 +109,7 @@ if TORCH_AVAILABLE:
             x: Tensor,
             return_attention: bool = False,
             source_mask: Tensor | None = None,
+            candidate_mask: Tensor | None = None,
         ) -> Tensor | tuple[Tensor, Tensor]:
             if x.ndim != 4:
                 raise ValueError("x must have shape (batch, history, nodes, features)")
@@ -103,7 +119,11 @@ if TORCH_AVAILABLE:
             if history_length <= 0:
                 raise ValueError("history length must be positive")
             temporal_hidden = self._temporal_encode(x)
-            spatial_hidden, weights = self._global_attention(temporal_hidden, source_mask=source_mask)
+            spatial_hidden, weights = self._global_attention(
+                temporal_hidden,
+                source_mask=source_mask,
+                candidate_mask=candidate_mask,
+            )
             self.last_attention_weights = weights
             prediction = self.output(spatial_hidden).squeeze(-1)
             return (prediction, weights) if return_attention else prediction

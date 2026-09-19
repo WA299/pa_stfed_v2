@@ -52,6 +52,7 @@ DEFAULT_BATCH_SIZE = 32
 DEFAULT_LEARNING_RATE = 1e-3
 REPORT_METRICS = ("mae", "rmse", "wape_pct", "smape_pct")
 ATTENTION_SOURCES = ("all_nodes", "load_buses")
+ATTENTION_SCOPES = ("all_nodes", "physical_hop2")
 
 
 def parse_grid_name(value: str) -> str:
@@ -60,15 +61,33 @@ def parse_grid_name(value: str) -> str:
     return value
 
 
+def validate_attention_options(attention_scope: str, attention_source: str) -> None:
+    if attention_scope not in ATTENTION_SCOPES:
+        raise ValueError(f"unsupported attention scope: {attention_scope}")
+    if attention_source not in ATTENTION_SOURCES:
+        raise ValueError(f"unsupported attention source: {attention_source}")
+    if attention_scope == "physical_hop2" and attention_source == "load_buses":
+        raise ValueError("physical_hop2 cannot be combined with load_buses attention source")
+
+
+def build_physical_hop2_mask(hop_distance: Any) -> np.ndarray:
+    hop = np.asarray(hop_distance)
+    if hop.ndim != 2 or hop.shape[0] != hop.shape[1]:
+        raise ValueError("hop_distance must be a square matrix")
+    return np.asarray(hop <= 2, dtype=bool)
+
+
 def output_paths(
     grid_name: str,
     output_dir: Path,
     attention_source: str = "all_nodes",
+    attention_scope: str = "all_nodes",
 ) -> tuple[Path, Path]:
     parse_grid_name(grid_name)
-    if attention_source not in ATTENTION_SOURCES:
-        raise ValueError(f"unsupported attention source: {attention_source}")
-    suffix = "_loadsrc" if attention_source == "load_buses" else ""
+    validate_attention_options(attention_scope, attention_source)
+    suffix = "_hop2" if attention_scope == "physical_hop2" else ""
+    if attention_source == "load_buses":
+        suffix += "_loadsrc"
     stem = f"global_attn_{GRID_SHORT_NAMES[grid_name]}_{FEATURE_MODE}{suffix}"
     return output_dir / f"{stem}.json", output_dir / f"{stem}.md"
 
@@ -115,6 +134,7 @@ def _evaluate_model(
     batch_size: int,
     device: Any,
     source_mask: Any = None,
+    candidate_mask: Any = None,
 ) -> dict[str, Any]:
     import torch
     predictions, actual = [], []
@@ -124,7 +144,11 @@ def _evaluate_model(
             x, y = _to_batch(dataset, scaler, indices)
             predictions.append(
                 scaler.inverse_transform_target(
-                    model(torch.from_numpy(x).to(device), source_mask=source_mask).cpu().numpy()
+                    model(
+                        torch.from_numpy(x).to(device),
+                        source_mask=source_mask,
+                        candidate_mask=candidate_mask,
+                    ).cpu().numpy()
                 )
             )
             actual.append(scaler.inverse_transform_target(y))
@@ -135,8 +159,7 @@ def run_training(args: argparse.Namespace) -> dict[str, Any]:
     if not TORCH_AVAILABLE:
         raise RuntimeError("PyTorch is required for training; install torch and rerun this script locally")
     parse_grid_name(args.grid)
-    if args.attention_source not in ATTENTION_SOURCES:
-        raise ValueError(f"unsupported attention source: {args.attention_source}")
+    validate_attention_options(args.attention_scope, args.attention_source)
     import torch
     _set_seed(args.seed)
     grid = LVGridLoader(args.data_root, args.mapping_json).load(args.grid)
@@ -150,6 +173,11 @@ def run_training(args: argparse.Namespace) -> dict[str, Any]:
         if args.attention_source == "load_buses"
         else None
     )
+    candidate_mask = None
+    if args.attention_scope == "physical_hop2":
+        candidate_mask = torch.from_numpy(
+            build_physical_hop2_mask(grid.distance_matrices["hop_distance"])
+        ).to(device)
     model = GlobalAttentionBaseline(input_size=INPUT_SIZE, hidden_size=HIDDEN_SIZE, num_layers=NUM_LAYERS).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate)
     mask = torch.from_numpy(grid.load_bus_mask)
@@ -162,14 +190,26 @@ def run_training(args: argparse.Namespace) -> dict[str, Any]:
             x, y = _to_batch(train_dataset, scaler, indices)
             optimizer.zero_grad(set_to_none=True)
             loss = masked_scaled_mae(
-                model(torch.from_numpy(x).to(device), source_mask=source_mask),
+                model(
+                    torch.from_numpy(x).to(device),
+                    source_mask=source_mask,
+                    candidate_mask=candidate_mask,
+                ),
                 torch.from_numpy(y).to(device),
                 mask,
             )
             loss.backward()
             optimizer.step()
             epoch_losses.append(float(loss.detach().cpu()))
-        validation = _evaluate_model(model, validation_dataset, scaler, args.batch_size, device, source_mask)
+        validation = _evaluate_model(
+            model,
+            validation_dataset,
+            scaler,
+            args.batch_size,
+            device,
+            source_mask,
+            candidate_mask,
+        )
         history.append({"epoch": epoch, "train_scaled_mae": float(np.mean(epoch_losses)), "validation": validation})
         validation_mae = validation["node_macro"]["mae"]
         if validation_mae < best_validation:
@@ -182,7 +222,15 @@ def run_training(args: argparse.Namespace) -> dict[str, Any]:
                 break
     if best_state is not None:
         model.load_state_dict(best_state)
-    validation = _evaluate_model(model, validation_dataset, scaler, args.batch_size, device, source_mask)
+    validation = _evaluate_model(
+        model,
+        validation_dataset,
+        scaler,
+        args.batch_size,
+        device,
+        source_mask,
+        candidate_mask,
+    )
     persistence_actual = grid.p[validation_dataset.target_indices]
     persistence_prediction = persistence_1h_predictions(grid.p, validation_dataset.target_indices)
     persistence = evaluate_validation(persistence_actual, persistence_prediction, grid.load_bus_mask)
@@ -203,8 +251,8 @@ def run_training(args: argparse.Namespace) -> dict[str, Any]:
             "device": str(device),
             "temporal_encoder": "shared_gru",
             "spatial_attention": "global_scaled_dot_product",
-            "topology_used": False,
-            "attention_scope": "all_nodes",
+            "topology_used": args.attention_scope == "physical_hop2",
+            "attention_scope": args.attention_scope,
             "attention_source": "all_nodes" if args.attention_source == "all_nodes" else "load_buses_only",
             "electrical_distance_used": False,
             "electrical_edge_features_used": False,
@@ -260,6 +308,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--batch-size", type=int, default=DEFAULT_BATCH_SIZE)
     parser.add_argument("--learning-rate", type=float, default=DEFAULT_LEARNING_RATE)
     parser.add_argument("--attention-source", choices=ATTENTION_SOURCES, default="all_nodes")
+    parser.add_argument("--attention-scope", choices=ATTENTION_SCOPES, default="all_nodes")
     parser.add_argument("--data-root", type=Path, default=REPO_ROOT.parent / "pa_stfed_data_v2" / "raw")
     parser.add_argument("--mapping-json", type=Path, default=REPO_ROOT / "results" / "audits" / "v2_schema_mapping.json")
     parser.add_argument("--output-dir", type=Path, default=REPO_ROOT / "results" / "centralized")
@@ -268,7 +317,12 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = build_parser().parse_args()
-    output_json, output_md = output_paths(args.grid, args.output_dir, args.attention_source)
+    output_json, output_md = output_paths(
+        args.grid,
+        args.output_dir,
+        args.attention_source,
+        args.attention_scope,
+    )
     report = run_training(args)
     output_json.parent.mkdir(parents=True, exist_ok=True)
     output_json.write_text(json.dumps(report, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")

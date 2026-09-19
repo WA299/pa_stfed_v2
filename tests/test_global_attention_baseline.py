@@ -38,6 +38,24 @@ class GlobalAttentionBaselineTest(unittest.TestCase):
         self.assertTrue(torch.allclose(weights.sum(dim=-1), torch.ones(2, 4), atol=1e-6))
         self.assertTrue(torch.all(weights[..., source_mask] > 0))
 
+    def test_candidate_mask_blocks_invalid_sources_and_keeps_query_count(self) -> None:
+        import torch
+
+        model = GlobalAttentionBaseline()
+        candidate_mask = torch.tensor(
+            [[True, True, False, False], [True, True, True, False],
+             [False, True, True, True], [False, False, True, True]]
+        )
+        prediction, weights = model(
+            torch.randn(2, 168, 4, 6),
+            candidate_mask=candidate_mask,
+            return_attention=True,
+        )
+        self.assertEqual(tuple(prediction.shape), (2, 4))
+        self.assertEqual(tuple(weights.shape), (2, 4, 4))
+        self.assertTrue(torch.all(weights.masked_select(~candidate_mask.unsqueeze(0)) == 0))
+        self.assertTrue(torch.allclose(weights.sum(dim=-1), torch.ones(2, 4), atol=1e-6))
+
     def test_different_node_counts_and_masked_backward(self) -> None:
         import torch
 
