@@ -1,0 +1,926 @@
+{
+  "audit": "v2_loader_validation",
+  "generated_at_utc": "2026-09-19T09:52:39.707626+00:00",
+  "scope": [
+    "Loader validation only; no model training and no test metrics.",
+    "All four physical LV bus topologies are retained.",
+    "Time order is preserved and split chronologically 70/15/15 without shuffle."
+  ],
+  "grids": [
+    {
+      "grid_name": "39_bus_semi_urban_reference_grid",
+      "metadata": {
+        "grid_name": "39_bus_semi_urban_reference_grid",
+        "node_ids": [
+          "1",
+          "38",
+          "34",
+          "12",
+          "21",
+          "18",
+          "36",
+          "29",
+          "37",
+          "30",
+          "35",
+          "27",
+          "3",
+          "26",
+          "13",
+          "14",
+          "24",
+          "15",
+          "16",
+          "17",
+          "19",
+          "25",
+          "22",
+          "4",
+          "2",
+          "6",
+          "7",
+          "23",
+          "5",
+          "9",
+          "10",
+          "33",
+          "11",
+          "20",
+          "39",
+          "31",
+          "28",
+          "8",
+          "32"
+        ],
+        "node_order_source": "mpc_bus.csv row order",
+        "edge_order_source": "mpc_branch.csv row order",
+        "root_bus": "1",
+        "root_resolution": "unique_directed_branch_source_without_type_3",
+        "explicit_slack_bus_ids": [],
+        "directed_branch_source_candidates": [
+          "1"
+        ],
+        "bus_count": 39,
+        "edge_count": 38,
+        "dynamic_feature_names": [
+          "p",
+          "q",
+          "hour_sin",
+          "hour_cos",
+          "day_of_week_sin",
+          "day_of_week_cos",
+          "weekend"
+        ],
+        "static_feature_names": [
+          "is_load_bus",
+          "degree",
+          "root_depth",
+          "consumer_profile_count"
+        ],
+        "edge_feature_names": [
+          "r",
+          "x",
+          "length_km",
+          "branch_type_code"
+        ],
+        "branch_type_mapping": {
+          "PFSP 1X3X25 AL": 0,
+          "PFSP 1X3X50 AL": 1,
+          "TFSP 1X3X150 AL": 2,
+          "TFSP 1X3X240 AL": 3,
+          "TFSP 1X3X95 AL": 4,
+          "TFXP 1X4X50 AL": 5
+        },
+        "consumer_profile_count": 29,
+        "physical_load_bus_count": 28,
+        "length_source": "branch_data_extra.csv",
+        "branch_type_source": "branch_data_extra.csv",
+        "timestamp_count": 8760,
+        "timestamp_start": "2021-01-01 00:00:00",
+        "timestamp_end": "2021-12-31 23:00:00",
+        "p_q_timestamp_aligned": true,
+        "p_q_profile_shape_aligned": true,
+        "time_order_preserved": true,
+        "split": {
+          "train": {
+            "start_index": 0,
+            "end_index": 6132,
+            "sample_count": 6132,
+            "start_time": "2021-01-01 00:00:00",
+            "end_time": "2021-09-13 11:00:00"
+          },
+          "validation": {
+            "start_index": 6132,
+            "end_index": 7446,
+            "sample_count": 1314,
+            "start_time": "2021-09-13 12:00:00",
+            "end_time": "2021-11-07 05:00:00"
+          },
+          "test": {
+            "start_index": 7446,
+            "end_index": 8760,
+            "sample_count": 1314,
+            "start_time": "2021-11-07 06:00:00",
+            "end_time": "2021-12-31 23:00:00"
+          }
+        }
+      },
+      "checks": {
+        "node_count": 39,
+        "edge_count": 38,
+        "timestamps": 8760,
+        "timestamps_8760": true,
+        "p_shape": [
+          8760,
+          39
+        ],
+        "q_shape": [
+          8760,
+          39
+        ],
+        "p_q_shape_aligned": true,
+        "p_q_timestamp_aligned": true,
+        "load_bus_mask_count": 28,
+        "load_bus_mask_expected": 28,
+        "load_bus_mask_count_correct": true,
+        "distance_matrices": {
+          "hop_distance": {
+            "shape": [
+              39,
+              39
+            ],
+            "symmetric": true,
+            "diagonal_zero": true
+          },
+          "cumulative_r_distance": {
+            "shape": [
+              39,
+              39
+            ],
+            "symmetric": true,
+            "diagonal_zero": true
+          },
+          "cumulative_x_distance": {
+            "shape": [
+              39,
+              39
+            ],
+            "symmetric": true,
+            "diagonal_zero": true
+          },
+          "impedance_abs_distance": {
+            "shape": [
+              39,
+              39
+            ],
+            "symmetric": true,
+            "diagonal_zero": true
+          },
+          "physical_line_length_distance": {
+            "shape": [
+              39,
+              39
+            ],
+            "symmetric": true,
+            "diagonal_zero": true
+          }
+        },
+        "dynamic_feature_shape": [
+          8760,
+          39,
+          7
+        ],
+        "static_feature_shape": [
+          39,
+          4
+        ],
+        "edge_feature_shape": [
+          38,
+          4
+        ],
+        "split_sample_counts": {
+          "train": 6132,
+          "validation": 1314,
+          "test": 1314
+        }
+      },
+      "all_checks_pass": true
+    },
+    {
+      "grid_name": "50_bus_rural_reference_grid",
+      "metadata": {
+        "grid_name": "50_bus_rural_reference_grid",
+        "node_ids": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20",
+          "21",
+          "22",
+          "23",
+          "24",
+          "25",
+          "26",
+          "27",
+          "28",
+          "29",
+          "30",
+          "31",
+          "32",
+          "33",
+          "34",
+          "35",
+          "36",
+          "37",
+          "38",
+          "39",
+          "40",
+          "41",
+          "42",
+          "43",
+          "44",
+          "45",
+          "46",
+          "47",
+          "48",
+          "49",
+          "50"
+        ],
+        "node_order_source": "mpc_bus.csv row order",
+        "edge_order_source": "mpc_branch.csv row order",
+        "root_bus": "1",
+        "root_resolution": "explicit_bus_type_3",
+        "explicit_slack_bus_ids": [
+          "1"
+        ],
+        "directed_branch_source_candidates": [
+          "4",
+          "9",
+          "13",
+          "17",
+          "20",
+          "21",
+          "24",
+          "27",
+          "29",
+          "30",
+          "31",
+          "33",
+          "40",
+          "41",
+          "43",
+          "49"
+        ],
+        "bus_count": 50,
+        "edge_count": 49,
+        "dynamic_feature_names": [
+          "p",
+          "q",
+          "hour_sin",
+          "hour_cos",
+          "day_of_week_sin",
+          "day_of_week_cos",
+          "weekend"
+        ],
+        "static_feature_names": [
+          "is_load_bus",
+          "degree",
+          "root_depth",
+          "consumer_profile_count"
+        ],
+        "edge_feature_names": [
+          "r",
+          "x",
+          "length_km",
+          "branch_type_code"
+        ],
+        "branch_type_mapping": {
+          "EX 3x25 Al": 0,
+          "EX 3x50 Al": 1,
+          "EX 3x95 Al": 2
+        },
+        "consumer_profile_count": 21,
+        "physical_load_bus_count": 21,
+        "length_source": "branch_extra.csv",
+        "branch_type_source": "branch_extra.csv",
+        "timestamp_count": 8760,
+        "timestamp_start": "2021-01-01 00:00:00",
+        "timestamp_end": "2021-12-31 23:00:00",
+        "p_q_timestamp_aligned": true,
+        "p_q_profile_shape_aligned": true,
+        "time_order_preserved": true,
+        "split": {
+          "train": {
+            "start_index": 0,
+            "end_index": 6132,
+            "sample_count": 6132,
+            "start_time": "2021-01-01 00:00:00",
+            "end_time": "2021-09-13 11:00:00"
+          },
+          "validation": {
+            "start_index": 6132,
+            "end_index": 7446,
+            "sample_count": 1314,
+            "start_time": "2021-09-13 12:00:00",
+            "end_time": "2021-11-07 05:00:00"
+          },
+          "test": {
+            "start_index": 7446,
+            "end_index": 8760,
+            "sample_count": 1314,
+            "start_time": "2021-11-07 06:00:00",
+            "end_time": "2021-12-31 23:00:00"
+          }
+        }
+      },
+      "checks": {
+        "node_count": 50,
+        "edge_count": 49,
+        "timestamps": 8760,
+        "timestamps_8760": true,
+        "p_shape": [
+          8760,
+          50
+        ],
+        "q_shape": [
+          8760,
+          50
+        ],
+        "p_q_shape_aligned": true,
+        "p_q_timestamp_aligned": true,
+        "load_bus_mask_count": 21,
+        "load_bus_mask_expected": 21,
+        "load_bus_mask_count_correct": true,
+        "distance_matrices": {
+          "hop_distance": {
+            "shape": [
+              50,
+              50
+            ],
+            "symmetric": true,
+            "diagonal_zero": true
+          },
+          "cumulative_r_distance": {
+            "shape": [
+              50,
+              50
+            ],
+            "symmetric": true,
+            "diagonal_zero": true
+          },
+          "cumulative_x_distance": {
+            "shape": [
+              50,
+              50
+            ],
+            "symmetric": true,
+            "diagonal_zero": true
+          },
+          "impedance_abs_distance": {
+            "shape": [
+              50,
+              50
+            ],
+            "symmetric": true,
+            "diagonal_zero": true
+          },
+          "physical_line_length_distance": {
+            "shape": [
+              50,
+              50
+            ],
+            "symmetric": true,
+            "diagonal_zero": true
+          }
+        },
+        "dynamic_feature_shape": [
+          8760,
+          50,
+          7
+        ],
+        "static_feature_shape": [
+          50,
+          4
+        ],
+        "edge_feature_shape": [
+          49,
+          4
+        ],
+        "split_sample_counts": {
+          "train": 6132,
+          "validation": 1314,
+          "test": 1314
+        }
+      },
+      "all_checks_pass": true
+    },
+    {
+      "grid_name": "56_bus_semi_urban_reference_grid",
+      "metadata": {
+        "grid_name": "56_bus_semi_urban_reference_grid",
+        "node_ids": [
+          "1",
+          "14",
+          "54",
+          "40",
+          "48",
+          "28",
+          "41",
+          "47",
+          "55",
+          "56",
+          "6",
+          "5",
+          "4",
+          "29",
+          "30",
+          "27",
+          "26",
+          "49",
+          "51",
+          "50",
+          "3",
+          "7",
+          "25",
+          "52",
+          "33",
+          "36",
+          "43",
+          "35",
+          "46",
+          "34",
+          "45",
+          "44",
+          "32",
+          "38",
+          "17",
+          "15",
+          "16",
+          "39",
+          "12",
+          "11",
+          "20",
+          "13",
+          "9",
+          "21",
+          "22",
+          "24",
+          "18",
+          "19",
+          "23",
+          "37",
+          "10",
+          "42",
+          "8",
+          "2",
+          "53",
+          "31"
+        ],
+        "node_order_source": "mpc_bus.csv row order",
+        "edge_order_source": "mpc_branch.csv row order",
+        "root_bus": "1",
+        "root_resolution": "unique_directed_branch_source_without_type_3",
+        "explicit_slack_bus_ids": [],
+        "directed_branch_source_candidates": [
+          "1"
+        ],
+        "bus_count": 56,
+        "edge_count": 55,
+        "dynamic_feature_names": [
+          "p",
+          "q",
+          "hour_sin",
+          "hour_cos",
+          "day_of_week_sin",
+          "day_of_week_cos",
+          "weekend"
+        ],
+        "static_feature_names": [
+          "is_load_bus",
+          "degree",
+          "root_depth",
+          "consumer_profile_count"
+        ],
+        "edge_feature_names": [
+          "r",
+          "x",
+          "length_km",
+          "branch_type_code"
+        ],
+        "branch_type_mapping": {
+          "PFSP 1X3X16 CU": 0,
+          "PFSP 1X3X25 AL": 1,
+          "PFSP 1X3X50 AL": 2,
+          "TFSP 1X3X150 AL": 3,
+          "TFSP 1X3X240 AL": 4,
+          "TFSP 1X3X95 AL": 5,
+          "TFXP 1X4X150 AL": 6,
+          "TFXP 1X4X50": 7,
+          "TFXP 1X4X50 AL": 8,
+          "TFXP 1X4X95 AL": 9
+        },
+        "consumer_profile_count": 53,
+        "physical_load_bus_count": 44,
+        "length_source": "branch_data_extra.csv",
+        "branch_type_source": "branch_data_extra.csv",
+        "timestamp_count": 8760,
+        "timestamp_start": "2021-01-01 00:00:00",
+        "timestamp_end": "2021-12-31 23:00:00",
+        "p_q_timestamp_aligned": true,
+        "p_q_profile_shape_aligned": true,
+        "time_order_preserved": true,
+        "split": {
+          "train": {
+            "start_index": 0,
+            "end_index": 6132,
+            "sample_count": 6132,
+            "start_time": "2021-01-01 00:00:00",
+            "end_time": "2021-09-13 11:00:00"
+          },
+          "validation": {
+            "start_index": 6132,
+            "end_index": 7446,
+            "sample_count": 1314,
+            "start_time": "2021-09-13 12:00:00",
+            "end_time": "2021-11-07 05:00:00"
+          },
+          "test": {
+            "start_index": 7446,
+            "end_index": 8760,
+            "sample_count": 1314,
+            "start_time": "2021-11-07 06:00:00",
+            "end_time": "2021-12-31 23:00:00"
+          }
+        }
+      },
+      "checks": {
+        "node_count": 56,
+        "edge_count": 55,
+        "timestamps": 8760,
+        "timestamps_8760": true,
+        "p_shape": [
+          8760,
+          56
+        ],
+        "q_shape": [
+          8760,
+          56
+        ],
+        "p_q_shape_aligned": true,
+        "p_q_timestamp_aligned": true,
+        "load_bus_mask_count": 44,
+        "load_bus_mask_expected": 44,
+        "load_bus_mask_count_correct": true,
+        "distance_matrices": {
+          "hop_distance": {
+            "shape": [
+              56,
+              56
+            ],
+            "symmetric": true,
+            "diagonal_zero": true
+          },
+          "cumulative_r_distance": {
+            "shape": [
+              56,
+              56
+            ],
+            "symmetric": true,
+            "diagonal_zero": true
+          },
+          "cumulative_x_distance": {
+            "shape": [
+              56,
+              56
+            ],
+            "symmetric": true,
+            "diagonal_zero": true
+          },
+          "impedance_abs_distance": {
+            "shape": [
+              56,
+              56
+            ],
+            "symmetric": true,
+            "diagonal_zero": true
+          },
+          "physical_line_length_distance": {
+            "shape": [
+              56,
+              56
+            ],
+            "symmetric": true,
+            "diagonal_zero": true
+          }
+        },
+        "dynamic_feature_shape": [
+          8760,
+          56,
+          7
+        ],
+        "static_feature_shape": [
+          56,
+          4
+        ],
+        "edge_feature_shape": [
+          55,
+          4
+        ],
+        "split_sample_counts": {
+          "train": 6132,
+          "validation": 1314,
+          "test": 1314
+        }
+      },
+      "all_checks_pass": true
+    },
+    {
+      "grid_name": "80_bus_rural_reference_grid",
+      "metadata": {
+        "grid_name": "80_bus_rural_reference_grid",
+        "node_ids": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20",
+          "21",
+          "22",
+          "23",
+          "24",
+          "25",
+          "26",
+          "27",
+          "28",
+          "29",
+          "30",
+          "31",
+          "32",
+          "33",
+          "34",
+          "35",
+          "36",
+          "37",
+          "38",
+          "39",
+          "40",
+          "41",
+          "42",
+          "43",
+          "44",
+          "45",
+          "46",
+          "47",
+          "48",
+          "49",
+          "50",
+          "51",
+          "52",
+          "53",
+          "54",
+          "55",
+          "56",
+          "57",
+          "58",
+          "59",
+          "60",
+          "61",
+          "62",
+          "63",
+          "64",
+          "65",
+          "66",
+          "67",
+          "68",
+          "69",
+          "70",
+          "71",
+          "72",
+          "73",
+          "74",
+          "75",
+          "76",
+          "77",
+          "78",
+          "79",
+          "80"
+        ],
+        "node_order_source": "mpc_bus.csv row order",
+        "edge_order_source": "mpc_branch.csv row order",
+        "root_bus": "1",
+        "root_resolution": "explicit_bus_type_3",
+        "explicit_slack_bus_ids": [
+          "1"
+        ],
+        "directed_branch_source_candidates": [
+          "3",
+          "7",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "18",
+          "22",
+          "25",
+          "26",
+          "29",
+          "31",
+          "38",
+          "41",
+          "43",
+          "45",
+          "46",
+          "48",
+          "49",
+          "51",
+          "56",
+          "57",
+          "58",
+          "60",
+          "61",
+          "63",
+          "71",
+          "73",
+          "74",
+          "76",
+          "78"
+        ],
+        "bus_count": 80,
+        "edge_count": 79,
+        "dynamic_feature_names": [
+          "p",
+          "q",
+          "hour_sin",
+          "hour_cos",
+          "day_of_week_sin",
+          "day_of_week_cos",
+          "weekend"
+        ],
+        "static_feature_names": [
+          "is_load_bus",
+          "degree",
+          "root_depth",
+          "consumer_profile_count"
+        ],
+        "edge_feature_names": [
+          "r",
+          "x",
+          "length_km",
+          "branch_type_code"
+        ],
+        "branch_type_mapping": {
+          "EX 3x25 Al": 0,
+          "EX 3x50 Al": 1,
+          "EX 3x95 Al": 2
+        },
+        "consumer_profile_count": 32,
+        "physical_load_bus_count": 32,
+        "length_source": "branch_extra.csv",
+        "branch_type_source": "branch_extra.csv",
+        "timestamp_count": 8760,
+        "timestamp_start": "2021-01-01 00:00:00",
+        "timestamp_end": "2021-12-31 23:00:00",
+        "p_q_timestamp_aligned": true,
+        "p_q_profile_shape_aligned": true,
+        "time_order_preserved": true,
+        "split": {
+          "train": {
+            "start_index": 0,
+            "end_index": 6132,
+            "sample_count": 6132,
+            "start_time": "2021-01-01 00:00:00",
+            "end_time": "2021-09-13 11:00:00"
+          },
+          "validation": {
+            "start_index": 6132,
+            "end_index": 7446,
+            "sample_count": 1314,
+            "start_time": "2021-09-13 12:00:00",
+            "end_time": "2021-11-07 05:00:00"
+          },
+          "test": {
+            "start_index": 7446,
+            "end_index": 8760,
+            "sample_count": 1314,
+            "start_time": "2021-11-07 06:00:00",
+            "end_time": "2021-12-31 23:00:00"
+          }
+        }
+      },
+      "checks": {
+        "node_count": 80,
+        "edge_count": 79,
+        "timestamps": 8760,
+        "timestamps_8760": true,
+        "p_shape": [
+          8760,
+          80
+        ],
+        "q_shape": [
+          8760,
+          80
+        ],
+        "p_q_shape_aligned": true,
+        "p_q_timestamp_aligned": true,
+        "load_bus_mask_count": 32,
+        "load_bus_mask_expected": 32,
+        "load_bus_mask_count_correct": true,
+        "distance_matrices": {
+          "hop_distance": {
+            "shape": [
+              80,
+              80
+            ],
+            "symmetric": true,
+            "diagonal_zero": true
+          },
+          "cumulative_r_distance": {
+            "shape": [
+              80,
+              80
+            ],
+            "symmetric": true,
+            "diagonal_zero": true
+          },
+          "cumulative_x_distance": {
+            "shape": [
+              80,
+              80
+            ],
+            "symmetric": true,
+            "diagonal_zero": true
+          },
+          "impedance_abs_distance": {
+            "shape": [
+              80,
+              80
+            ],
+            "symmetric": true,
+            "diagonal_zero": true
+          },
+          "physical_line_length_distance": {
+            "shape": [
+              80,
+              80
+            ],
+            "symmetric": true,
+            "diagonal_zero": true
+          }
+        },
+        "dynamic_feature_shape": [
+          8760,
+          80,
+          7
+        ],
+        "static_feature_shape": [
+          80,
+          4
+        ],
+        "edge_feature_shape": [
+          79,
+          4
+        ],
+        "split_sample_counts": {
+          "train": 6132,
+          "validation": 1314,
+          "test": 1314
+        }
+      },
+      "all_checks_pass": true
+    }
+  ],
+  "all_checks_pass": true
+}
