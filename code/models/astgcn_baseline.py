@@ -196,7 +196,7 @@ if TORCH_AVAILABLE:
                     )
                     output = output + torch.matmul(propagated, theta)
                 outputs.append(output.unsqueeze(-1))
-            return torch.cat(outputs, dim=-1)
+            return torch.relu(torch.cat(outputs, dim=-1))
 
 
     class ASTGCNBlock(nn.Module):

@@ -90,6 +90,25 @@ class ASTGCNTest(unittest.TestCase):
         self.assertTrue(torch.allclose(output, expected))
 
     @unittest.skipUnless(TORCH_AVAILABLE, "PyTorch is not installed")
+    def test_cheb_convolution_applies_relu_to_negative_preactivation(self):
+        import torch
+
+        convolution = astgcn.ChebConvWithSpatialAttention(1, 1, 1)
+        with torch.no_grad():
+            convolution.Theta[0].fill_(-1.0)
+        support = torch.eye(2)
+        spatial_attention = torch.ones(1, 2, 2)
+        graph_signal = torch.tensor([[[[2.0]], [[3.0]]]])
+        preactivation = (
+            (support.unsqueeze(0) * spatial_attention).transpose(1, 2)
+            @ graph_signal[..., 0]
+        ) @ convolution.Theta[0]
+        self.assertTrue((preactivation < 0).all())
+        output = convolution(graph_signal, spatial_attention, [support])
+        self.assertTrue((output >= 0).all())
+        self.assertTrue(torch.equal(output, torch.zeros_like(output)))
+
+    @unittest.skipUnless(TORCH_AVAILABLE, "PyTorch is not installed")
     def test_block_uses_temporal_input_for_attention_and_original_input_for_cheb(self):
         import torch
 
