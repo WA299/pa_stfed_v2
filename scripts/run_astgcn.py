@@ -16,6 +16,8 @@ FEATURE_MODE="p_calendar"; INPUT_SIZE=6; HIDDEN_CHANNELS=32; CHEBYSHEV_K=3; NUM_
 def output_paths(grid_name, output_dir):
     if grid_name not in GRID_NAMES: raise ValueError("unsupported grid")
     return output_dir/f"astgcn_{SHORT[grid_name]}_p_calendar.json", output_dir/f"astgcn_{SHORT[grid_name]}_p_calendar.md"
+def model_metadata(args, device='cpu'):
+    return {'model':'ASTGCN-r','implementation':'ASTGCN_recent_component_adapted','reference':'Guo_et_al_AAAI_2019','input_adaptation':'contiguous_168h_history','full_three_component_astgcn':False,'grid_name':args.grid,'feature_mode':'p_calendar','history_length':168,'forecast_horizon':1,'topology_used':True,'graph_type':'physical_binary_undirected','laplacian_type':'scaled_unnormalized_combinatorial','laplacian_self_loop_added':False,'chebyshev_zero_order_identity':True,'chebyshev_k':3,'hidden_channels':32,'num_blocks':2,'electrical_distance_used':False,'electrical_edge_features_used':False,'adaptive_graph_used':False,'device':str(device),'test_evaluated':False}
 def build_parser():
     p=argparse.ArgumentParser(description=__doc__); p.add_argument('--grid',choices=GRID_NAMES,default=GRID_NAMES[0]); p.add_argument('--device',default='cpu'); p.add_argument('--seed',type=int,default=DEFAULT_SEED); p.add_argument('--max-epochs',type=int,default=DEFAULT_MAX_EPOCHS); p.add_argument('--patience',type=int,default=DEFAULT_PATIENCE); p.add_argument('--batch-size',type=int,default=DEFAULT_BATCH_SIZE); p.add_argument('--learning-rate',type=float,default=DEFAULT_LEARNING_RATE); p.add_argument('--data-root',type=Path,default=REPO_ROOT.parent/'pa_stfed_data_v2'/'raw'); p.add_argument('--mapping-json',type=Path,default=REPO_ROOT/'results/audits/v2_schema_mapping.json'); p.add_argument('--output-dir',type=Path,default=REPO_ROOT/'results/centralized'); return p
 def _batches(n,b): return [np.arange(i,min(i+b,n)) for i in range(0,n,b)]
@@ -26,7 +28,7 @@ def run_training(args):
     if not TORCH_AVAILABLE: raise RuntimeError('PyTorch required')
     import torch
     _seed(args.seed); grid=LVGridLoader(args.data_root,args.mapping_json).load(args.grid); ds=ForecastWindowDataset.from_grid(grid,FEATURE_MODE); sc=ds.fit_scaler(); tr=ds.split('train'); va=ds.split('validation'); dev=torch.device(args.device)
-    model=ASTGCNBaseline(grid.edge_index,grid.num_nodes,INPUT_SIZE,HIDDEN_CHANNELS,CHEBYSHEV_K,NUM_BLOCKS).to(dev); opt=torch.optim.Adam(model.parameters(),lr=args.learning_rate); mask=torch.from_numpy(grid.load_bus_mask); best=float('inf'); state=None; hist=[]; stale=0
+    model=ASTGCNBaseline(grid.edge_index,grid.num_nodes,INPUT_SIZE,HIDDEN_CHANNELS,CHEBYSHEV_K,NUM_BLOCKS).to(dev); opt=torch.optim.Adam(model.parameters(),lr=args.learning_rate); mask=torch.from_numpy(grid.load_bus_mask).to(dev); best=float('inf'); state=None; hist=[]; stale=0
     def evaluate(data):
         pred=[]; actual=[]; model.eval()
         with torch.no_grad():
@@ -43,7 +45,7 @@ def run_training(args):
         if stale>=args.patience: break
     if state: model.load_state_dict(state)
     val=evaluate(va); pa=evaluate_validation(grid.p[va.target_indices],persistence_1h_predictions(grid.p,va.target_indices),grid.load_bus_mask)
-    return {'config':{'model':'ASTGCN-r','implementation':'ASTGCN_recent_component_adapted','reference':'Guo_et_al_AAAI_2019','input_adaptation':'contiguous_168h_history','full_three_component_astgcn':False,'grid_name':args.grid,'feature_mode':'p_calendar','history_length':168,'forecast_horizon':1,'topology_used':True,'graph_type':'physical_binary_undirected_self_loop_before_laplacian','chebyshev_k':3,'hidden_channels':32,'num_blocks':2,'electrical_distance_used':False,'electrical_edge_features_used':False,'adaptive_graph_used':False,'test_evaluated':False},'validation':{'astgcn':val,'persistence_1h':pa},'summary':best_epoch_summary(hist),'training_history':hist,'test_evaluated':False}
+    return {'config':model_metadata(args,dev),'validation':{'astgcn':val,'persistence_1h':pa},'summary':best_epoch_summary(hist),'training_history':hist,'test_evaluated':False}
 def main():
     a=build_parser().parse_args(); j,m=output_paths(a.grid,a.output_dir); r=run_training(a); j.parent.mkdir(parents=True,exist_ok=True); j.write_text(json.dumps(r,indent=2)+'\n'); m.write_text('# ASTGCN centralized baseline\n\nValidation-only report.\n'); print(f'wrote {j} and {m}')
 if __name__=='__main__': main()
