@@ -1,4 +1,4 @@
-"""Validation-only fixed-topology STGCN baseline runner for all four LV grids.
+"""Validation-only Graph WaveNet centralized baseline runner.
 
 This script is a manual training entry point.  It writes validation metrics and
 never evaluates test labels.  The feature mode is intentionally fixed to
@@ -74,6 +74,43 @@ def output_paths(grid_name: str, output_dir: Path) -> tuple[Path, Path]:
     parse_grid_name(grid_name)
     stem = f"graph_wavenet_{GRID_SHORT_NAMES[grid_name]}_{FEATURE_MODE}"
     return output_dir / f"{stem}.json", output_dir / f"{stem}.md"
+
+
+def model_config(args: argparse.Namespace, device: Any, model: Any) -> dict[str, Any]:
+    """Return the architecture/training metadata without evaluating any split."""
+    return {
+        "model": "GraphWaveNet",
+        "grid_name": args.grid,
+        "feature_mode": FEATURE_MODE,
+        "input_size": INPUT_SIZE,
+        "history_length": HISTORY_LENGTH,
+        "forecast_horizon": FORECAST_HORIZON,
+        "implementation": "GraphWaveNet_core_adaptation",
+        "reference": "Wu_et_al_IJCAI_2019",
+        "seed": args.seed,
+        "max_epochs": args.max_epochs,
+        "patience": args.patience,
+        "batch_size": args.batch_size,
+        "learning_rate": args.learning_rate,
+        "device": str(device),
+        "topology_used": True,
+        "graph_type": "physical_plus_adaptive",
+        "adaptive_graph_used": True,
+        "adaptive_embedding_dim": ADAPTIVE_EMBEDDING_DIM,
+        "residual_channels": RESIDUAL_CHANNELS,
+        "dilation_channels": DILATION_CHANNELS,
+        "skip_channels": SKIP_CHANNELS,
+        "end_channels": END_CHANNELS,
+        "blocks": BLOCKS,
+        "layers_per_block": LAYERS_PER_BLOCK,
+        "kernel_size": KERNEL_SIZE,
+        "diffusion_order": 2,
+        "receptive_field": int(model.receptive_field),
+        "dropout": 0.3,
+        "electrical_distance_used": False,
+        "electrical_edge_features_used": False,
+        "test_evaluated": False,
+    }
 
 
 def _batch_indices(size: int, batch_size: int) -> list[np.ndarray]:
@@ -166,7 +203,7 @@ def run_training(args: argparse.Namespace) -> dict[str, Any]:
         adaptive_embedding_dim=ADAPTIVE_EMBEDDING_DIM,
     ).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate)
-    mask = torch.from_numpy(grid.load_bus_mask)
+    mask = torch.from_numpy(grid.load_bus_mask).to(device)
     best_validation, best_state, stale_epochs = float("inf"), None, 0
     history: list[dict[str, Any]] = []
     for epoch in range(1, args.max_epochs + 1):
@@ -201,28 +238,7 @@ def run_training(args: argparse.Namespace) -> dict[str, Any]:
     persistence_prediction = persistence_1h_predictions(grid.p, validation_dataset.target_indices)
     persistence = evaluate_validation(persistence_actual, persistence_prediction, grid.load_bus_mask)
     return {
-        "config": {
-            "grid_name": args.grid,
-            "feature_mode": FEATURE_MODE,
-            "input_size": INPUT_SIZE,
-            "history_length": HISTORY_LENGTH,
-            "forecast_horizon": FORECAST_HORIZON,
-            "implementation": "GraphWaveNet_core_reimplementation",
-            "seed": args.seed,
-            "max_epochs": args.max_epochs,
-            "patience": args.patience,
-            "batch_size": args.batch_size,
-            "learning_rate": args.learning_rate,
-            "device": str(device),
-            "topology_used": True, "graph_type": "physical_plus_adaptive",
-            "adaptive_graph_used": True, "adaptive_embedding_dim": ADAPTIVE_EMBEDDING_DIM,
-            "residual_channels": RESIDUAL_CHANNELS, "dilation_channels": DILATION_CHANNELS,
-            "skip_channels": SKIP_CHANNELS, "end_channels": END_CHANNELS,
-            "blocks": BLOCKS, "layers_per_block": LAYERS_PER_BLOCK, "kernel_size": KERNEL_SIZE,
-            "receptive_field": int(model.receptive_field),
-            "electrical_distance_used": False,
-            "electrical_edge_features_used": False,
-        },
+        "config": model_config(args, device, model),
         "validation": {"graph_wavenet": validation, "persistence_1h": persistence},
         "comparison": _compare_model_persistence(validation, persistence),
         "summary": best_epoch_summary(history),
@@ -234,7 +250,7 @@ def run_training(args: argparse.Namespace) -> dict[str, Any]:
 
 def render_markdown(report: dict[str, Any]) -> str:
     lines = [
-        f"# Fixed-topology STGCN baseline: {report['config']['grid_name']} / {FEATURE_MODE}",
+        f"# Graph WaveNet baseline: {report['config']['grid_name']} / {FEATURE_MODE}",
         "",
         "Validation-only metrics. Test labels and test metrics are intentionally not used.",
         "",
@@ -258,7 +274,7 @@ def render_markdown(report: dict[str, Any]) -> str:
         f"- best_train_scaled_mae: {summary['best_train_scaled_mae']:.6g}",
         f"- epochs_run: {summary['epochs_run']}",
         "",
-        "## STGCN vs persistence_1h factual comparison",
+        "## Graph WaveNet vs persistence_1h factual comparison",
         "",
         "| Scope | MAE | RMSE | WAPE (%) | sMAPE (%) |",
         "| --- | --- | --- | --- | --- |",
