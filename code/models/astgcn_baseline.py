@@ -191,7 +191,9 @@ if TORCH_AVAILABLE:
                 )
                 for support, theta in zip(supports, self.Theta):
                     support_with_attention = support.unsqueeze(0) * spatial_attention
-                    propagated = torch.matmul(support_with_attention, graph_signal)
+                    propagated = torch.matmul(
+                        support_with_attention.transpose(1, 2), graph_signal
+                    )
                     output = output + torch.matmul(propagated, theta)
                 outputs.append(output.unsqueeze(-1))
             return torch.cat(outputs, dim=-1)
@@ -225,8 +227,7 @@ if TORCH_AVAILABLE:
             self.residual_conv = nn.Conv2d(
                 in_channels, hidden_channels, kernel_size=(1, 1)
             )
-            # The reference implementation normalizes the final node dimension.
-            self.layer_norm = nn.LayerNorm(num_nodes)
+            self.layer_norm = nn.LayerNorm(hidden_channels)
             self.temporal_attention_weights: Tensor | None = None
             self.spatial_attention_weights: Tensor | None = None
 
@@ -238,16 +239,14 @@ if TORCH_AVAILABLE:
                 temporal_attention,
             ).reshape(batch, nodes, channels, timesteps)
             spatial_attention = self.spatial_attention(temporal_attended)
-            spatial = self.cheb_conv(
-                temporal_attended, spatial_attention, supports
-            )
+            spatial = self.cheb_conv(x, spatial_attention, supports)
             temporal = self.temporal_conv(spatial.permute(0, 2, 1, 3))
             residual = self.residual_conv(x.permute(0, 2, 1, 3))
             activated = torch.relu(temporal + residual)
-            output = self.layer_norm(activated.permute(0, 3, 1, 2))
+            output = self.layer_norm(activated.permute(0, 3, 2, 1))
             self.temporal_attention_weights = temporal_attention
             self.spatial_attention_weights = spatial_attention
-            return output.permute(0, 3, 2, 1)
+            return output.permute(0, 2, 3, 1)
 
 
     class ASTGCNBaseline(nn.Module):
@@ -291,7 +290,11 @@ if TORCH_AVAILABLE:
                 )
                 in_channels = hidden_channels
             self.blocks = nn.ModuleList(blocks)
-            self.output = nn.Linear(hidden_channels, 1)
+            self.final_conv = nn.Conv2d(
+                in_channels=history_length,
+                out_channels=1,
+                kernel_size=(1, hidden_channels),
+            )
 
         @property
         def cheb_supports(self) -> list[Tensor]:
@@ -315,8 +318,8 @@ if TORCH_AVAILABLE:
             hidden = x.permute(0, 2, 3, 1)
             for block in self.blocks:
                 hidden = block(hidden, self.cheb_supports)
-            final_hidden = hidden[..., -1]
-            return self.output(final_hidden).squeeze(-1)
+            output = self.final_conv(hidden.permute(0, 3, 1, 2))
+            return output.squeeze(1).squeeze(-1)
 
 else:
 

@@ -73,6 +73,51 @@ class ASTGCNTest(unittest.TestCase):
         self.assertTrue(torch.equal(supports[0], torch.eye(5)))
 
     @unittest.skipUnless(TORCH_AVAILABLE, "PyTorch is not installed")
+    def test_cheb_propagation_uses_transposed_attention_weighted_support(self):
+        import torch
+
+        convolution = astgcn.ChebConvWithSpatialAttention(1, 1, 1)
+        with torch.no_grad():
+            convolution.Theta[0].fill_(1.0)
+        support = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+        spatial_attention = torch.tensor([[[0.1, 0.2], [0.3, 0.4]]])
+        graph_signal = torch.tensor([[[[5.0]], [[7.0]]]])
+        output = convolution(graph_signal, spatial_attention, [support])
+        expected = (
+            (support.unsqueeze(0) * spatial_attention).transpose(1, 2)
+            @ graph_signal[..., 0]
+        ).unsqueeze(-1)
+        self.assertTrue(torch.allclose(output, expected))
+
+    @unittest.skipUnless(TORCH_AVAILABLE, "PyTorch is not installed")
+    def test_block_uses_temporal_input_for_attention_and_original_input_for_cheb(self):
+        import torch
+
+        block = astgcn.ASTGCNBlock(1, 2, num_nodes=2, timesteps=3, chebyshev_k=1)
+        x = torch.arange(6, dtype=torch.float32).reshape(1, 2, 1, 3)
+        temporal_attention = torch.eye(3).flip(1).unsqueeze(0)
+        captured = {}
+
+        block.temporal_attention.forward = lambda _: temporal_attention
+
+        def capture_spatial(value):
+            captured["spatial_input"] = value.detach().clone()
+            return torch.ones(1, 2, 2) / 2.0
+
+        def capture_cheb(value, spatial, supports):
+            captured["cheb_input"] = value.detach().clone()
+            return torch.zeros(1, 2, 2, 3)
+
+        block.spatial_attention.forward = capture_spatial
+        block.cheb_conv.forward = capture_cheb
+        block(x, [torch.eye(2)])
+        expected_temporal = torch.matmul(x.reshape(1, 2, 3), temporal_attention)
+        expected_temporal = expected_temporal.reshape_as(x)
+        self.assertTrue(torch.equal(captured["spatial_input"], expected_temporal))
+        self.assertTrue(torch.equal(captured["cheb_input"], x))
+        self.assertFalse(torch.equal(captured["cheb_input"], expected_temporal))
+
+    @unittest.skipUnless(TORCH_AVAILABLE, "PyTorch is not installed")
     def test_all_grid_sizes_forward(self):
         import torch
 
@@ -82,6 +127,16 @@ class ASTGCNTest(unittest.TestCase):
                 output = model(torch.randn(1, 168, num_nodes, 6))
             self.assertEqual(tuple(output.shape), (1, num_nodes))
             self.assertTrue(torch.isfinite(output).all())
+
+    @unittest.skipUnless(TORCH_AVAILABLE, "PyTorch is not installed")
+    def test_layer_norm_and_final_convolution_match_reference_shapes(self):
+        model = astgcn.ASTGCNBaseline(chain_edges(4), 4)
+        self.assertTrue(
+            all(block.layer_norm.normalized_shape == (32,) for block in model.blocks)
+        )
+        self.assertEqual(model.final_conv.in_channels, 168)
+        self.assertEqual(model.final_conv.out_channels, 1)
+        self.assertEqual(model.final_conv.kernel_size, (1, 32))
 
     @unittest.skipUnless(TORCH_AVAILABLE, "PyTorch is not installed")
     def test_attention_shapes_finite_and_normalized(self):
@@ -131,6 +186,8 @@ class ASTGCNTest(unittest.TestCase):
             self.assertTrue(
                 all(theta.grad is not None for theta in block.cheb_conv.Theta)
             )
+        self.assertIsNotNone(model.final_conv.weight.grad)
+        self.assertIsNotNone(model.final_conv.bias.grad)
 
     @unittest.skipUnless(TORCH_AVAILABLE, "PyTorch is not installed")
     def test_masked_loss_excludes_non_load_nodes(self):
