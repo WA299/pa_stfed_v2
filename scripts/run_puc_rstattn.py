@@ -116,6 +116,27 @@ def report_metadata() -> dict[str, Any]:
     }
 
 
+def build_epoch_record(
+    epoch: int,
+    primary_losses: list[float],
+    anchor_losses: list[float],
+    total_losses: list[float],
+    validation: dict[str, Any],
+    temporal_anchor: dict[str, Any],
+) -> dict[str, Any]:
+    """Build the stable training-history schema consumed by best_epoch_summary."""
+    if not primary_losses or not anchor_losses or not total_losses:
+        raise ValueError("epoch loss lists must be non-empty")
+    return {
+        "epoch": int(epoch),
+        "train_scaled_mae": float(np.mean(primary_losses)),
+        "train_anchor_scaled_mae": float(np.mean(anchor_losses)),
+        "train_total_loss": float(np.mean(total_losses)),
+        "validation": validation,
+        "temporal_anchor": temporal_anchor,
+    }
+
+
 def _evaluate(
     model: Any,
     dataset: ForecastWindowDataset,
@@ -172,18 +193,24 @@ def run_training(args: argparse.Namespace) -> dict[str, Any]:
     stale_epochs = 0
     for epoch in range(1, args.max_epochs + 1):
         model.train()
-        losses = []
+        primary_losses: list[float] = []
+        anchor_losses: list[float] = []
+        total_losses: list[float] = []
         for indices in _batch_indices(len(train_dataset), args.batch_size):
             x, y = _to_batch(train_dataset, scaler, indices)
             optimizer.zero_grad(set_to_none=True)
             final, temporal, _ = model(torch.from_numpy(x).to(device), return_details=True)
             target = torch.from_numpy(y).to(device)
-            loss = masked_scaled_mae(final, target, load_mask) + ANCHOR_LOSS_WEIGHT * masked_scaled_mae(temporal, target, load_mask)
-            loss.backward()
+            final_loss = masked_scaled_mae(final, target, load_mask)
+            anchor_loss = masked_scaled_mae(temporal, target, load_mask)
+            total_loss = final_loss + ANCHOR_LOSS_WEIGHT * anchor_loss
+            total_loss.backward()
             optimizer.step()
-            losses.append(float(loss.detach().cpu()))
+            primary_losses.append(float(final_loss.detach().cpu()))
+            anchor_losses.append(float(anchor_loss.detach().cpu()))
+            total_losses.append(float(total_loss.detach().cpu()))
         validation, temporal_validation = _evaluate(model, validation_dataset, scaler, args.batch_size, device, grid.load_bus_mask)
-        history.append({"epoch": epoch, "train_total_loss": float(np.mean(losses)), "validation": validation, "temporal_anchor": temporal_validation})
+        history.append(build_epoch_record(epoch, primary_losses, anchor_losses, total_losses, validation, temporal_validation))
         current = float(validation["node_macro"]["mae"])
         if current < best_validation:
             best_validation = current
