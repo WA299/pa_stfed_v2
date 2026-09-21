@@ -1,0 +1,75 @@
+# Centralized Validation Summary
+
+Validation-only; test entries are ignored.
+
+## Per-grid node macro
+
+| Grid | Model | MAE | RMSE | WAPE (%) | sMAPE (%) |
+|---|---|---:|---:|---:|---:|
+| 39bus | persistence_1h | 0.000490575 | 0.000693005 | 36.1604 | 34.5479 |
+| 39bus | shared_gru | 0.000396929 | 0.000575579 | 29.0493 | 29.1097 |
+| 39bus | stgcn | 0.000431284 | 0.000624622 | 31.4062 | 31.7401 |
+| 39bus | astgcn | 0.000388204 | 0.000551831 | 28.2883 | 28.7883 |
+| 39bus | graph_wavenet | 0.000387925 | 0.000574635 | 28.1088 | 28.4199 |
+| 50bus | persistence_1h | 0.000374557 | 0.000564059 | 34.5653 | 33.336 |
+| 50bus | shared_gru | 0.000335095 | 0.000509787 | 31.9404 | 33.9837 |
+| 50bus | stgcn | missing | missing | missing | missing |
+| 50bus | astgcn | 0.000339118 | 0.000505017 | 35.9263 | 37.2096 |
+| 50bus | graph_wavenet | 0.000311158 | 0.000501112 | 29.9662 | 30.2866 |
+| 56bus | persistence_1h | 0.000537618 | 0.00073951 | 31.5906 | 31.9867 |
+| 56bus | shared_gru | 0.000447376 | 0.000627382 | 26.3344 | 27.6745 |
+| 56bus | stgcn | missing | missing | missing | missing |
+| 56bus | astgcn | 0.000452993 | 0.000631712 | 26.6573 | 28.1107 |
+| 56bus | graph_wavenet | 0.000452294 | 0.000641542 | 26.4818 | 27.5905 |
+| 80bus | persistence_1h | 0.000233666 | 0.000394782 | 40.8617 | 38.1808 |
+| 80bus | shared_gru | 0.000199762 | 0.000358149 | 42.4904 | 49.4964 |
+| 80bus | stgcn | missing | missing | missing | missing |
+| 80bus | astgcn | 0.000225259 | 0.000374597 | 76.5041 | 61.8511 |
+| 80bus | graph_wavenet | 0.000180246 | 0.000332146 | 44.0113 | 44.4304 |
+
+## Per-grid grid aggregate
+
+| Grid | Model | MAE | RMSE | WAPE (%) | sMAPE (%) |
+|---|---|---:|---:|---:|---:|
+| 39bus | persistence_1h | 0.00345857 | 0.00439136 | 8.53624 | 8.57834 |
+| 39bus | shared_gru | 0.00424555 | 0.00519702 | 10.4786 | 10.8925 |
+| 39bus | stgcn | 0.00546212 | 0.00649715 | 13.4813 | 14.0009 |
+| 39bus | astgcn | 0.00377942 | 0.00470142 | 9.32813 | 9.70881 |
+| 39bus | graph_wavenet | 0.00503781 | 0.00619965 | 12.434 | 12.5338 |
+| 50bus | persistence_1h | 0.00253653 | 0.00333136 | 6.57844 | 6.57141 |
+| 50bus | shared_gru | 0.00265037 | 0.00345746 | 6.87369 | 6.89188 |
+| 50bus | stgcn | missing | missing | missing | missing |
+| 50bus | astgcn | 0.0025901 | 0.00332819 | 6.71738 | 6.72937 |
+| 50bus | graph_wavenet | 0.00296255 | 0.00383741 | 7.68333 | 7.69251 |
+| 56bus | persistence_1h | 0.00523067 | 0.00660912 | 6.56565 | 6.68602 |
+| 56bus | shared_gru | 0.00659355 | 0.00796741 | 8.27637 | 8.57188 |
+| 56bus | stgcn | missing | missing | missing | missing |
+| 56bus | astgcn | 0.00741001 | 0.00871714 | 9.3012 | 9.89022 |
+| 56bus | graph_wavenet | 0.00692373 | 0.00843414 | 8.69082 | 8.86571 |
+| 80bus | persistence_1h | 0.00283403 | 0.00390906 | 11.7283 | 12.6145 |
+| 80bus | shared_gru | 0.00287526 | 0.00363064 | 11.8989 | 12.5906 |
+| 80bus | stgcn | missing | missing | missing | missing |
+| 80bus | astgcn | 0.00288694 | 0.00366572 | 11.9473 | 12.5474 |
+| 80bus | graph_wavenet | 0.00267402 | 0.00349574 | 11.0661 | 11.7267 |
+
+## Cross-grid node_macro
+
+| Model | MAE | RMSE | WAPE (%) | sMAPE (%) | Available | Expected |
+|---|---:|---:|---:|---:|---:|---:|
+| persistence_1h | 0.000409104 | 0.000597839 | 35.7945 | 34.5129 | 4 | 4 |
+| shared_gru | 0.00034479 | 0.000517724 | 32.4536 | 35.0661 | 4 | 4 |
+| stgcn | 0.000431284 | 0.000624622 | 31.4062 | 31.7401 | 1 | 4 |
+| astgcn | 0.000351393 | 0.000515789 | 41.844 | 38.9899 | 4 | 4 |
+| graph_wavenet | 0.000332906 | 0.000512359 | 32.142 | 32.6818 | 4 | 4 |
+
+## Cross-grid grid_aggregate
+
+| Model | MAE | RMSE | WAPE (%) | sMAPE (%) | Available | Expected |
+|---|---:|---:|---:|---:|---:|---:|
+| persistence_1h | 0.00351495 | 0.00456022 | 8.35216 | 8.61256 | 4 | 4 |
+| shared_gru | 0.00409118 | 0.00506313 | 9.3819 | 9.7367 | 4 | 4 |
+| stgcn | 0.00546212 | 0.00649715 | 13.4813 | 14.0009 | 1 | 4 |
+| astgcn | 0.00416662 | 0.00510312 | 9.3235 | 9.71894 | 4 | 4 |
+| graph_wavenet | 0.00439953 | 0.00549174 | 9.96857 | 10.2047 | 4 | 4 |
+
+Missing entries are explicit; diagnostic variants are excluded from standard_baselines.

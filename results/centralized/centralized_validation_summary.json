@@ -1,0 +1,400 @@
+{
+  "metadata": {
+    "cross_grid_aggregation": "unweighted_macro_mean",
+    "micro_wape_computed": false,
+    "test_evaluated": false,
+    "wape_unit": "percent"
+  },
+  "standard_baselines": {
+    "39bus": {
+      "persistence_1h": {
+        "node_macro": {
+          "mae": 0.0004905753699849214,
+          "rmse": 0.0006930050957984369,
+          "wape_pct": 36.16043756140562,
+          "smape_pct": 34.54788121751054
+        },
+        "grid_aggregate": {
+          "mae": 0.0034585745749804676,
+          "rmse": 0.004391356442313664,
+          "wape_pct": 8.536235196843359,
+          "smape_pct": 8.578340320540095
+        },
+        "node_count": 28,
+        "sample_count": 1314
+      },
+      "shared_gru": {
+        "node_macro": {
+          "mae": 0.00039692883217346805,
+          "rmse": 0.0005755790694650023,
+          "wape_pct": 29.049284127960075,
+          "smape_pct": 29.109715905923984
+        },
+        "grid_aggregate": {
+          "mae": 0.004245550302999637,
+          "rmse": 0.005197018331731163,
+          "wape_pct": 10.478598959526998,
+          "smape_pct": 10.8924645114071
+        },
+        "node_count": 28,
+        "sample_count": 1314
+      },
+      "stgcn": {
+        "node_macro": {
+          "mae": 0.0004312844207658154,
+          "rmse": 0.0006246221251740785,
+          "wape_pct": 31.40623172687771,
+          "smape_pct": 31.74010712198478
+        },
+        "grid_aggregate": {
+          "mae": 0.005462121162727482,
+          "rmse": 0.0064971453596836815,
+          "wape_pct": 13.48126227408675,
+          "smape_pct": 14.000900616755096
+        },
+        "node_count": 28,
+        "sample_count": 1314
+      },
+      "astgcn": {
+        "node_macro": {
+          "mae": 0.0003882039088427338,
+          "rmse": 0.0005518311246002816,
+          "wape_pct": 28.28827922671095,
+          "smape_pct": 28.78826333120144
+        },
+        "grid_aggregate": {
+          "mae": 0.003779422706917294,
+          "rmse": 0.004701419567189755,
+          "wape_pct": 9.328132283896213,
+          "smape_pct": 9.708810105412068
+        },
+        "node_count": 28,
+        "sample_count": 1314
+      },
+      "graph_wavenet": {
+        "node_macro": {
+          "mae": 0.0003879247319154475,
+          "rmse": 0.000574635058639011,
+          "wape_pct": 28.10877580671933,
+          "smape_pct": 28.41985707193677
+        },
+        "grid_aggregate": {
+          "mae": 0.00503780799362079,
+          "rmse": 0.006199654126585378,
+          "wape_pct": 12.433999324646821,
+          "smape_pct": 12.533773779968088
+        },
+        "node_count": 28,
+        "sample_count": 1314
+      }
+    },
+    "50bus": {
+      "persistence_1h": {
+        "node_macro": {
+          "mae": 0.00037455700510863115,
+          "rmse": 0.0005640588817814529,
+          "wape_pct": 34.56525886482546,
+          "smape_pct": 33.336043989422656
+        },
+        "grid_aggregate": {
+          "mae": 0.0025365296868941345,
+          "rmse": 0.003331363116791131,
+          "wape_pct": 6.578443686788203,
+          "smape_pct": 6.571413140450934
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "shared_gru": {
+        "node_macro": {
+          "mae": 0.0003350947025447522,
+          "rmse": 0.000509786625470198,
+          "wape_pct": 31.94044777813592,
+          "smape_pct": 33.983684398549244
+        },
+        "grid_aggregate": {
+          "mae": 0.002650369647999947,
+          "rmse": 0.003457456121693827,
+          "wape_pct": 6.873685559510507,
+          "smape_pct": 6.89187646125355
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "stgcn": null,
+      "astgcn": {
+        "node_macro": {
+          "mae": 0.0003391178148683342,
+          "rmse": 0.0005050167677612549,
+          "wape_pct": 35.926320271776945,
+          "smape_pct": 37.2095644347581
+        },
+        "grid_aggregate": {
+          "mae": 0.0025901011267184084,
+          "rmse": 0.0033281911585180757,
+          "wape_pct": 6.7173802438581856,
+          "smape_pct": 6.729365049164667
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "graph_wavenet": {
+        "node_macro": {
+          "mae": 0.0003111584557702868,
+          "rmse": 0.0005011118019514592,
+          "wape_pct": 29.9662436943631,
+          "smape_pct": 30.286555030679658
+        },
+        "grid_aggregate": {
+          "mae": 0.002962554899976399,
+          "rmse": 0.003837409103281467,
+          "wape_pct": 7.683332342185528,
+          "smape_pct": 7.6925090768259485
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    "56bus": {
+      "persistence_1h": {
+        "node_macro": {
+          "mae": 0.0005376176486718713,
+          "rmse": 0.0007395101738924902,
+          "wape_pct": 31.590597706713126,
+          "smape_pct": 31.986665756932904
+        },
+        "grid_aggregate": {
+          "mae": 0.005230671218957096,
+          "rmse": 0.006609118677823872,
+          "wape_pct": 6.5656533153637895,
+          "smape_pct": 6.68601750088933
+        },
+        "node_count": 44,
+        "sample_count": 1314
+      },
+      "shared_gru": {
+        "node_macro": {
+          "mae": 0.00044737577225946874,
+          "rmse": 0.0006273816343104092,
+          "wape_pct": 26.33439305972787,
+          "smape_pct": 27.67447330782529
+        },
+        "grid_aggregate": {
+          "mae": 0.006593553239134485,
+          "rmse": 0.007967409524593573,
+          "wape_pct": 8.276372738369702,
+          "smape_pct": 8.57187712772721
+        },
+        "node_count": 44,
+        "sample_count": 1314
+      },
+      "stgcn": null,
+      "astgcn": {
+        "node_macro": {
+          "mae": 0.00045299289427976633,
+          "rmse": 0.0006317119735994807,
+          "wape_pct": 26.65726136677224,
+          "smape_pct": 28.11070698836869
+        },
+        "grid_aggregate": {
+          "mae": 0.007410005562408932,
+          "rmse": 0.008717135788950628,
+          "wape_pct": 9.301201613705247,
+          "smape_pct": 9.89022476365216
+        },
+        "node_count": 44,
+        "sample_count": 1314
+      },
+      "graph_wavenet": {
+        "node_macro": {
+          "mae": 0.00045229402514831464,
+          "rmse": 0.0006415416428576084,
+          "wape_pct": 26.481755764088994,
+          "smape_pct": 27.590497856033632
+        },
+        "grid_aggregate": {
+          "mae": 0.006923731958937426,
+          "rmse": 0.008434144272411027,
+          "wape_pct": 8.69082031409377,
+          "smape_pct": 8.86570783505391
+        },
+        "node_count": 44,
+        "sample_count": 1314
+      }
+    },
+    "80bus": {
+      "persistence_1h": {
+        "node_macro": {
+          "mae": 0.0002336655968078542,
+          "rmse": 0.00039478217503634175,
+          "wape_pct": 40.86168488147845,
+          "smape_pct": 38.18080999887797
+        },
+        "grid_aggregate": {
+          "mae": 0.00283402512873091,
+          "rmse": 0.003909061074345337,
+          "wape_pct": 11.728290248854531,
+          "smape_pct": 12.614452734641882
+        },
+        "node_count": 32,
+        "sample_count": 1314
+      },
+      "shared_gru": {
+        "node_macro": {
+          "mae": 0.00019976177428414717,
+          "rmse": 0.00035814919682108286,
+          "wape_pct": 42.49041109254918,
+          "smape_pct": 49.49641774943679
+        },
+        "grid_aggregate": {
+          "mae": 0.0028752594482732165,
+          "rmse": 0.0036306436759954847,
+          "wape_pct": 11.898933785824106,
+          "smape_pct": 12.590587428367902
+        },
+        "node_count": 32,
+        "sample_count": 1314
+      },
+      "stgcn": null,
+      "astgcn": {
+        "node_macro": {
+          "mae": 0.00022525873153148132,
+          "rmse": 0.0003745971226248771,
+          "wape_pct": 76.5041407003708,
+          "smape_pct": 61.851075887402715
+        },
+        "grid_aggregate": {
+          "mae": 0.0028869409751214234,
+          "rmse": 0.0036657218174613606,
+          "wape_pct": 11.947276454367502,
+          "smape_pct": 12.547352750171534
+        },
+        "node_count": 32,
+        "sample_count": 1314
+      },
+      "graph_wavenet": {
+        "node_macro": {
+          "mae": 0.00018024587666746117,
+          "rmse": 0.00033214584829722364,
+          "wape_pct": 44.01125377664821,
+          "smape_pct": 44.43035980660852
+        },
+        "grid_aggregate": {
+          "mae": 0.0026740180220429575,
+          "rmse": 0.00349574271124578,
+          "wape_pct": 11.066119061185345,
+          "smape_pct": 11.726678510976459
+        },
+        "node_count": 32,
+        "sample_count": 1314
+      }
+    }
+  },
+  "macro_across_grids": {
+    "node_macro": {
+      "persistence_1h": {
+        "metrics": {
+          "mae": 0.0004091039051433195,
+          "rmse": 0.0005978390816271805,
+          "wape_pct": 35.79449475360566,
+          "smape_pct": 34.51285024068602
+        },
+        "available_grid_count": 4,
+        "expected_grid_count": 4
+      },
+      "shared_gru": {
+        "metrics": {
+          "mae": 0.000344790270315459,
+          "rmse": 0.0005177241315166731,
+          "wape_pct": 32.45363401459326,
+          "smape_pct": 35.066072840433826
+        },
+        "available_grid_count": 4,
+        "expected_grid_count": 4
+      },
+      "stgcn": {
+        "metrics": {
+          "mae": 0.0004312844207658154,
+          "rmse": 0.0006246221251740785,
+          "wape_pct": 31.40623172687771,
+          "smape_pct": 31.74010712198478
+        },
+        "available_grid_count": 1,
+        "expected_grid_count": 4
+      },
+      "astgcn": {
+        "metrics": {
+          "mae": 0.0003513933373805789,
+          "rmse": 0.0005157892471464736,
+          "wape_pct": 41.84400039140773,
+          "smape_pct": 38.98990266043273
+        },
+        "available_grid_count": 4,
+        "expected_grid_count": 4
+      },
+      "graph_wavenet": {
+        "metrics": {
+          "mae": 0.0003329057723753775,
+          "rmse": 0.0005123585879363256,
+          "wape_pct": 32.14200726045491,
+          "smape_pct": 32.68181744131465
+        },
+        "available_grid_count": 4,
+        "expected_grid_count": 4
+      }
+    },
+    "grid_aggregate": {
+      "persistence_1h": {
+        "metrics": {
+          "mae": 0.003514950152390652,
+          "rmse": 0.004560224827818501,
+          "wape_pct": 8.35215561196247,
+          "smape_pct": 8.61255592413056
+        },
+        "available_grid_count": 4,
+        "expected_grid_count": 4
+      },
+      "shared_gru": {
+        "metrics": {
+          "mae": 0.004091183159601821,
+          "rmse": 0.005063131913503513,
+          "wape_pct": 9.381897760807828,
+          "smape_pct": 9.736701382188942
+        },
+        "available_grid_count": 4,
+        "expected_grid_count": 4
+      },
+      "stgcn": {
+        "metrics": {
+          "mae": 0.005462121162727482,
+          "rmse": 0.0064971453596836815,
+          "wape_pct": 13.48126227408675,
+          "smape_pct": 14.000900616755096
+        },
+        "available_grid_count": 1,
+        "expected_grid_count": 4
+      },
+      "astgcn": {
+        "metrics": {
+          "mae": 0.004166617592791514,
+          "rmse": 0.005103117083029954,
+          "wape_pct": 9.323497648956787,
+          "smape_pct": 9.718938167100106
+        },
+        "available_grid_count": 4,
+        "expected_grid_count": 4
+      },
+      "graph_wavenet": {
+        "metrics": {
+          "mae": 0.004399528218644393,
+          "rmse": 0.005491737553380913,
+          "wape_pct": 9.968567760527867,
+          "smape_pct": 10.204667300706102
+        },
+        "available_grid_count": 4,
+        "expected_grid_count": 4
+      }
+    }
+  },
+  "diagnostic_variants": {}
+}
