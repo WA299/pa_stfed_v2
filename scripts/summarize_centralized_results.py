@@ -8,16 +8,57 @@ GRIDS=("39bus","50bus","56bus","80bus")
 STANDARD=("persistence_1h","shared_gru","stgcn","astgcn","graph_wavenet")
 FILES={
  "shared_gru":("gru_{g}_p_calendar.json","gru"),
- "stgcn":("stgcn_{g}_p_calendar.json","stgcn"),
  "astgcn":("astgcn_{g}_p_calendar.json","astgcn"),
  "graph_wavenet":("graph_wavenet_{g}_p_calendar.json","graph_wavenet"),
 }
+STGCN_CANDIDATES=(
+ "stgcn_{g}_p_calendar_binary_physical.json",
+ "stgcn_{g}_p_calendar.json",
+)
 METRICS=("mae","rmse","wape_pct","smape_pct")
 def _validation(path): return json.loads(path.read_text(encoding="utf-8")).get("validation",{})
+def _config(path): return json.loads(path.read_text(encoding="utf-8")).get("config",{})
+def _is_standard_stgcn(path):
+ c=_config(path)
+ adjacency_mode=c.get("adjacency_mode")
+ adjacency_type=c.get("adjacency_type")
+ adjacency_ok=(adjacency_mode == "binary_physical" if adjacency_mode else adjacency_type == "binary_physical_normalized")
+ return (
+  c.get("feature_mode") == "p_calendar"
+  and c.get("topology_used") is True
+  and c.get("electrical_edge_features_used") is False
+  and adjacency_ok
+ )
+def _stgcn_candidates(indir,grid):
+ return [indir/name.format(g=grid) for name in STGCN_CANDIDATES if (indir/name.format(g=grid)).exists()]
+def _same_metrics(left,right):
+ for scope in ("node_macro","grid_aggregate"):
+  for metric in METRICS:
+   if not np.isclose(float(left[scope][metric]),float(right[scope][metric]),rtol=1e-10,atol=1e-12): return False
+ return True
+def _select_stgcn(indir,grid):
+ valid=[]
+ for path in _stgcn_candidates(indir,grid):
+  if _is_standard_stgcn(path): valid.append(path)
+ if not valid:return None
+ selected=valid[0]
+ selected_result=_validation(selected).get("stgcn")
+ for other in valid[1:]:
+  other_result=_validation(other).get("stgcn")
+  if selected_result is None or other_result is None or not _same_metrics(selected_result,other_result):
+   raise ValueError(f"ambiguous standard STGCN results for {grid}: {selected.name} vs {other.name}")
+ return selected
+def _model_paths(indir,grid,model):
+ if model == "stgcn":
+  selected=_select_stgcn(indir,grid)
+  return [selected] if selected is not None else []
+ fn,_=FILES[model]
+ path=indir/fn.format(g=grid)
+ return [path] if path.exists() else []
 def _persistence_sources(indir,grid):
- for model,(fn,_) in FILES.items():
-  p=indir/fn.format(g=grid)
-  if p.exists() and "persistence_1h" in _validation(p): yield model,_validation(p)["persistence_1h"]
+ for model in (*FILES.keys(),"stgcn"):
+  for p in _model_paths(indir,grid,model):
+   if "persistence_1h" in _validation(p): yield model,_validation(p)["persistence_1h"]
 def _consistent_persistence(indir,grid):
  sources=list(_persistence_sources(indir,grid))
  if not sources:return None
@@ -31,10 +72,11 @@ def summarize(indir):
  per={g:{} for g in GRIDS}
  for g in GRIDS:
   per[g]["persistence_1h"]=_consistent_persistence(indir,g)
-  for model,(fn,validation_key) in FILES.items():
-   p=indir/fn.format(g=g)
-   if not p.exists(): per[g][model]=None; continue
-   v=_validation(p); per[g][model]=v.get(validation_key)
+  for model in (*FILES.keys(),"stgcn"):
+   paths=_model_paths(indir,g,model)
+   if not paths: per[g][model]=None; continue
+   v=_validation(paths[0]); validation_key="stgcn" if model == "stgcn" else FILES[model][1]
+   per[g][model]=v.get(validation_key)
  macro={"node_macro":{},"grid_aggregate":{}}
  for model in STANDARD:
   for scope in macro:
