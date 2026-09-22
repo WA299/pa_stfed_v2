@@ -5,12 +5,13 @@ from pathlib import Path
 import numpy as np
 
 GRIDS=("39bus","50bus","56bus","80bus")
-STANDARD=("persistence_1h","shared_gru","stgcn","astgcn","graph_wavenet")
+STANDARD=("persistence_1h","shared_gru","stgcn","astgcn","graph_wavenet","puc_rstattn_v2")
 FILES={
  "shared_gru":("gru_{g}_p_calendar.json","gru"),
  "astgcn":("astgcn_{g}_p_calendar.json","astgcn"),
  "graph_wavenet":("graph_wavenet_{g}_p_calendar.json","graph_wavenet"),
 }
+PUC_V2_FILES="puc_rstattn_v2_{g}_p_calendar.json"
 STGCN_CANDIDATES=(
  "stgcn_{g}_p_calendar_binary_physical.json",
  "stgcn_{g}_p_calendar.json",
@@ -52,9 +53,21 @@ def _model_paths(indir,grid,model):
  if model == "stgcn":
   selected=_select_stgcn(indir,grid)
   return [selected] if selected is not None else []
+ if model == "puc_rstattn_v2":
+  path=indir/PUC_V2_FILES.format(g=grid)
+  return [path] if path.exists() else []
  fn,_=FILES[model]
  path=indir/fn.format(g=grid)
  return [path] if path.exists() else []
+
+def _validate_puc_v2(path):
+ data=json.loads(path.read_text(encoding="utf-8"))
+ config=data.get("config",{})
+ if config.get("model") != "PUC-RSTAttn-V2" or config.get("feature_mode") != "p_calendar" or config.get("test_evaluated") is not False:
+  raise ValueError(f"invalid frozen PUC-RSTAttn V2 result: {path.name}")
+ if "final" not in data.get("validation",{}):
+  raise ValueError(f"missing final validation in frozen PUC-RSTAttn V2 result: {path.name}")
+ return data
 def _persistence_sources(indir,grid):
  for model in (*FILES.keys(),"stgcn"):
   for p in _model_paths(indir,grid,model):
@@ -69,13 +82,19 @@ def _consistent_persistence(indir,grid):
     if not np.isclose(float(ref[scope][metric]),float(item[scope][metric]),rtol=1e-10,atol=1e-12): raise ValueError(f"inconsistent persistence_1h for {grid}: {sources[0][0]} vs {name}, {scope}.{metric}")
  return ref
 def summarize(indir):
+ puc_paths=[indir/PUC_V2_FILES.format(g=g) for g in GRIDS]
+ existing_puc=[p for p in puc_paths if p.exists()]
+ if existing_puc and len(existing_puc) != len(GRIDS):
+  missing=", ".join(p.name for p in puc_paths if not p.exists())
+  raise ValueError(f"missing frozen PUC-RSTAttn V2 results: {missing}")
  per={g:{} for g in GRIDS}
  for g in GRIDS:
   per[g]["persistence_1h"]=_consistent_persistence(indir,g)
-  for model in (*FILES.keys(),"stgcn"):
+  for model in (*FILES.keys(),"stgcn","puc_rstattn_v2"):
    paths=_model_paths(indir,g,model)
    if not paths: per[g][model]=None; continue
-   v=_validation(paths[0]); validation_key="stgcn" if model == "stgcn" else FILES[model][1]
+   v=_validation(paths[0]) if model != "puc_rstattn_v2" else _validate_puc_v2(paths[0]).get("validation",{})
+   validation_key="stgcn" if model == "stgcn" else ("final" if model == "puc_rstattn_v2" else FILES[model][1])
    per[g][model]=v.get(validation_key)
  macro={"node_macro":{},"grid_aggregate":{}}
  for model in STANDARD:
