@@ -49,10 +49,17 @@ class TestPUCRSTAttnV2Ablation(unittest.TestCase):
         x = torch.randn(2, 168, 4, 6)
         first = self._model("utility_uniform_spatial", utilities=np.asarray([0.99, 0.01, 0.5], dtype=np.float32))
         _, _, details = first(x, return_details=True)
-        self.assertTrue(torch.allclose(details["spatial_attention"][:, :2], torch.full((2, 2), 0.5), atol=1e-6))
-        second = self._model("utility_uniform_spatial", utilities=np.asarray([0.01, 0.99, 0.5], dtype=np.float32))
-        _, _, second_details = second(x, return_details=True)
-        self.assertTrue(torch.allclose(details["spatial_attention"], second_details["spatial_attention"], atol=1e-6))
+        first_outputs = {key: details[key].detach().clone() for key in ("spatial_attention", "reliability", "spatial_gate", "raw_spatial_residual", "centered_spatial_residual")}
+        first_final, _, _ = first(x, return_details=True)
+        with torch.no_grad():
+            first.selected_utility.copy_(torch.tensor([0.01, 0.99, 0.5]))
+        second_final, _, second_details = first(x, return_details=True)
+        self.assertTrue(torch.allclose(first_outputs["spatial_attention"][:, :2], torch.full((2, 2), 0.5), atol=1e-6))
+        for key, value in first_outputs.items():
+            self.assertTrue(torch.allclose(value, second_details[key], atol=1e-7), key)
+        self.assertTrue(torch.allclose(first_final, second_final, atol=1e-7))
+        expected_reliability = torch.tensor([[0.0, 0.0, 2.0 / 3.0], [0.0, 0.0, 1.0 / 3.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
+        self.assertTrue(torch.allclose(second_details["reliability"], expected_reliability, atol=1e-7))
 
     def test_no_physics_initial_attention_is_utility_prior_and_physics_is_disabled(self):
         model = self._model("utility_prior_no_physics")

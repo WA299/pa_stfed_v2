@@ -115,7 +115,10 @@ if TORCH_AVAILABLE:
                     utility_max[target] = target_utility.max()
                     utility_mean[target] = target_utility.mean()
 
-            reliability = torch.stack([utility_max, utility_mean, selected_count / 3.0], dim=-1)
+            if self.variant == "utility_uniform_spatial":
+                reliability = torch.stack([torch.zeros_like(selected_count), torch.zeros_like(selected_count), selected_count / 3.0], dim=-1)
+            else:
+                reliability = torch.stack([utility_max, utility_mean, selected_count / 3.0], dim=-1)
             spatial_input = torch.cat([h_last, spatial_message], dim=-1)
             spatial_correction = self.spatial_correction(spatial_input).squeeze(-1)
             spatial_gate = self.spatial_gate(

@@ -28,7 +28,7 @@ def _load_json(path: Path) -> dict[str, Any]:
 
 def _validate_full(data: dict[str, Any], path: Path) -> dict[str, Any]:
     config = data.get("config", {})
-    if config.get("model") != "PUC-RSTAttn-V2" or config.get("feature_mode") != "p_calendar" or config.get("test_evaluated") is not False:
+    if config.get("model") != "PUC-RSTAttn-V2" or config.get("feature_mode") != "p_calendar" or config.get("test_evaluated") is not False or data.get("test_evaluated") is not False:
         raise ValueError(f"invalid frozen full-model result: {path.name}")
     return data["validation"]["final"]
 
@@ -50,6 +50,8 @@ def _validate_ablation(data: dict[str, Any], variant: str, path: Path) -> dict[s
     for key, expected in required.items():
         if config.get(key) != expected:
             raise ValueError(f"invalid {variant} metadata {key} in {path.name}")
+    if config.get("validation_used_for_graph") is not False or data.get("test_evaluated") is not False:
+        raise ValueError(f"invalid {variant} graph/test metadata in {path.name}")
     return data["validation"]["final"]
 
 
