@@ -1,0 +1,2822 @@
+{
+  "config": {
+    "experiment": "puc_rstattn_v2_formal_ablation",
+    "variant": "utility_uniform_spatial",
+    "model": "PUC-RSTAttn-V2-ablation",
+    "independent_training": true,
+    "seed": 42,
+    "feature_mode": "p_calendar",
+    "history_length": 168,
+    "forecast_horizon": 1,
+    "hidden_size": 32,
+    "utility_top_k": 3,
+    "utility_positive_only": true,
+    "utility_fit_samples": 4771,
+    "utility_selection_samples": 1193,
+    "temporal_residual_enabled": true,
+    "spatial_residual_enabled": true,
+    "utility_candidate_selection_enabled": true,
+    "utility_magnitude_prior_enabled": false,
+    "dynamic_attention_enabled": false,
+    "physical_relation_bias_enabled": false,
+    "aggregate_preserving_spatial_residual": true,
+    "validation_used_for_graph": false,
+    "test_evaluated": false,
+    "anchor_loss_weight": 0.2,
+    "max_epochs": 50,
+    "patience": 8,
+    "batch_size": 32,
+    "learning_rate": 0.001,
+    "grid_name": "50_bus_rural_reference_grid",
+    "device": "cuda"
+  },
+  "graph_diagnostics": {
+    "positive_edge_count": 60,
+    "targets_with_selected_neighbors": {
+      "0": 0,
+      "1": 1,
+      "2": 1,
+      "3": 19
+    },
+    "mean_positive_utility": 0.025101591852711543,
+    "mean_normalized_impedance": 1.0038021802902222,
+    "mean_normalized_hop": 1.023809552192688,
+    "utility_fit_samples": 4771,
+    "utility_selection_samples": 1193
+  },
+  "validation": {
+    "final": {
+      "node_macro": {
+        "mae": 0.00032136446788864654,
+        "rmse": 0.0005067185967453654,
+        "wape_pct": 31.56940376418151,
+        "smape_pct": 34.748433281689394
+      },
+      "grid_aggregate": {
+        "mae": 0.002944648588867383,
+        "rmse": 0.003794308538038785,
+        "wape_pct": 7.636892649447941,
+        "smape_pct": 7.695260333159785
+      },
+      "node_count": 21,
+      "sample_count": 1314
+    },
+    "temporal_residual": {
+      "node_macro": {
+        "mae": 0.00033632775940185334,
+        "rmse": 0.0005123598160951099,
+        "wape_pct": 35.53951606785429,
+        "smape_pct": 35.96709025928148
+      },
+      "grid_aggregate": {
+        "mae": 0.0029446487287879625,
+        "rmse": 0.0037943086896998217,
+        "wape_pct": 7.6368930123294225,
+        "smape_pct": 7.6952607221810645
+      },
+      "node_count": 21,
+      "sample_count": 1314
+    },
+    "gru_anchor": {
+      "node_macro": {
+        "mae": 0.00034181753317536834,
+        "rmse": 0.0005196754575903777,
+        "wape_pct": 33.04648421185919,
+        "smape_pct": 37.146173472194974
+      },
+      "grid_aggregate": {
+        "mae": 0.002668047244558964,
+        "rmse": 0.0034530455144094626,
+        "wape_pct": 6.919532085215426,
+        "smape_pct": 6.959571465044617
+      },
+      "node_count": 21,
+      "sample_count": 1314
+    },
+    "persistence_1h": {
+      "node_macro": {
+        "mae": 0.00037455700510863115,
+        "rmse": 0.0005640588817814529,
+        "wape_pct": 34.56525886482546,
+        "smape_pct": 33.336043989422656
+      },
+      "grid_aggregate": {
+        "mae": 0.0025365296868941345,
+        "rmse": 0.003331363116791131,
+        "wape_pct": 6.578443686788203,
+        "smape_pct": 6.571413140450934
+      },
+      "node_count": 21,
+      "sample_count": 1314
+    }
+  },
+  "summary": {
+    "best_epoch": 49,
+    "best_validation_node_macro_mae": 0.00032136446788864654,
+    "best_train_scaled_mae": 0.10142836568349185,
+    "epochs_run": 50
+  },
+  "training_history": [
+    {
+      "epoch": 1,
+      "train_scaled_mae": 0.23822591645035515,
+      "train_anchor_scaled_mae": 0.3198305172397491,
+      "train_total_loss": 0.3021920207828124,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003896167983467444,
+          "rmse": 0.0005783194767959136,
+          "wape_pct": 37.42047435931094,
+          "smape_pct": 41.48316067576309
+        },
+        "grid_aggregate": {
+          "mae": 0.003359554894164267,
+          "rmse": 0.004275263611175016,
+          "wape_pct": 8.712944618810482,
+          "smape_pct": 8.744583416630569
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00041322783939456547,
+          "rmse": 0.0005953265334474615,
+          "wape_pct": 39.59041525670904,
+          "smape_pct": 39.34540502199615
+        },
+        "grid_aggregate": {
+          "mae": 0.003359554913301561,
+          "rmse": 0.0042752636320295264,
+          "wape_pct": 8.712944668442706,
+          "smape_pct": 8.744583473049584
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0005162669124483506,
+          "rmse": 0.0007060547378642318,
+          "wape_pct": 38.96740322870112,
+          "smape_pct": 39.759693171950744
+        },
+        "grid_aggregate": {
+          "mae": 0.006866492773529311,
+          "rmse": 0.007702311596857801,
+          "wape_pct": 17.80812433371657,
+          "smape_pct": 19.16069405101696
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 2,
+      "train_scaled_mae": 0.12479415814825558,
+      "train_anchor_scaled_mae": 0.16319257997095904,
+      "train_total_loss": 0.15743267460462243,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003599880598157841,
+          "rmse": 0.0005409095291704584,
+          "wape_pct": 36.99527265993446,
+          "smape_pct": 42.397907097599386
+        },
+        "grid_aggregate": {
+          "mae": 0.0029061752971216485,
+          "rmse": 0.0037242895173533793,
+          "wape_pct": 7.5371128658622615,
+          "smape_pct": 7.592318738717036
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.0004000393233999048,
+          "rmse": 0.0005844657160402711,
+          "wape_pct": 47.56025279951551,
+          "smape_pct": 54.644427687024866
+        },
+        "grid_aggregate": {
+          "mae": 0.0029061753425735208,
+          "rmse": 0.0037242895670048844,
+          "wape_pct": 7.537112983740867,
+          "smape_pct": 7.592318859637308
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00039169080452760923,
+          "rmse": 0.0005811867260147884,
+          "wape_pct": 36.70766267249062,
+          "smape_pct": 40.93382219022898
+        },
+        "grid_aggregate": {
+          "mae": 0.0034487857485784473,
+          "rmse": 0.004366357575033464,
+          "wape_pct": 8.944363219575242,
+          "smape_pct": 9.101786027582333
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 3,
+      "train_scaled_mae": 0.11468115532621342,
+      "train_anchor_scaled_mae": 0.13659061292276026,
+      "train_total_loss": 0.1419992784765315,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00035589879956301324,
+          "rmse": 0.0005233738572739838,
+          "wape_pct": 39.129127596574165,
+          "smape_pct": 38.81512223203287
+        },
+        "grid_aggregate": {
+          "mae": 0.0025062604804833993,
+          "rmse": 0.0032199464338177816,
+          "wape_pct": 6.499941050136472,
+          "smape_pct": 6.498059451321778
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00038577543448091965,
+          "rmse": 0.000561586505161611,
+          "wape_pct": 38.91682345236717,
+          "smape_pct": 45.87768888866107
+        },
+        "grid_aggregate": {
+          "mae": 0.002506260494069274,
+          "rmse": 0.003219946448584293,
+          "wape_pct": 6.499941085371191,
+          "smape_pct": 6.498059486432658
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003799263054581769,
+          "rmse": 0.0005598235895801314,
+          "wape_pct": 36.960940728018656,
+          "smape_pct": 37.428500277318854
+        },
+        "grid_aggregate": {
+          "mae": 0.0028513732502211337,
+          "rmse": 0.003666084795121814,
+          "wape_pct": 7.3949847522627286,
+          "smape_pct": 7.421598445713694
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 4,
+      "train_scaled_mae": 0.11248695053518774,
+      "train_anchor_scaled_mae": 0.13027136191167935,
+      "train_total_loss": 0.13854122333188745,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003514751916148995,
+          "rmse": 0.0005195285979652094,
+          "wape_pct": 37.047796875902655,
+          "smape_pct": 37.6017771276336
+        },
+        "grid_aggregate": {
+          "mae": 0.0025034882882032697,
+          "rmse": 0.0032211106374101057,
+          "wape_pct": 6.492751419792458,
+          "smape_pct": 6.4917595239520915
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00037810598318998895,
+          "rmse": 0.0005525212212578591,
+          "wape_pct": 38.22293197657097,
+          "smape_pct": 45.24073461916693
+        },
+        "grid_aggregate": {
+          "mae": 0.002503488309149331,
+          "rmse": 0.0032211106653221955,
+          "wape_pct": 6.492751474115687,
+          "smape_pct": 6.491759576269082
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00036899502208567514,
+          "rmse": 0.0005494735828700212,
+          "wape_pct": 35.78061812846359,
+          "smape_pct": 36.93022808743857
+        },
+        "grid_aggregate": {
+          "mae": 0.00282090376642723,
+          "rmse": 0.003644343696391738,
+          "wape_pct": 7.315962699275538,
+          "smape_pct": 7.348172278727862
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 5,
+      "train_scaled_mae": 0.11167850357325956,
+      "train_anchor_scaled_mae": 0.12563771794345927,
+      "train_total_loss": 0.13680604765600063,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003478755904167607,
+          "rmse": 0.00052416440229565,
+          "wape_pct": 35.24663414572045,
+          "smape_pct": 40.48660716292395
+        },
+        "grid_aggregate": {
+          "mae": 0.002787953993712362,
+          "rmse": 0.003572357909468188,
+          "wape_pct": 7.230508062006259,
+          "smape_pct": 7.287727226596622
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.0003817993452499587,
+          "rmse": 0.0005600015339267451,
+          "wape_pct": 45.05031312327749,
+          "smape_pct": 53.28225268146548
+        },
+        "grid_aggregate": {
+          "mae": 0.002787954021199234,
+          "rmse": 0.0035723579397484552,
+          "wape_pct": 7.230508133292962,
+          "smape_pct": 7.28772730451806
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00036265589434552757,
+          "rmse": 0.000548228759716726,
+          "wape_pct": 35.79501380839805,
+          "smape_pct": 41.11607449439589
+        },
+        "grid_aggregate": {
+          "mae": 0.003062267162982683,
+          "rmse": 0.003912287099582982,
+          "wape_pct": 7.941934285823701,
+          "smape_pct": 8.046956467111356
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 6,
+      "train_scaled_mae": 0.11093413602700208,
+      "train_anchor_scaled_mae": 0.12190059405119023,
+      "train_total_loss": 0.13531425531535224,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00034645012101059655,
+          "rmse": 0.0005239470107884303,
+          "wape_pct": 35.06827799148128,
+          "smape_pct": 40.92465165578532
+        },
+        "grid_aggregate": {
+          "mae": 0.0028434938760626086,
+          "rmse": 0.0036415763931285697,
+          "wape_pct": 7.374549738447843,
+          "smape_pct": 7.442910714700478
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.0003759393099116374,
+          "rmse": 0.0005546804626047712,
+          "wape_pct": 45.107598695846065,
+          "smape_pct": 53.39718531515618
+        },
+        "grid_aggregate": {
+          "mae": 0.0028434938898845357,
+          "rmse": 0.0036415764145175254,
+          "wape_pct": 7.37454977429476,
+          "smape_pct": 7.4429107525109295
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003593236063529091,
+          "rmse": 0.0005448206428258158,
+          "wape_pct": 35.92623882699483,
+          "smape_pct": 42.08409490088396
+        },
+        "grid_aggregate": {
+          "mae": 0.0030470388608610723,
+          "rmse": 0.003888800352830992,
+          "wape_pct": 7.9024399607705265,
+          "smape_pct": 8.01078929529222
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 7,
+      "train_scaled_mae": 0.11051721476456698,
+      "train_anchor_scaled_mae": 0.11949903820765848,
+      "train_total_loss": 0.134417022932022,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003480528262793829,
+          "rmse": 0.0005144888029966211,
+          "wape_pct": 36.81960497487491,
+          "smape_pct": 37.52034734594851
+        },
+        "grid_aggregate": {
+          "mae": 0.0024327152005947754,
+          "rmse": 0.0031466288744482975,
+          "wape_pct": 6.309202702101857,
+          "smape_pct": 6.299724210892764
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.0003519452092931058,
+          "rmse": 0.0005237058591565104,
+          "wape_pct": 32.963172802041576,
+          "smape_pct": 36.24584398517264
+        },
+        "grid_aggregate": {
+          "mae": 0.0024327152223703494,
+          "rmse": 0.003146628895893441,
+          "wape_pct": 6.309202758576412,
+          "smape_pct": 6.299724263916157
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00035682956999255117,
+          "rmse": 0.0005333087047677688,
+          "wape_pct": 35.30948147731159,
+          "smape_pct": 36.35438365269039
+        },
+        "grid_aggregate": {
+          "mae": 0.002614721801642237,
+          "rmse": 0.0033836965954625077,
+          "wape_pct": 6.781233517237252,
+          "smape_pct": 6.792605725054466
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 8,
+      "train_scaled_mae": 0.11036666406985911,
+      "train_anchor_scaled_mae": 0.11780644020932243,
+      "train_total_loss": 0.13392795243843353,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00034469942073713357,
+          "rmse": 0.0005207498607982573,
+          "wape_pct": 34.835460667084924,
+          "smape_pct": 40.06973150660981
+        },
+        "grid_aggregate": {
+          "mae": 0.0028022066948707467,
+          "rmse": 0.0036013455917224472,
+          "wape_pct": 7.267472183675226,
+          "smape_pct": 7.332582399502106
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00036270827524412886,
+          "rmse": 0.000540014888832957,
+          "wape_pct": 41.726319782161305,
+          "smape_pct": 50.19920197133837
+        },
+        "grid_aggregate": {
+          "mae": 0.0028022067213578005,
+          "rmse": 0.003601345636756812,
+          "wape_pct": 7.267472252368919,
+          "smape_pct": 7.3325824653461265
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003551352652279862,
+          "rmse": 0.0005383541069926329,
+          "wape_pct": 35.67662089390627,
+          "smape_pct": 41.34712013201369
+        },
+        "grid_aggregate": {
+          "mae": 0.002920893866241389,
+          "rmse": 0.0037459120940789782,
+          "wape_pct": 7.575285207630271,
+          "smape_pct": 7.665914838141358
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 9,
+      "train_scaled_mae": 0.10956534201448614,
+      "train_anchor_scaled_mae": 0.11620200078755138,
+      "train_total_loss": 0.13280574264214,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003463125326738009,
+          "rmse": 0.0005126084337746737,
+          "wape_pct": 36.13457008448308,
+          "smape_pct": 37.07943939621859
+        },
+        "grid_aggregate": {
+          "mae": 0.00243808798091924,
+          "rmse": 0.0031581567656598242,
+          "wape_pct": 6.323136910320157,
+          "smape_pct": 6.313490365659409
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00034581034190047717,
+          "rmse": 0.000516851640956645,
+          "wape_pct": 32.383979027858985,
+          "smape_pct": 34.746648416812384
+        },
+        "grid_aggregate": {
+          "mae": 0.0024380879890446394,
+          "rmse": 0.0031581567792484475,
+          "wape_pct": 6.3231369313932335,
+          "smape_pct": 6.313490384650322
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00035371902394615225,
+          "rmse": 0.0005289897947107743,
+          "wape_pct": 35.12624537932043,
+          "smape_pct": 36.19941399202742
+        },
+        "grid_aggregate": {
+          "mae": 0.002575902932578824,
+          "rmse": 0.003332552845375851,
+          "wape_pct": 6.680557485152797,
+          "smape_pct": 6.688241132021363
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 10,
+      "train_scaled_mae": 0.10978229814034732,
+      "train_anchor_scaled_mae": 0.11534024480192419,
+      "train_total_loss": 0.13285034747525332,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003415842548458351,
+          "rmse": 0.0005169771623019357,
+          "wape_pct": 33.63723274314358,
+          "smape_pct": 38.086458236663454
+        },
+        "grid_aggregate": {
+          "mae": 0.002749861441727419,
+          "rmse": 0.003550688729995498,
+          "wape_pct": 7.131715720077127,
+          "smape_pct": 7.181208172399129
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.0003531785721739867,
+          "rmse": 0.0005298874269985173,
+          "wape_pct": 38.92900206605056,
+          "smape_pct": 47.264199725108746
+        },
+        "grid_aggregate": {
+          "mae": 0.002749861462883755,
+          "rmse": 0.0035506887720655397,
+          "wape_pct": 7.131715774945699,
+          "smape_pct": 7.1812082283735785
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00035073475805872696,
+          "rmse": 0.0005327422922822749,
+          "wape_pct": 34.15793906737923,
+          "smape_pct": 38.714953764897544
+        },
+        "grid_aggregate": {
+          "mae": 0.002812426830048044,
+          "rmse": 0.003629542149620068,
+          "wape_pct": 7.293977918691263,
+          "smape_pct": 7.361324245314314
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 11,
+      "train_scaled_mae": 0.10919540722102405,
+      "train_anchor_scaled_mae": 0.11437448612190185,
+      "train_total_loss": 0.13207030487570534,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003408173068619743,
+          "rmse": 0.0005157556016372277,
+          "wape_pct": 33.28206051355656,
+          "smape_pct": 37.380326092828604
+        },
+        "grid_aggregate": {
+          "mae": 0.0027417924884633044,
+          "rmse": 0.0035429482347148983,
+          "wape_pct": 7.110789036294069,
+          "smape_pct": 7.160084667961324
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00035165852008966537,
+          "rmse": 0.0005280010357979193,
+          "wape_pct": 38.35758433912778,
+          "smape_pct": 46.527138094454656
+        },
+        "grid_aggregate": {
+          "mae": 0.002741792510956882,
+          "rmse": 0.0035429482592851504,
+          "wape_pct": 7.1107890946307535,
+          "smape_pct": 7.160084732633093
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.000349748125998967,
+          "rmse": 0.0005311370487237814,
+          "wape_pct": 33.98177705709889,
+          "smape_pct": 38.305517145029256
+        },
+        "grid_aggregate": {
+          "mae": 0.0027849326936036957,
+          "rmse": 0.003594852896633981,
+          "wape_pct": 7.22267237503197,
+          "smape_pct": 7.288024235145278
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 12,
+      "train_scaled_mae": 0.10891003452520319,
+      "train_anchor_scaled_mae": 0.11371808487145021,
+      "train_total_loss": 0.13165365163495835,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003393619353888906,
+          "rmse": 0.0005130288573835748,
+          "wape_pct": 32.46454156423931,
+          "smape_pct": 35.434399172720646
+        },
+        "grid_aggregate": {
+          "mae": 0.002679314851037917,
+          "rmse": 0.003469035820168434,
+          "wape_pct": 6.948754418033444,
+          "smape_pct": 6.9842493552216975
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00034799014446467997,
+          "rmse": 0.000523350136174535,
+          "wape_pct": 36.48604842669821,
+          "smape_pct": 43.95476524068282
+        },
+        "grid_aggregate": {
+          "mae": 0.002679314890332599,
+          "rmse": 0.003469035856181006,
+          "wape_pct": 6.9487545199434875,
+          "smape_pct": 6.984249467147845
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034808649570284417,
+          "rmse": 0.0005285549048874437,
+          "wape_pct": 33.14229276298272,
+          "smape_pct": 36.30134726712235
+        },
+        "grid_aggregate": {
+          "mae": 0.0027247084975861023,
+          "rmse": 0.003522691632249074,
+          "wape_pct": 7.066482016146878,
+          "smape_pct": 7.118184999462797
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 13,
+      "train_scaled_mae": 0.1087712224393605,
+      "train_anchor_scaled_mae": 0.11321884895709747,
+      "train_total_loss": 0.1314149922068744,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003399676321007795,
+          "rmse": 0.0005140906473204847,
+          "wape_pct": 33.243014286329355,
+          "smape_pct": 37.196301822506534
+        },
+        "grid_aggregate": {
+          "mae": 0.0027032186855625953,
+          "rmse": 0.0035016342696717003,
+          "wape_pct": 7.010748578852936,
+          "smape_pct": 7.060293415852151
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00034914571097078944,
+          "rmse": 0.0005244701182194498,
+          "wape_pct": 37.48022245693105,
+          "smape_pct": 45.276699918771946
+        },
+        "grid_aggregate": {
+          "mae": 0.0027032186990906875,
+          "rmse": 0.0035016342857050486,
+          "wape_pct": 7.010748613937798,
+          "smape_pct": 7.060293456888665
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034868431764797724,
+          "rmse": 0.0005292353842402879,
+          "wape_pct": 34.21967611628371,
+          "smape_pct": 38.906600325913075
+        },
+        "grid_aggregate": {
+          "mae": 0.0027348525649378537,
+          "rmse": 0.0035346010552688547,
+          "wape_pct": 7.092790470638521,
+          "smape_pct": 7.158454637238116
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 14,
+      "train_scaled_mae": 0.10858089006680219,
+      "train_anchor_scaled_mae": 0.11276513166765478,
+      "train_total_loss": 0.13113391710156425,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033965830705151486,
+          "rmse": 0.0005139101446466499,
+          "wape_pct": 33.25838478224508,
+          "smape_pct": 37.10154396089539
+        },
+        "grid_aggregate": {
+          "mae": 0.002724850262883797,
+          "rmse": 0.0035300271164687316,
+          "wape_pct": 7.066849681872428,
+          "smape_pct": 7.117268028101818
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.0003474280574600975,
+          "rmse": 0.0005228496844013898,
+          "wape_pct": 37.049109999062985,
+          "smape_pct": 44.58988555501619
+        },
+        "grid_aggregate": {
+          "mae": 0.002724850283965697,
+          "rmse": 0.003530027150647414,
+          "wape_pct": 7.066849736547952,
+          "smape_pct": 7.117268077563129
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034814832852736433,
+          "rmse": 0.0005285211856524269,
+          "wape_pct": 34.16879365479665,
+          "smape_pct": 38.645650623253864
+        },
+        "grid_aggregate": {
+          "mae": 0.0027241508176879393,
+          "rmse": 0.003520219008315463,
+          "wape_pct": 7.065035683456748,
+          "smape_pct": 7.1288031436625685
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 15,
+      "train_scaled_mae": 0.10846733819832777,
+      "train_anchor_scaled_mae": 0.11240492526063307,
+      "train_total_loss": 0.1309483234177936,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003395755140946943,
+          "rmse": 0.0005140652601782433,
+          "wape_pct": 33.42098738424107,
+          "smape_pct": 37.552058614342634
+        },
+        "grid_aggregate": {
+          "mae": 0.002741735036017529,
+          "rmse": 0.003552350449129922,
+          "wape_pct": 7.110640034419111,
+          "smape_pct": 7.1606330384535894
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.000346750949020101,
+          "rmse": 0.0005221787166254934,
+          "wape_pct": 37.10028565333308,
+          "smape_pct": 44.72058932168771
+        },
+        "grid_aggregate": {
+          "mae": 0.002741735070254617,
+          "rmse": 0.0035523504832050217,
+          "wape_pct": 7.110640123212376,
+          "smape_pct": 7.160633132799449
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003479836030646962,
+          "rmse": 0.0005288459500460655,
+          "wape_pct": 34.4773787180608,
+          "smape_pct": 39.503282464350626
+        },
+        "grid_aggregate": {
+          "mae": 0.0027375065394878825,
+          "rmse": 0.0035386529774637347,
+          "wape_pct": 7.099673505445989,
+          "smape_pct": 7.165952400022614
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 16,
+      "train_scaled_mae": 0.1082151503884856,
+      "train_anchor_scaled_mae": 0.11204931223615605,
+      "train_total_loss": 0.13062501296321338,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033885318514343906,
+          "rmse": 0.0005134356833701865,
+          "wape_pct": 33.166436842328025,
+          "smape_pct": 37.10683999003755
+        },
+        "grid_aggregate": {
+          "mae": 0.0027420272917810865,
+          "rmse": 0.0035580655570177197,
+          "wape_pct": 7.111397994435429,
+          "smape_pct": 7.16033438346606
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.0003455584158205159,
+          "rmse": 0.0005209922873659746,
+          "wape_pct": 36.75118322837856,
+          "smape_pct": 44.24467773877967
+        },
+        "grid_aggregate": {
+          "mae": 0.0027420273325673844,
+          "rmse": 0.003558065602127137,
+          "wape_pct": 7.111398100213952,
+          "smape_pct": 7.160334496402952
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003472789530866576,
+          "rmse": 0.0005280398354263528,
+          "wape_pct": 34.35693485198098,
+          "smape_pct": 39.42809937000435
+        },
+        "grid_aggregate": {
+          "mae": 0.0027183663115033863,
+          "rmse": 0.0035184154503204567,
+          "wape_pct": 7.050033671695987,
+          "smape_pct": 7.115658189721322
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 17,
+      "train_scaled_mae": 0.1079489051658202,
+      "train_anchor_scaled_mae": 0.1117437902618857,
+      "train_total_loss": 0.13029766317835467,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003384621271145361,
+          "rmse": 0.0005138948003935782,
+          "wape_pct": 33.08399776165292,
+          "smape_pct": 37.019555036495326
+        },
+        "grid_aggregate": {
+          "mae": 0.00279635526983964,
+          "rmse": 0.003622581014374246,
+          "wape_pct": 7.252296619100969,
+          "smape_pct": 7.306110400199117
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.0003449477864787564,
+          "rmse": 0.0005210459352000126,
+          "wape_pct": 36.94665595108717,
+          "smape_pct": 44.682884161341704
+        },
+        "grid_aggregate": {
+          "mae": 0.0027963553202795936,
+          "rmse": 0.003622581073355231,
+          "wape_pct": 7.252296749916073,
+          "smape_pct": 7.306110535820498
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003469513471082955,
+          "rmse": 0.0005278021888473679,
+          "wape_pct": 34.40864186118205,
+          "smape_pct": 39.63691268157351
+        },
+        "grid_aggregate": {
+          "mae": 0.0027316392612074104,
+          "rmse": 0.0035314994178477846,
+          "wape_pct": 7.084456825757349,
+          "smape_pct": 7.1528167549659365
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 18,
+      "train_scaled_mae": 0.10768791120798192,
+      "train_anchor_scaled_mae": 0.11146466720869197,
+      "train_total_loss": 0.12998084464972032,
+      "validation": {
+        "node_macro": {
+          "mae": 0.000338468166504272,
+          "rmse": 0.0005146234832934841,
+          "wape_pct": 33.29119239879533,
+          "smape_pct": 37.34256873469286
+        },
+        "grid_aggregate": {
+          "mae": 0.0028354783977370614,
+          "rmse": 0.0036708366507254794,
+          "wape_pct": 7.353761740947018,
+          "smape_pct": 7.411092482053553
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.000344723771391833,
+          "rmse": 0.0005213010102874647,
+          "wape_pct": 37.13263191472481,
+          "smape_pct": 44.833502921284385
+        },
+        "grid_aggregate": {
+          "mae": 0.0028354784261036972,
+          "rmse": 0.0036708366855270377,
+          "wape_pct": 7.353761814515373,
+          "smape_pct": 7.411092562075797
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003467509315573749,
+          "rmse": 0.0005275045230908204,
+          "wape_pct": 34.51755349276913,
+          "smape_pct": 39.73678700746033
+        },
+        "grid_aggregate": {
+          "mae": 0.0027214463423925776,
+          "rmse": 0.0035204866776007773,
+          "wape_pct": 7.0580216758831975,
+          "smape_pct": 7.125300373828358
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 19,
+      "train_scaled_mae": 0.1074652995336502,
+      "train_anchor_scaled_mae": 0.11124361609233255,
+      "train_total_loss": 0.12971402330194565,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003383340562613148,
+          "rmse": 0.0005147770788236548,
+          "wape_pct": 33.45918010728873,
+          "smape_pct": 37.7606428142714
+        },
+        "grid_aggregate": {
+          "mae": 0.0028505353322456797,
+          "rmse": 0.0036874532015860645,
+          "wape_pct": 7.392811627207407,
+          "smape_pct": 7.452451215274081
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.0003442806674406056,
+          "rmse": 0.0005208975534596212,
+          "wape_pct": 37.18530165065327,
+          "smape_pct": 44.909089368433825
+        },
+        "grid_aggregate": {
+          "mae": 0.00285053538152811,
+          "rmse": 0.003687453265998506,
+          "wape_pct": 7.392811755020496,
+          "smape_pct": 7.452451344398052
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003465062297134455,
+          "rmse": 0.0005271570247968003,
+          "wape_pct": 34.59093231998082,
+          "smape_pct": 39.896305643394484
+        },
+        "grid_aggregate": {
+          "mae": 0.0027119264874478893,
+          "rmse": 0.003507604792786615,
+          "wape_pct": 7.033332104935493,
+          "smape_pct": 7.099683062530923
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 20,
+      "train_scaled_mae": 0.10741878404496188,
+      "train_anchor_scaled_mae": 0.11112349205476077,
+      "train_total_loss": 0.12964348243997698,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033924189546250856,
+          "rmse": 0.000517548554613825,
+          "wape_pct": 34.181582156829485,
+          "smape_pct": 39.28760789376365
+        },
+        "grid_aggregate": {
+          "mae": 0.002950450643983326,
+          "rmse": 0.003805213387420719,
+          "wape_pct": 7.651940174043629,
+          "smape_pct": 7.726539412870599
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00034535078945715353,
+          "rmse": 0.000523366672026082,
+          "wape_pct": 38.35378877907511,
+          "smape_pct": 46.42415884472411
+        },
+        "grid_aggregate": {
+          "mae": 0.0029504506963654227,
+          "rmse": 0.0038052134535824377,
+          "wape_pct": 7.651940309895645,
+          "smape_pct": 7.726539558041981
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034758908604077643,
+          "rmse": 0.000529075579042216,
+          "wape_pct": 35.67023981504492,
+          "smape_pct": 41.86320567596711
+        },
+        "grid_aggregate": {
+          "mae": 0.002763288526153348,
+          "rmse": 0.003574024666163583,
+          "wape_pct": 7.166538619741136,
+          "smape_pct": 7.244011714748752
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 21,
+      "train_scaled_mae": 0.10711618684192392,
+      "train_anchor_scaled_mae": 0.11095008724194796,
+      "train_total_loss": 0.12930620465686615,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003383627062174163,
+          "rmse": 0.0005163640406440415,
+          "wape_pct": 33.93255759587963,
+          "smape_pct": 38.64279568110964
+        },
+        "grid_aggregate": {
+          "mae": 0.002923085664205255,
+          "rmse": 0.0037777598452584738,
+          "wape_pct": 7.580969595853235,
+          "smape_pct": 7.65571661900692
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.000344669569527858,
+          "rmse": 0.000522281147770938,
+          "wape_pct": 38.15802530977179,
+          "smape_pct": 46.05977208429823
+        },
+        "grid_aggregate": {
+          "mae": 0.0029230857172368565,
+          "rmse": 0.0037777599070046106,
+          "wape_pct": 7.58096973338973,
+          "smape_pct": 7.655716769398397
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003468906627615439,
+          "rmse": 0.0005280343820790348,
+          "wape_pct": 35.35990938363429,
+          "smape_pct": 41.33991961602404
+        },
+        "grid_aggregate": {
+          "mae": 0.0027456381531513114,
+          "rmse": 0.003553698123708859,
+          "wape_pct": 7.120762697836948,
+          "smape_pct": 7.198419147277875
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 22,
+      "train_scaled_mae": 0.10686633198019017,
+      "train_anchor_scaled_mae": 0.11079959009579796,
+      "train_total_loss": 0.1290262502065317,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003377791610865267,
+          "rmse": 0.0005166711332295522,
+          "wape_pct": 33.77637482172234,
+          "smape_pct": 38.46021228691174
+        },
+        "grid_aggregate": {
+          "mae": 0.0029517324661807783,
+          "rmse": 0.003806174509981794,
+          "wape_pct": 7.655264556638763,
+          "smape_pct": 7.736278517222936
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00034426621915280444,
+          "rmse": 0.0005224381450921517,
+          "wape_pct": 38.40857428276428,
+          "smape_pct": 46.47453071353783
+        },
+        "grid_aggregate": {
+          "mae": 0.0029517325452914833,
+          "rmse": 0.003806174611420356,
+          "wape_pct": 7.65526476181094,
+          "smape_pct": 7.7362787351862625
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034636217490323503,
+          "rmse": 0.0005276384346447107,
+          "wape_pct": 35.30077514230271,
+          "smape_pct": 41.48870695616859
+        },
+        "grid_aggregate": {
+          "mae": 0.002740060480336997,
+          "rmse": 0.0035462319379390723,
+          "wape_pct": 7.106297104666441,
+          "smape_pct": 7.185661051188036
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 23,
+      "train_scaled_mae": 0.1066128335056458,
+      "train_anchor_scaled_mae": 0.11065183360787,
+      "train_total_loss": 0.1287432006575207,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003380854361475162,
+          "rmse": 0.0005175112544725144,
+          "wape_pct": 34.33340858050652,
+          "smape_pct": 39.647624757883634
+        },
+        "grid_aggregate": {
+          "mae": 0.0029834730517797154,
+          "rmse": 0.003843387980543168,
+          "wape_pct": 7.737583189078001,
+          "smape_pct": 7.828071116825446
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00034509078264023343,
+          "rmse": 0.0005235451657004796,
+          "wape_pct": 39.28444918140775,
+          "smape_pct": 47.323100498310474
+        },
+        "grid_aggregate": {
+          "mae": 0.00298347312752545,
+          "rmse": 0.003843388070887517,
+          "wape_pct": 7.737583385523189,
+          "smape_pct": 7.828071322323959
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034678099214770046,
+          "rmse": 0.0005282119032109319,
+          "wape_pct": 35.75342666062953,
+          "smape_pct": 42.22262955966609
+        },
+        "grid_aggregate": {
+          "mae": 0.00275654834600037,
+          "rmse": 0.0035668728680172024,
+          "wape_pct": 7.149058084895369,
+          "smape_pct": 7.23267105115948
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 24,
+      "train_scaled_mae": 0.10646828901480863,
+      "train_anchor_scaled_mae": 0.11055199244124367,
+      "train_total_loss": 0.12857868769430222,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003343830580325895,
+          "rmse": 0.0005097341928457665,
+          "wape_pct": 32.349773266339305,
+          "smape_pct": 34.114392763742934
+        },
+        "grid_aggregate": {
+          "mae": 0.002717886995031756,
+          "rmse": 0.0035321907398677918,
+          "wape_pct": 7.048790573129728,
+          "smape_pct": 7.08213400820637
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00033816835977853505,
+          "rmse": 0.0005134301961230107,
+          "wape_pct": 34.29441771096475,
+          "smape_pct": 40.19824397484916
+        },
+        "grid_aggregate": {
+          "mae": 0.00271788704372507,
+          "rmse": 0.0035321908063827906,
+          "wape_pct": 7.048790699414956,
+          "smape_pct": 7.082134132303307
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003429793720985332,
+          "rmse": 0.0005217544554191717,
+          "wape_pct": 32.626222169405324,
+          "smape_pct": 35.622510541723756
+        },
+        "grid_aggregate": {
+          "mae": 0.0025732167382888646,
+          "rmse": 0.003338230056141862,
+          "wape_pct": 6.67359088903483,
+          "smape_pct": 6.713055414711677
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 25,
+      "train_scaled_mae": 0.10613138666924309,
+      "train_anchor_scaled_mae": 0.11032705666387782,
+      "train_total_loss": 0.12819679826498032,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003347328459197589,
+          "rmse": 0.0005112318691604398,
+          "wape_pct": 32.71635191383029,
+          "smape_pct": 35.647979676630165
+        },
+        "grid_aggregate": {
+          "mae": 0.0027696468699886577,
+          "rmse": 0.003590329939945149,
+          "wape_pct": 7.183028869030004,
+          "smape_pct": 7.239927071915743
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00033992222638840183,
+          "rmse": 0.0005158113297741463,
+          "wape_pct": 35.92610605378997,
+          "smape_pct": 42.63022316033302
+        },
+        "grid_aggregate": {
+          "mae": 0.002769646946326694,
+          "rmse": 0.0035903300231490244,
+          "wape_pct": 7.183029067011315,
+          "smape_pct": 7.239927287278388
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003438071352247352,
+          "rmse": 0.0005233329445902844,
+          "wape_pct": 33.539427838561934,
+          "smape_pct": 38.05178250018258
+        },
+        "grid_aggregate": {
+          "mae": 0.002622574167001947,
+          "rmse": 0.0033960322545952427,
+          "wape_pct": 6.801598484222808,
+          "smape_pct": 6.858851814871277
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 26,
+      "train_scaled_mae": 0.1060623687936023,
+      "train_anchor_scaled_mae": 0.11033981791473327,
+      "train_total_loss": 0.1281303327909128,
+      "validation": {
+        "node_macro": {
+          "mae": 0.000335824295224031,
+          "rmse": 0.0005069358795451827,
+          "wape_pct": 34.83652296696148,
+          "smape_pct": 35.752266334829265
+        },
+        "grid_aggregate": {
+          "mae": 0.002548101191775821,
+          "rmse": 0.0033347166664041525,
+          "wape_pct": 6.608454175174483,
+          "smape_pct": 6.607234429742465
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.0003351139263374344,
+          "rmse": 0.0005069255544544729,
+          "wape_pct": 31.9495021669723,
+          "smape_pct": 33.948234378739365
+        },
+        "grid_aggregate": {
+          "mae": 0.0025481012567515047,
+          "rmse": 0.0033347167501098264,
+          "wape_pct": 6.608454343687737,
+          "smape_pct": 6.6072346001505675
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003437244615058209,
+          "rmse": 0.0005195898652475669,
+          "wape_pct": 32.959539458624505,
+          "smape_pct": 34.75631702100744
+        },
+        "grid_aggregate": {
+          "mae": 0.0024985401505669552,
+          "rmse": 0.0032507652759692918,
+          "wape_pct": 6.479918514675667,
+          "smape_pct": 6.493789093936786
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 27,
+      "train_scaled_mae": 0.10578803877460766,
+      "train_anchor_scaled_mae": 0.110203539584091,
+      "train_total_loss": 0.1278287471934436,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003354380841942984,
+          "rmse": 0.0005153183602559027,
+          "wape_pct": 33.60632152814891,
+          "smape_pct": 37.95793402622088
+        },
+        "grid_aggregate": {
+          "mae": 0.0029327883111950866,
+          "rmse": 0.003780491740591228,
+          "wape_pct": 7.606133234651077,
+          "smape_pct": 7.690816578101074
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00033943584552119214,
+          "rmse": 0.0005179227479684705,
+          "wape_pct": 36.3756359968975,
+          "smape_pct": 43.195021381701345
+        },
+        "grid_aggregate": {
+          "mae": 0.002932788396722929,
+          "rmse": 0.003780491848780149,
+          "wape_pct": 7.606133456465983,
+          "smape_pct": 7.690816815617732
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003447864695724136,
+          "rmse": 0.0005251450473250665,
+          "wape_pct": 34.52797166614056,
+          "smape_pct": 40.05807565904286
+        },
+        "grid_aggregate": {
+          "mae": 0.0026904591314985573,
+          "rmse": 0.0034832948284631545,
+          "wape_pct": 6.9776569070621886,
+          "smape_pct": 7.047615808449335
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 28,
+      "train_scaled_mae": 0.10558900356611466,
+      "train_anchor_scaled_mae": 0.11011073335925525,
+      "train_total_loss": 0.12761114999890966,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003337306862959253,
+          "rmse": 0.0005073030447404199,
+          "wape_pct": 33.76564220560284,
+          "smape_pct": 34.88538774553855
+        },
+        "grid_aggregate": {
+          "mae": 0.0026357045864460753,
+          "rmse": 0.0034350149645121716,
+          "wape_pct": 6.835651988643043,
+          "smape_pct": 6.849790504663542
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00033405164960087686,
+          "rmse": 0.0005077024278586249,
+          "wape_pct": 32.05271696611144,
+          "smape_pct": 34.2457492792112
+        },
+        "grid_aggregate": {
+          "mae": 0.002635704650036728,
+          "rmse": 0.0034350150530833043,
+          "wape_pct": 6.835652153564245,
+          "smape_pct": 6.849790674086533
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003425099701426006,
+          "rmse": 0.0005197133082694762,
+          "wape_pct": 32.52233243920513,
+          "smape_pct": 34.85194580735044
+        },
+        "grid_aggregate": {
+          "mae": 0.002539200523400027,
+          "rmse": 0.0032965216875999056,
+          "wape_pct": 6.585370453350677,
+          "smape_pct": 6.614492959582272
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 29,
+      "train_scaled_mae": 0.10544757166488923,
+      "train_anchor_scaled_mae": 0.11007515548225393,
+      "train_total_loss": 0.12746260331116896,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003356425537797951,
+          "rmse": 0.0005178316719377242,
+          "wape_pct": 34.557577924471296,
+          "smape_pct": 39.772452858027044
+        },
+        "grid_aggregate": {
+          "mae": 0.0030311771711394038,
+          "rmse": 0.003889941998413886,
+          "wape_pct": 7.861302956476977,
+          "smape_pct": 7.9712132180476525
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.0003385323076031953,
+          "rmse": 0.0005190369677066314,
+          "wape_pct": 36.45916720699312,
+          "smape_pct": 43.13458143088616
+        },
+        "grid_aggregate": {
+          "mae": 0.003031177247924925,
+          "rmse": 0.0038899420939111965,
+          "wape_pct": 7.861303155618831,
+          "smape_pct": 7.971213432663955
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034590137093594393,
+          "rmse": 0.0005264448728149037,
+          "wape_pct": 35.33373353763649,
+          "smape_pct": 41.19383916989956
+        },
+        "grid_aggregate": {
+          "mae": 0.0027339640496477874,
+          "rmse": 0.0035398130744977215,
+          "wape_pct": 7.0904861223664435,
+          "smape_pct": 7.170238976088225
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 30,
+      "train_scaled_mae": 0.10517777645970411,
+      "train_anchor_scaled_mae": 0.1100286387982853,
+      "train_total_loss": 0.1271835043627948,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003321990036444933,
+          "rmse": 0.0005064037189703864,
+          "wape_pct": 33.75944259297893,
+          "smape_pct": 34.920797136476345
+        },
+        "grid_aggregate": {
+          "mae": 0.0026159364441444544,
+          "rmse": 0.003407063070016866,
+          "wape_pct": 6.784383670512574,
+          "smape_pct": 6.795198294544614
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00033340379148683925,
+          "rmse": 0.0005068440287180097,
+          "wape_pct": 32.29700622902764,
+          "smape_pct": 34.031391243682364
+        },
+        "grid_aggregate": {
+          "mae": 0.0026159365102304513,
+          "rmse": 0.003407063136589503,
+          "wape_pct": 6.784383841905407,
+          "smape_pct": 6.795198469812435
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003432151517921227,
+          "rmse": 0.000518921492790487,
+          "wape_pct": 32.91721757748314,
+          "smape_pct": 35.027481435465894
+        },
+        "grid_aggregate": {
+          "mae": 0.002509365270537406,
+          "rmse": 0.003261078835204889,
+          "wape_pct": 6.5079932667680795,
+          "smape_pct": 6.524456321422386
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 31,
+      "train_scaled_mae": 0.10475230380334956,
+      "train_anchor_scaled_mae": 0.10986559033234489,
+      "train_total_loss": 0.12672542230808798,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00033237806800502157,
+          "rmse": 0.0005155690232515916,
+          "wape_pct": 33.43725916972304,
+          "smape_pct": 38.04511060054785
+        },
+        "grid_aggregate": {
+          "mae": 0.0030085193065247434,
+          "rmse": 0.0038554225291792233,
+          "wape_pct": 7.8025401959961265,
+          "smape_pct": 7.908302908862283
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.0003341982313875574,
+          "rmse": 0.0005152807084092894,
+          "wape_pct": 34.11479209373241,
+          "smape_pct": 39.719619415411955
+        },
+        "grid_aggregate": {
+          "mae": 0.003008519432546933,
+          "rmse": 0.003855422668497237,
+          "wape_pct": 7.802540522832388,
+          "smape_pct": 7.908303260445868
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034404704832564914,
+          "rmse": 0.000523547073849003,
+          "wape_pct": 34.1651893058017,
+          "smape_pct": 39.37158483552009
+        },
+        "grid_aggregate": {
+          "mae": 0.0026799522648312565,
+          "rmse": 0.0034710039153626193,
+          "wape_pct": 6.950407539132992,
+          "smape_pct": 7.014044857052413
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 32,
+      "train_scaled_mae": 0.10458854008167186,
+      "train_anchor_scaled_mae": 0.10991046860575039,
+      "train_total_loss": 0.12657063402594093,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00032917378625501773,
+          "rmse": 0.0005099657604710801,
+          "wape_pct": 32.16688301115617,
+          "smape_pct": 34.777626921407595
+        },
+        "grid_aggregate": {
+          "mae": 0.0028199380762222613,
+          "rmse": 0.0036401047676329953,
+          "wape_pct": 7.3134581992629215,
+          "smape_pct": 7.379457022940793
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.0003314408797635233,
+          "rmse": 0.0005099117030013664,
+          "wape_pct": 32.22317120046672,
+          "smape_pct": 35.501703126774245
+        },
+        "grid_aggregate": {
+          "mae": 0.002819938170020321,
+          "rmse": 0.0036401048783109577,
+          "wape_pct": 7.3134584425264855,
+          "smape_pct": 7.37945727497203
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034299596699314806,
+          "rmse": 0.0005209839899263434,
+          "wape_pct": 33.31341477788736,
+          "smape_pct": 37.22532303204598
+        },
+        "grid_aggregate": {
+          "mae": 0.002598706276563852,
+          "rmse": 0.0033674250060287338,
+          "wape_pct": 6.7396975437392355,
+          "smape_pct": 6.785077650577423
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 33,
+      "train_scaled_mae": 0.10427485593659355,
+      "train_anchor_scaled_mae": 0.10983227838806928,
+      "train_total_loss": 0.12624131166998714,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00032870226420142056,
+          "rmse": 0.0005081161825930906,
+          "wape_pct": 32.6316604137715,
+          "smape_pct": 34.530921403581324
+        },
+        "grid_aggregate": {
+          "mae": 0.002741917631229538,
+          "rmse": 0.003556042945226134,
+          "wape_pct": 7.111113591786086,
+          "smape_pct": 7.157576042754353
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00033170558346003247,
+          "rmse": 0.0005083689227710258,
+          "wape_pct": 32.481166495647706,
+          "smape_pct": 34.249690263024185
+        },
+        "grid_aggregate": {
+          "mae": 0.002741917752650017,
+          "rmse": 0.0035560430722827584,
+          "wape_pct": 7.111113906687894,
+          "smape_pct": 7.157576387343191
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003435661694546634,
+          "rmse": 0.0005197991650778115,
+          "wape_pct": 33.39622993371053,
+          "smape_pct": 36.56197060005242
+        },
+        "grid_aggregate": {
+          "mae": 0.002561202181048782,
+          "rmse": 0.003325143380606119,
+          "wape_pct": 6.642431352980156,
+          "smape_pct": 6.674594902934896
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 34,
+      "train_scaled_mae": 0.10401098175163576,
+      "train_anchor_scaled_mae": 0.10979410970115407,
+      "train_total_loss": 0.1259698041062304,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003283125273978004,
+          "rmse": 0.0005086215447687547,
+          "wape_pct": 32.98600969418947,
+          "smape_pct": 35.01434770219606
+        },
+        "grid_aggregate": {
+          "mae": 0.002774667042716137,
+          "rmse": 0.0036097432660920346,
+          "wape_pct": 7.196048595847795,
+          "smape_pct": 7.232667423683208
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00033324835911093437,
+          "rmse": 0.0005094798560899164,
+          "wape_pct": 33.286484776671664,
+          "smape_pct": 34.78267584238269
+        },
+        "grid_aggregate": {
+          "mae": 0.0027746671337727353,
+          "rmse": 0.003609743373482668,
+          "wape_pct": 7.19604883200143,
+          "smape_pct": 7.232667681493962
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034394045402411235,
+          "rmse": 0.0005206741931458828,
+          "wape_pct": 33.7126174875286,
+          "smape_pct": 37.19082764598255
+        },
+        "grid_aggregate": {
+          "mae": 0.0026009349470733846,
+          "rmse": 0.0033875632358834227,
+          "wape_pct": 6.745477560239894,
+          "smape_pct": 6.7759999332142415
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 35,
+      "train_scaled_mae": 0.10389473193628902,
+      "train_anchor_scaled_mae": 0.10988339909257736,
+      "train_total_loss": 0.12587141209745153,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00032737721534875267,
+          "rmse": 0.0005086418378727802,
+          "wape_pct": 32.62359545245498,
+          "smape_pct": 34.76743827334552
+        },
+        "grid_aggregate": {
+          "mae": 0.002798592134999963,
+          "rmse": 0.0036385080521105923,
+          "wape_pct": 7.258097888279662,
+          "smape_pct": 7.295601385686029
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.0003344003501850842,
+          "rmse": 0.0005103025424246252,
+          "wape_pct": 33.752886860441905,
+          "smape_pct": 34.982570660353296
+        },
+        "grid_aggregate": {
+          "mae": 0.002798592242866717,
+          "rmse": 0.00363850815843932,
+          "wape_pct": 7.25809816803013,
+          "smape_pct": 7.295601692174378
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034387227587827677,
+          "rmse": 0.0005202094235725792,
+          "wape_pct": 33.56154725317897,
+          "smape_pct": 36.835134105047594
+        },
+        "grid_aggregate": {
+          "mae": 0.0025943675769715974,
+          "rmse": 0.0033747534118814177,
+          "wape_pct": 6.728445205124189,
+          "smape_pct": 6.756790208008172
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 36,
+      "train_scaled_mae": 0.10382222101331394,
+      "train_anchor_scaled_mae": 0.10988533672164469,
+      "train_total_loss": 0.1257992885648248,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003266066607940343,
+          "rmse": 0.0005089123207187645,
+          "wape_pct": 32.45950598794112,
+          "smape_pct": 34.80465079678642
+        },
+        "grid_aggregate": {
+          "mae": 0.0028434997077993805,
+          "rmse": 0.003697450836724543,
+          "wape_pct": 7.3745648629512734,
+          "smape_pct": 7.4134546592850405
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.000336810629536945,
+          "rmse": 0.0005122507673610161,
+          "wape_pct": 34.505757878931,
+          "smape_pct": 35.39553679629086
+        },
+        "grid_aggregate": {
+          "mae": 0.0028434998141154333,
+          "rmse": 0.0036974509771386254,
+          "wape_pct": 7.374565138680026,
+          "smape_pct": 7.413454953425018
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034338052672021585,
+          "rmse": 0.0005204001453548036,
+          "wape_pct": 33.394617201942175,
+          "smape_pct": 36.8350018771922
+        },
+        "grid_aggregate": {
+          "mae": 0.002624147459229778,
+          "rmse": 0.003411446785408547,
+          "wape_pct": 6.805678789049532,
+          "smape_pct": 6.836802970127197
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 37,
+      "train_scaled_mae": 0.10364191062788275,
+      "train_anchor_scaled_mae": 0.109832017418535,
+      "train_total_loss": 0.12560831456579627,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00032606749938013727,
+          "rmse": 0.0005082858721022166,
+          "wape_pct": 32.32141856999236,
+          "smape_pct": 34.69463592218598
+        },
+        "grid_aggregate": {
+          "mae": 0.002827793405162354,
+          "rmse": 0.0036749204829701707,
+          "wape_pct": 7.333830852240391,
+          "smape_pct": 7.368530510509164
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00033886033554988797,
+          "rmse": 0.0005130913778363254,
+          "wape_pct": 35.365716049191235,
+          "smape_pct": 35.993764814381464
+        },
+        "grid_aggregate": {
+          "mae": 0.00282779352164399,
+          "rmse": 0.003674920627376406,
+          "wape_pct": 7.3338311543333985,
+          "smape_pct": 7.368530830409892
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003434475704892584,
+          "rmse": 0.0005201815095874896,
+          "wape_pct": 33.40541573100761,
+          "smape_pct": 36.84790224650006
+        },
+        "grid_aggregate": {
+          "mae": 0.0026190708532598337,
+          "rmse": 0.003401059226596274,
+          "wape_pct": 6.7925127036420605,
+          "smape_pct": 6.821944258377628
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 38,
+      "train_scaled_mae": 0.10349444817891096,
+      "train_anchor_scaled_mae": 0.10982018334661575,
+      "train_total_loss": 0.12545848506338456,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003257879937188927,
+          "rmse": 0.0005113376300412494,
+          "wape_pct": 32.1347850223028,
+          "smape_pct": 35.108930943309446
+        },
+        "grid_aggregate": {
+          "mae": 0.003001088403703335,
+          "rmse": 0.003863973518289702,
+          "wape_pct": 7.783268284451189,
+          "smape_pct": 7.847624170466008
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00033796010996444965,
+          "rmse": 0.0005147148369566974,
+          "wape_pct": 34.13592654638064,
+          "smape_pct": 35.1533786970513
+        },
+        "grid_aggregate": {
+          "mae": 0.0030010885546025014,
+          "rmse": 0.0038639736537969087,
+          "wape_pct": 7.783268675805438,
+          "smape_pct": 7.847624601755161
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003428597352886524,
+          "rmse": 0.0005213405163602983,
+          "wape_pct": 33.419532603481336,
+          "smape_pct": 37.737837334876886
+        },
+        "grid_aggregate": {
+          "mae": 0.0026787798426851027,
+          "rmse": 0.003473327992096184,
+          "wape_pct": 6.947366883584528,
+          "smape_pct": 6.99193135915676
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 39,
+      "train_scaled_mae": 0.10345266022306075,
+      "train_anchor_scaled_mae": 0.10980266292783666,
+      "train_total_loss": 0.12541319322299194,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003256969220098571,
+          "rmse": 0.00051148731356193,
+          "wape_pct": 32.447752198950106,
+          "smape_pct": 35.99650963897429
+        },
+        "grid_aggregate": {
+          "mae": 0.00301487073389753,
+          "rmse": 0.003882370447374808,
+          "wape_pct": 7.8190125075650245,
+          "smape_pct": 7.885494837184803
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00033865129914096247,
+          "rmse": 0.0005152292076935546,
+          "wape_pct": 34.35602538070788,
+          "smape_pct": 35.229761306244896
+        },
+        "grid_aggregate": {
+          "mae": 0.003014870887116957,
+          "rmse": 0.0038823706183251415,
+          "wape_pct": 7.819012904936826,
+          "smape_pct": 7.885495277492632
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003431155273009077,
+          "rmse": 0.0005215681744571513,
+          "wape_pct": 33.5950468475197,
+          "smape_pct": 37.966832847387515
+        },
+        "grid_aggregate": {
+          "mae": 0.002695476196192516,
+          "rmse": 0.0034935615335283895,
+          "wape_pct": 6.990668573251476,
+          "smape_pct": 7.035809158821859
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 40,
+      "train_scaled_mae": 0.10326708602235916,
+      "train_anchor_scaled_mae": 0.10971196744849974,
+      "train_total_loss": 0.12520948012563635,
+      "validation": {
+        "node_macro": {
+          "mae": 0.000325589979258388,
+          "rmse": 0.0005116179441868601,
+          "wape_pct": 32.719778980536795,
+          "smape_pct": 36.74686845223845
+        },
+        "grid_aggregate": {
+          "mae": 0.00303841129068377,
+          "rmse": 0.0038988748451029803,
+          "wape_pct": 7.880064514165886,
+          "smape_pct": 7.955225969347533
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00033774928469675774,
+          "rmse": 0.0005147774954894735,
+          "wape_pct": 34.02692590140124,
+          "smape_pct": 34.93455954110994
+        },
+        "grid_aggregate": {
+          "mae": 0.003038411439966488,
+          "rmse": 0.0038988750064086,
+          "wape_pct": 7.880064901327904,
+          "smape_pct": 7.955226379961022
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034341598974163253,
+          "rmse": 0.0005222683981617159,
+          "wape_pct": 33.97548948559576,
+          "smape_pct": 38.87649198849135
+        },
+        "grid_aggregate": {
+          "mae": 0.002726996253344776,
+          "rmse": 0.003530019942204854,
+          "wape_pct": 7.072415269168376,
+          "smape_pct": 7.124560735065989
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 41,
+      "train_scaled_mae": 0.10313772075475856,
+      "train_anchor_scaled_mae": 0.10962047547420715,
+      "train_total_loss": 0.12506181635161773,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003257566028169608,
+          "rmse": 0.0005121779554815534,
+          "wape_pct": 32.96556419014796,
+          "smape_pct": 37.602158098191026
+        },
+        "grid_aggregate": {
+          "mae": 0.0030767153120821035,
+          "rmse": 0.003931896176083502,
+          "wape_pct": 7.979405298179011,
+          "smape_pct": 8.063680541605372
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.0003372097373255524,
+          "rmse": 0.0005146116645233206,
+          "wape_pct": 33.643490932943735,
+          "smape_pct": 34.69458957147102
+        },
+        "grid_aggregate": {
+          "mae": 0.003076715451510884,
+          "rmse": 0.003931896329014377,
+          "wape_pct": 7.979405659785021,
+          "smape_pct": 8.063680926715564
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034374445973747573,
+          "rmse": 0.0005228675616011406,
+          "wape_pct": 34.42178006648872,
+          "smape_pct": 40.00235710887743
+        },
+        "grid_aggregate": {
+          "mae": 0.0027516459274995264,
+          "rmse": 0.003554275355412133,
+          "wape_pct": 7.136343751526303,
+          "smape_pct": 7.19434891730695
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 42,
+      "train_scaled_mae": 0.10287594719525965,
+      "train_anchor_scaled_mae": 0.10951244966550307,
+      "train_total_loss": 0.12477843746303875,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00032464278689408574,
+          "rmse": 0.0005105607460194982,
+          "wape_pct": 32.47510601862156,
+          "smape_pct": 36.45999118479845
+        },
+        "grid_aggregate": {
+          "mae": 0.0030405279869725123,
+          "rmse": 0.003896276855079957,
+          "wape_pct": 7.885554127558032,
+          "smape_pct": 7.961606481435315
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00033779363657847507,
+          "rmse": 0.0005144559047266442,
+          "wape_pct": 34.18932070148884,
+          "smape_pct": 35.12001000082378
+        },
+        "grid_aggregate": {
+          "mae": 0.0030405281468882835,
+          "rmse": 0.0038962770250511704,
+          "wape_pct": 7.8855545422966795,
+          "smape_pct": 7.961606927832005
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034315208201891434,
+          "rmse": 0.0005220473104243671,
+          "wape_pct": 33.97810104872534,
+          "smape_pct": 39.17229753371731
+        },
+        "grid_aggregate": {
+          "mae": 0.002737672125292925,
+          "rmse": 0.0035394744021181473,
+          "wape_pct": 7.100102949224837,
+          "smape_pct": 7.155131749855734
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 43,
+      "train_scaled_mae": 0.10260556705973366,
+      "train_anchor_scaled_mae": 0.10942348467315582,
+      "train_total_loss": 0.12449026418560967,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003234866855955766,
+          "rmse": 0.000508530024923954,
+          "wape_pct": 32.05951196403018,
+          "smape_pct": 35.477710226295436
+        },
+        "grid_aggregate": {
+          "mae": 0.002958353137431808,
+          "rmse": 0.003810307441535332,
+          "wape_pct": 7.672435147317241,
+          "smape_pct": 7.732039465876069
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.000338056119662297,
+          "rmse": 0.0005134998637515951,
+          "wape_pct": 34.95321965845848,
+          "smape_pct": 35.688760589761586
+        },
+        "grid_aggregate": {
+          "mae": 0.00295835329437738,
+          "rmse": 0.0038103076099092787,
+          "wape_pct": 7.672435554352734,
+          "smape_pct": 7.7320398919683315
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003425591231849478,
+          "rmse": 0.0005209443397050763,
+          "wape_pct": 33.42920671775395,
+          "smape_pct": 37.8418041896707
+        },
+        "grid_aggregate": {
+          "mae": 0.0027001043653595972,
+          "rmse": 0.0034955004352251124,
+          "wape_pct": 7.002671645952956,
+          "smape_pct": 7.048250477446858
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 44,
+      "train_scaled_mae": 0.10242097992151179,
+      "train_anchor_scaled_mae": 0.10937309751217378,
+      "train_total_loss": 0.1242956001570518,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003247752517098715,
+          "rmse": 0.0005112575927447066,
+          "wape_pct": 32.90230157991945,
+          "smape_pct": 37.5208954657859
+        },
+        "grid_aggregate": {
+          "mae": 0.0030681716934985717,
+          "rmse": 0.003922996650186725,
+          "wape_pct": 7.957247578508509,
+          "smape_pct": 8.039328878230327
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00033675549445213077,
+          "rmse": 0.0005140860772297378,
+          "wape_pct": 33.93824835822182,
+          "smape_pct": 34.93288087470701
+        },
+        "grid_aggregate": {
+          "mae": 0.0030681718706177495,
+          "rmse": 0.003922996841915134,
+          "wape_pct": 7.95724803786388,
+          "smape_pct": 8.039329388225589
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.0003436664229624202,
+          "rmse": 0.0005226108190430642,
+          "wape_pct": 34.42722078075305,
+          "smape_pct": 40.0588888829021
+        },
+        "grid_aggregate": {
+          "mae": 0.0027505128039999596,
+          "rmse": 0.0035498482391328914,
+          "wape_pct": 7.133405016304222,
+          "smape_pct": 7.189418751767652
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 45,
+      "train_scaled_mae": 0.10230549385044027,
+      "train_anchor_scaled_mae": 0.10933023284782063,
+      "train_total_loss": 0.12417154053953242,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003247803956182242,
+          "rmse": 0.0005109731700804847,
+          "wape_pct": 33.19584232739304,
+          "smape_pct": 38.45594535694473
+        },
+        "grid_aggregate": {
+          "mae": 0.003062779757415853,
+          "rmse": 0.003912424718919736,
+          "wape_pct": 7.943263690178987,
+          "smape_pct": 8.033540259399338
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.0003354698489945882,
+          "rmse": 0.0005129887757659807,
+          "wape_pct": 33.39342817663347,
+          "smape_pct": 34.521500698037485
+        },
+        "grid_aggregate": {
+          "mae": 0.0030627799191768838,
+          "rmse": 0.003912424878507448,
+          "wape_pct": 7.943264109703283,
+          "smape_pct": 8.033540714620354
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034379730081354705,
+          "rmse": 0.0005229934494303252,
+          "wape_pct": 34.75515974499642,
+          "smape_pct": 41.03599918430216
+        },
+        "grid_aggregate": {
+          "mae": 0.0027600827176293007,
+          "rmse": 0.003560302062393588,
+          "wape_pct": 7.158224413541661,
+          "smape_pct": 7.220758905972987
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 46,
+      "train_scaled_mae": 0.10203274008743266,
+      "train_anchor_scaled_mae": 0.10921717725973078,
+      "train_total_loss": 0.12387617593780559,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00032300504439930966,
+          "rmse": 0.0005090202507733262,
+          "wape_pct": 32.288537185362536,
+          "smape_pct": 36.44899463123041
+        },
+        "grid_aggregate": {
+          "mae": 0.0030062958451565398,
+          "rmse": 0.0038596615384104385,
+          "wape_pct": 7.796773689308925,
+          "smape_pct": 7.8705829761886035
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.0003355996633396012,
+          "rmse": 0.0005125335681114065,
+          "wape_pct": 34.24120652128335,
+          "smape_pct": 35.14227132077427
+        },
+        "grid_aggregate": {
+          "mae": 0.003006295991311207,
+          "rmse": 0.0038596616674815955,
+          "wape_pct": 7.7967740683584,
+          "smape_pct": 7.870583380909882
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034256238540594975,
+          "rmse": 0.0005211108963917052,
+          "wape_pct": 33.68293523841751,
+          "smape_pct": 38.76700999463815
+        },
+        "grid_aggregate": {
+          "mae": 0.002708057008344123,
+          "rmse": 0.0034999860760240877,
+          "wape_pct": 7.023296681137738,
+          "smape_pct": 7.073449163248799
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 47,
+      "train_scaled_mae": 0.10175972336275692,
+      "train_anchor_scaled_mae": 0.10912072124646947,
+      "train_total_loss": 0.12358386770767324,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003235651168553251,
+          "rmse": 0.0005100287408293812,
+          "wape_pct": 32.60847072975099,
+          "smape_pct": 37.28707329138227
+        },
+        "grid_aggregate": {
+          "mae": 0.0030538230047982033,
+          "rmse": 0.003903834005423914,
+          "wape_pct": 7.920034514892246,
+          "smape_pct": 8.009090613116303
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00033493011193851845,
+          "rmse": 0.0005126825973634674,
+          "wape_pct": 33.82080080102293,
+          "smape_pct": 34.83539285201714
+        },
+        "grid_aggregate": {
+          "mae": 0.0030538231490731447,
+          "rmse": 0.0039038341492588376,
+          "wape_pct": 7.920034889066687,
+          "smape_pct": 8.009091029013204
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034297615096395964,
+          "rmse": 0.0005217836091914467,
+          "wape_pct": 34.126924604092906,
+          "smape_pct": 39.772461780469776
+        },
+        "grid_aggregate": {
+          "mae": 0.0027288028894227085,
+          "rmse": 0.0035222503624543415,
+          "wape_pct": 7.07710074703353,
+          "smape_pct": 7.133218739349487
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 48,
+      "train_scaled_mae": 0.1016448292741801,
+      "train_anchor_scaled_mae": 0.10909065918967048,
+      "train_total_loss": 0.12346296123961076,
+      "validation": {
+        "node_macro": {
+          "mae": 0.0003219373542378474,
+          "rmse": 0.0005077633750047792,
+          "wape_pct": 31.800679795650993,
+          "smape_pct": 35.36918157246403
+        },
+        "grid_aggregate": {
+          "mae": 0.002972853807584299,
+          "rmse": 0.0038255657789180234,
+          "wape_pct": 7.710042372070068,
+          "smape_pct": 7.775628404762805
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.0003360916490102231,
+          "rmse": 0.0005125930452350973,
+          "wape_pct": 35.06135332236278,
+          "smape_pct": 35.666732909740546
+        },
+        "grid_aggregate": {
+          "mae": 0.0029728539238556605,
+          "rmse": 0.003825565900321683,
+          "wape_pct": 7.710042673617733,
+          "smape_pct": 7.775628728734748
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034194649237018454,
+          "rmse": 0.0005200452500203176,
+          "wape_pct": 33.20376519553121,
+          "smape_pct": 37.6201345118364
+        },
+        "grid_aggregate": {
+          "mae": 0.0026758659099497895,
+          "rmse": 0.003462849222151885,
+          "wape_pct": 6.939809651943568,
+          "smape_pct": 6.983250092117764
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 49,
+      "train_scaled_mae": 0.10142836568349185,
+      "train_anchor_scaled_mae": 0.10900751485384721,
+      "train_total_loss": 0.1232298691483105,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00032136446788864654,
+          "rmse": 0.0005067185967453654,
+          "wape_pct": 31.56940376418151,
+          "smape_pct": 34.748433281689394
+        },
+        "grid_aggregate": {
+          "mae": 0.002944648588867383,
+          "rmse": 0.003794308538038785,
+          "wape_pct": 7.636892649447941,
+          "smape_pct": 7.695260333159785
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00033632775940185334,
+          "rmse": 0.0005123598160951099,
+          "wape_pct": 35.53951606785429,
+          "smape_pct": 35.96709025928148
+        },
+        "grid_aggregate": {
+          "mae": 0.0029446487287879625,
+          "rmse": 0.0037943086896998217,
+          "wape_pct": 7.6368930123294225,
+          "smape_pct": 7.6952607221810645
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034181753317536834,
+          "rmse": 0.0005196754575903777,
+          "wape_pct": 33.04648421185919,
+          "smape_pct": 37.146173472194974
+        },
+        "grid_aggregate": {
+          "mae": 0.002668047244558964,
+          "rmse": 0.0034530455144094626,
+          "wape_pct": 6.919532085215426,
+          "smape_pct": 6.959571465044617
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    },
+    {
+      "epoch": 50,
+      "train_scaled_mae": 0.10131987391468038,
+      "train_anchor_scaled_mae": 0.1089593943029164,
+      "train_total_loss": 0.12311175373945644,
+      "validation": {
+        "node_macro": {
+          "mae": 0.00032198077156010495,
+          "rmse": 0.0005083551046541884,
+          "wape_pct": 31.968718933358247,
+          "smape_pct": 35.95231667952948
+        },
+        "grid_aggregate": {
+          "mae": 0.003014686547728516,
+          "rmse": 0.003869542588581849,
+          "wape_pct": 7.818534824079942,
+          "smape_pct": 7.894507881577209
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "temporal_residual": {
+        "node_macro": {
+          "mae": 0.00033527030588727166,
+          "rmse": 0.0005126546380131924,
+          "wape_pct": 34.81764702084357,
+          "smape_pct": 35.474935715657956
+        },
+        "grid_aggregate": {
+          "mae": 0.0030146867082936476,
+          "rmse": 0.0038695427453688917,
+          "wape_pct": 7.818535240502695,
+          "smape_pct": 7.8945083399799305
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      },
+      "gru_anchor": {
+        "node_macro": {
+          "mae": 0.00034204969403646104,
+          "rmse": 0.0005204725674591042,
+          "wape_pct": 33.53230903463359,
+          "smape_pct": 38.53702346765251
+        },
+        "grid_aggregate": {
+          "mae": 0.002693594568038226,
+          "rmse": 0.0034858756735056634,
+          "wape_pct": 6.985788604797916,
+          "smape_pct": 7.033594366432884
+        },
+        "node_count": 21,
+        "sample_count": 1314
+      }
+    }
+  ],
+  "test_evaluated": false
+}

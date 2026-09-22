@@ -1,0 +1,456 @@
+{
+  "metadata": {
+    "experiment": "puc_rstattn_v2_formal_ablation",
+    "cross_grid_aggregation": "unweighted_macro_mean",
+    "test_evaluated": false
+  },
+  "models": [
+    "gru_anchor_only",
+    "temporal_residual_only",
+    "utility_uniform_spatial",
+    "utility_prior_no_physics",
+    "full_puc_rstattn_v2"
+  ],
+  "per_grid": {
+    "39bus": {
+      "gru_anchor_only": {
+        "node_macro": {
+          "mae": 0.00039692883217346805,
+          "rmse": 0.0005755790694650023,
+          "wape_pct": 29.049284127960075,
+          "smape_pct": 29.109715905923984
+        },
+        "grid_aggregate": {
+          "mae": 0.004245550302999637,
+          "rmse": 0.005197018331731163,
+          "wape_pct": 10.478598959526998,
+          "smape_pct": 10.8924645114071
+        }
+      },
+      "temporal_residual_only": {
+        "node_macro": {
+          "mae": 0.00037516437795900176,
+          "rmse": 0.0005422327654600625,
+          "wape_pct": 27.270240788750904,
+          "smape_pct": 27.369472037295292
+        },
+        "grid_aggregate": {
+          "mae": 0.0035589139551720013,
+          "rmse": 0.004513770057885666,
+          "wape_pct": 8.783886517929837,
+          "smape_pct": 8.95633617547689
+        }
+      },
+      "utility_uniform_spatial": {
+        "node_macro": {
+          "mae": 0.00037699426230427684,
+          "rmse": 0.0005500846489082954,
+          "wape_pct": 27.49725842169031,
+          "smape_pct": 27.62146394006567
+        },
+        "grid_aggregate": {
+          "mae": 0.004157856931616645,
+          "rmse": 0.005148096257309957,
+          "wape_pct": 10.26215972207832,
+          "smape_pct": 10.536916486349341
+        }
+      },
+      "utility_prior_no_physics": {
+        "node_macro": {
+          "mae": 0.00037644150086561925,
+          "rmse": 0.000548341853828162,
+          "wape_pct": 27.397204278400828,
+          "smape_pct": 27.50606725794938
+        },
+        "grid_aggregate": {
+          "mae": 0.003949821014758983,
+          "rmse": 0.00494621272914437,
+          "wape_pct": 9.748698618958487,
+          "smape_pct": 9.938867663267969
+        }
+      },
+      "full_puc_rstattn_v2": {
+        "node_macro": {
+          "mae": 0.000376738334985448,
+          "rmse": 0.0005501207191960016,
+          "wape_pct": 27.424113527234677,
+          "smape_pct": 27.50458674609131
+        },
+        "grid_aggregate": {
+          "mae": 0.004077312550185707,
+          "rmse": 0.005069644096874673,
+          "wape_pct": 10.063365169847566,
+          "smape_pct": 10.277766612132325
+        }
+      }
+    },
+    "50bus": {
+      "gru_anchor_only": {
+        "node_macro": {
+          "mae": 0.0003350947025447522,
+          "rmse": 0.000509786625470198,
+          "wape_pct": 31.94044777813592,
+          "smape_pct": 33.983684398549244
+        },
+        "grid_aggregate": {
+          "mae": 0.002650369647999947,
+          "rmse": 0.003457456121693827,
+          "wape_pct": 6.873685559510507,
+          "smape_pct": 6.89187646125355
+        }
+      },
+      "temporal_residual_only": {
+        "node_macro": {
+          "mae": 0.0003199128020438346,
+          "rmse": 0.000503241865309141,
+          "wape_pct": 30.68074589128409,
+          "smape_pct": 33.45311682724029
+        },
+        "grid_aggregate": {
+          "mae": 0.0028260944376348415,
+          "rmse": 0.0036602750387291823,
+          "wape_pct": 7.329424610805822,
+          "smape_pct": 7.398682348671206
+        }
+      },
+      "utility_uniform_spatial": {
+        "node_macro": {
+          "mae": 0.00032136446788864654,
+          "rmse": 0.0005067185967453654,
+          "wape_pct": 31.56940376418151,
+          "smape_pct": 34.748433281689394
+        },
+        "grid_aggregate": {
+          "mae": 0.002944648588867383,
+          "rmse": 0.003794308538038785,
+          "wape_pct": 7.636892649447941,
+          "smape_pct": 7.695260333159785
+        }
+      },
+      "utility_prior_no_physics": {
+        "node_macro": {
+          "mae": 0.0003205473936851584,
+          "rmse": 0.0004985266738385728,
+          "wape_pct": 30.835615586027405,
+          "smape_pct": 32.700719261929976
+        },
+        "grid_aggregate": {
+          "mae": 0.0026242943506671486,
+          "rmse": 0.0034219803923893326,
+          "wape_pct": 6.806059749325255,
+          "smape_pct": 6.8282505226950745
+        }
+      },
+      "full_puc_rstattn_v2": {
+        "node_macro": {
+          "mae": 0.00031918912440238216,
+          "rmse": 0.0004975509743188147,
+          "wape_pct": 30.948733196942516,
+          "smape_pct": 32.736629229759934
+        },
+        "grid_aggregate": {
+          "mae": 0.0026281508552743527,
+          "rmse": 0.0034310707317512647,
+          "wape_pct": 6.816061524001752,
+          "smape_pct": 6.83364492365343
+        }
+      }
+    },
+    "56bus": {
+      "gru_anchor_only": {
+        "node_macro": {
+          "mae": 0.00044737577225946874,
+          "rmse": 0.0006273816343104092,
+          "wape_pct": 26.33439305972787,
+          "smape_pct": 27.67447330782529
+        },
+        "grid_aggregate": {
+          "mae": 0.006593553239134485,
+          "rmse": 0.007967409524593573,
+          "wape_pct": 8.276372738369702,
+          "smape_pct": 8.57187712772721
+        }
+      },
+      "temporal_residual_only": {
+        "node_macro": {
+          "mae": 0.0004310323697224136,
+          "rmse": 0.0006063301985109629,
+          "wape_pct": 25.290766838082288,
+          "smape_pct": 26.539354681414295
+        },
+        "grid_aggregate": {
+          "mae": 0.006085209442061797,
+          "rmse": 0.007483332864405786,
+          "wape_pct": 7.638288447362444,
+          "smape_pct": 7.847793131690377
+        }
+      },
+      "utility_uniform_spatial": {
+        "node_macro": {
+          "mae": 0.0004378972111034865,
+          "rmse": 0.0006177083249209737,
+          "wape_pct": 25.751601129642882,
+          "smape_pct": 27.065024253803845
+        },
+        "grid_aggregate": {
+          "mae": 0.007087743731222027,
+          "rmse": 0.008429114675188074,
+          "wape_pct": 8.896691490328658,
+          "smape_pct": 9.215616298009541
+        }
+      },
+      "utility_prior_no_physics": {
+        "node_macro": {
+          "mae": 0.00043701353818897953,
+          "rmse": 0.0006175243058256685,
+          "wape_pct": 25.7003564759068,
+          "smape_pct": 27.022149718696827
+        },
+        "grid_aggregate": {
+          "mae": 0.007178875249126829,
+          "rmse": 0.008526475171180556,
+          "wape_pct": 9.011081771720024,
+          "smape_pct": 9.294979127751047
+        }
+      },
+      "full_puc_rstattn_v2": {
+        "node_macro": {
+          "mae": 0.00043679124565042254,
+          "rmse": 0.0006161884654948027,
+          "wape_pct": 25.69368321870486,
+          "smape_pct": 27.00965405372574
+        },
+        "grid_aggregate": {
+          "mae": 0.007034138029917414,
+          "rmse": 0.008372159239340373,
+          "wape_pct": 8.829404437535114,
+          "smape_pct": 9.116561618743383
+        }
+      }
+    },
+    "80bus": {
+      "gru_anchor_only": {
+        "node_macro": {
+          "mae": 0.00019976177428414717,
+          "rmse": 0.00035814919682108286,
+          "wape_pct": 42.49041109254918,
+          "smape_pct": 49.49641774943679
+        },
+        "grid_aggregate": {
+          "mae": 0.0028752594482732165,
+          "rmse": 0.0036306436759954847,
+          "wape_pct": 11.898933785824106,
+          "smape_pct": 12.590587428367902
+        }
+      },
+      "temporal_residual_only": {
+        "node_macro": {
+          "mae": 0.000190922699354446,
+          "rmse": 0.00035072436504077247,
+          "wape_pct": 44.854255513984725,
+          "smape_pct": 50.651628252117696
+        },
+        "grid_aggregate": {
+          "mae": 0.002979189486228513,
+          "rmse": 0.003668693703937056,
+          "wape_pct": 12.329036412121345,
+          "smape_pct": 13.138863216733295
+        }
+      },
+      "utility_uniform_spatial": {
+        "node_macro": {
+          "mae": 0.00019041139435940638,
+          "rmse": 0.0003546625469225128,
+          "wape_pct": 42.172428162943234,
+          "smape_pct": 47.7669073654486
+        },
+        "grid_aggregate": {
+          "mae": 0.0029547295086045744,
+          "rmse": 0.0036839822142699006,
+          "wape_pct": 12.227811580280596,
+          "smape_pct": 13.049666846767035
+        }
+      },
+      "utility_prior_no_physics": {
+        "node_macro": {
+          "mae": 0.00019509718087814098,
+          "rmse": 0.0003582301366124765,
+          "wape_pct": 50.628164053266715,
+          "smape_pct": 50.97667521632086
+        },
+        "grid_aggregate": {
+          "mae": 0.0029216691816358288,
+          "rmse": 0.0037051347865864155,
+          "wape_pct": 12.090995182103013,
+          "smape_pct": 12.908824476093136
+        }
+      },
+      "full_puc_rstattn_v2": {
+        "node_macro": {
+          "mae": 0.00019435625804287024,
+          "rmse": 0.0003560716499120823,
+          "wape_pct": 50.32415968249592,
+          "smape_pct": 51.04513650423206
+        },
+        "grid_aggregate": {
+          "mae": 0.0028994920585543693,
+          "rmse": 0.0036783727728772436,
+          "wape_pct": 11.99921768380983,
+          "smape_pct": 12.82646626911533
+        }
+      }
+    }
+  },
+  "macro_across_grids": {
+    "node_macro": {
+      "gru_anchor_only": {
+        "metrics": {
+          "mae": 0.000344790270315459,
+          "rmse": 0.0005177241315166731,
+          "wape_pct": 32.45363401459326,
+          "smape_pct": 35.066072840433826
+        },
+        "available_grid_count": 4,
+        "expected_grid_count": 4
+      },
+      "temporal_residual_only": {
+        "metrics": {
+          "mae": 0.00032925806226992394,
+          "rmse": 0.0005006322985802347,
+          "wape_pct": 32.024002258025504,
+          "smape_pct": 34.50339294951689
+        },
+        "available_grid_count": 4,
+        "expected_grid_count": 4
+      },
+      "utility_uniform_spatial": {
+        "metrics": {
+          "mae": 0.00033166683391395405,
+          "rmse": 0.0005072935293742868,
+          "wape_pct": 31.747672869614483,
+          "smape_pct": 34.30045721025188
+        },
+        "available_grid_count": 4,
+        "expected_grid_count": 4
+      },
+      "utility_prior_no_physics": {
+        "metrics": {
+          "mae": 0.0003322749034044745,
+          "rmse": 0.00050565574252622,
+          "wape_pct": 33.64033509840044,
+          "smape_pct": 34.55140286372426
+        },
+        "available_grid_count": 4,
+        "expected_grid_count": 4
+      },
+      "full_puc_rstattn_v2": {
+        "metrics": {
+          "mae": 0.0003317687407702807,
+          "rmse": 0.0005049829522304253,
+          "wape_pct": 33.59767240634449,
+          "smape_pct": 34.57400163345226
+        },
+        "available_grid_count": 4,
+        "expected_grid_count": 4
+      }
+    },
+    "grid_aggregate": {
+      "gru_anchor_only": {
+        "metrics": {
+          "mae": 0.004091183159601821,
+          "rmse": 0.005063131913503513,
+          "wape_pct": 9.381897760807828,
+          "smape_pct": 9.736701382188942
+        },
+        "available_grid_count": 4,
+        "expected_grid_count": 4
+      },
+      "temporal_residual_only": {
+        "metrics": {
+          "mae": 0.003862351830274288,
+          "rmse": 0.0048315179162394225,
+          "wape_pct": 9.020158997054862,
+          "smape_pct": 9.335418718142943
+        },
+        "available_grid_count": 4,
+        "expected_grid_count": 4
+      },
+      "utility_uniform_spatial": {
+        "metrics": {
+          "mae": 0.004286244690077657,
+          "rmse": 0.005263875421201679,
+          "wape_pct": 9.755888860533878,
+          "smape_pct": 10.124364991071428
+        },
+        "available_grid_count": 4,
+        "expected_grid_count": 4
+      },
+      "utility_prior_no_physics": {
+        "metrics": {
+          "mae": 0.0041686649490471975,
+          "rmse": 0.005149950769825168,
+          "wape_pct": 9.414208830526695,
+          "smape_pct": 9.742730447451807
+        },
+        "available_grid_count": 4,
+        "expected_grid_count": 4
+      },
+      "full_puc_rstattn_v2": {
+        "metrics": {
+          "mae": 0.004159773373482961,
+          "rmse": 0.005137811710210888,
+          "wape_pct": 9.427012203798565,
+          "smape_pct": 9.763609855911117
+        },
+        "available_grid_count": 4,
+        "expected_grid_count": 4
+      }
+    }
+  },
+  "incremental_deltas": {
+    "temporal_residual_only_vs_gru_anchor_only": {
+      "node_macro_mae_delta_by_grid": {
+        "39bus": -2.1764454214466295e-05,
+        "50bus": -1.518190050091761e-05,
+        "56bus": -1.6343402537055164e-05,
+        "80bus": -8.839074929701185e-06
+      },
+      "node_macro_mae_delta_unweighted_macro": -1.5532208045535063e-05,
+      "absolute_delta": -1.5532208045535063e-05,
+      "relative_pct": -4.504827828037079
+    },
+    "utility_uniform_spatial_vs_temporal_residual_only": {
+      "node_macro_mae_delta_by_grid": {
+        "39bus": 1.829884345275082e-06,
+        "50bus": 1.4516658448119279e-06,
+        "56bus": 6.864841381072921e-06,
+        "80bus": -5.113049950396091e-07
+      },
+      "node_macro_mae_delta_unweighted_macro": 2.4087716440300804e-06,
+      "absolute_delta": 2.4087716440300804e-06,
+      "relative_pct": 0.7315755998270387
+    },
+    "utility_prior_no_physics_vs_utility_uniform_spatial": {
+      "node_macro_mae_delta_by_grid": {
+        "39bus": -5.527614386575865e-07,
+        "50bus": -8.170742034881509e-07,
+        "56bus": -8.836729145069648e-07,
+        "80bus": 4.685786518734595e-06
+      },
+      "node_macro_mae_delta_unweighted_macro": 6.080694905204732e-07,
+      "absolute_delta": 6.080694905204732e-07,
+      "relative_pct": 0.18333744237997207
+    },
+    "full_puc_rstattn_v2_vs_utility_prior_no_physics": {
+      "node_macro_mae_delta_by_grid": {
+        "39bus": 2.9683411982876166e-07,
+        "50bus": -1.3582692827762222e-06,
+        "56bus": -2.222925385569896e-07,
+        "80bus": -7.409228352707345e-07
+      },
+      "node_macro_mae_delta_unweighted_macro": -5.061626341937962e-07,
+      "absolute_delta": -5.061626341937962e-07,
+      "relative_pct": -0.15233249005798372
+    }
+  }
+}
