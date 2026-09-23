@@ -53,6 +53,9 @@ def build_clients(data_root: Path, mapping_json: Path, seed: int = DEFAULT_SEED)
         graph = build_conditional_utility_graph(grid)
         dataset = ForecastWindowDataset.from_grid(grid, FEATURE_MODE)
         scaler = dataset.fit_scaler()
+        # Every client starts from the same trainable initialization; graph
+        # buffers and client-local data remain supplied by this grid.
+        torch.manual_seed(seed)
         clients.append(
             FederatedClient(
                 grid_name=grid_name,
@@ -120,6 +123,7 @@ def build_synthetic_clients(seed: int = DEFAULT_SEED) -> list[FederatedClient]:
         )
         physical = np.zeros((edge_count, 3), dtype=np.float32)
         prior = np.linspace(0.2, 1.0, edge_count, dtype=np.float32)
+        torch.manual_seed(seed)
         model = PUCRSTAttnV2ConditionalUtility(nodes, edges, physical, load_mask, prior)
         train_x = rng.normal(size=(2, 168, nodes, 6)).astype(np.float32)
         train_y = rng.normal(size=(2, nodes)).astype(np.float32)

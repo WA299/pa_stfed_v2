@@ -119,6 +119,24 @@ def test_parameter_groups_are_disjoint_complete_and_topology_buffers_excluded():
     assert not (temporal | spatial) & buffers
 
 
+def test_synthetic_clients_share_trainable_initialization_but_keep_local_graphs():
+    clients = build_synthetic_clients(seed=42)
+    reference = dict(clients[0].model.named_parameters())
+    for client in clients[1:]:
+        current = dict(client.model.named_parameters())
+        assert current.keys() == reference.keys()
+        for name in reference:
+            assert torch.equal(reference[name], current[name]), name
+
+    edge_shapes = {tuple(client.model.utility_edge_index.shape) for client in clients}
+    physical_shapes = {tuple(client.model.physical_relation_features.shape) for client in clients}
+    prior_shapes = {tuple(client.model.utility_prior.shape) for client in clients}
+    assert len(edge_shapes) > 1
+    assert len(physical_shapes) > 1
+    assert len(prior_shapes) > 1
+    assert len({tuple(client.model.selected_utility.shape) for client in clients}) > 1
+
+
 def test_sample_count_weighted_aggregation_is_exact_and_broadcasts_only_selected():
     clients = _clients()
     models = {client.grid_name: client.model for client in clients[:2]}
@@ -302,6 +320,36 @@ def test_two_round_synthetic_smoke_is_validation_only():
     assert all("test" not in client.graph_metadata for client in clients)
     assert all(len(item["validation"]) == 4 for item in report["round_history"])
     assert all("temporal" in item["update_cosines"] and "spatial" in item["update_cosines"] for item in report["round_history"])
+    assert report["client_optimizer"] == "Adam"
+    assert report["optimizer_state_persistent_across_rounds"] is False
+    assert report["common_trainable_initialization"] is True
+
+
+def test_optimizer_state_is_fresh_at_each_round(monkeypatch):
+    clients = build_synthetic_clients(seed=42)
+    trainer = FederatedTrainer(
+        clients, "local_only", rounds=2, local_epochs=1, batch_size=32,
+        seed=42, device="cpu"
+    )
+    observations = []
+    original_train_local = trainer._train_local
+
+    def observe_optimizer(client):
+        optimizer = trainer.optimizers[client.grid_name]
+        observations.append((client.grid_name, id(optimizer), len(optimizer.state)))
+        return original_train_local(client)
+
+    monkeypatch.setattr(trainer, "_train_local", observe_optimizer)
+    trainer.run()
+    assert len(observations) == 8
+    first_round = observations[:4]
+    second_round = observations[4:]
+    assert all(state_size == 0 for _name, _optimizer_id, state_size in first_round)
+    assert all(state_size == 0 for _name, _optimizer_id, state_size in second_round)
+    assert {first_id for _name, first_id, _state in first_round}.isdisjoint(
+        {second_id for _name, second_id, _state in second_round}
+    )
+    assert all(len(trainer.optimizers[name].state) > 0 for name in CLIENT_GRID_NAMES)
 
 
 def test_runner_defaults_outputs_and_direct_help():

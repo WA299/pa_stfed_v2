@@ -170,12 +170,24 @@ class FederatedTrainer:
             client.grid_name: torch.as_tensor(client.load_bus_mask, dtype=torch.bool, device=device)
             for client in clients
         }
+        self.optimizers: dict[str, Any] = {}
+        self.optimizer_ids_by_round: list[dict[str, int]] = []
+        self.optimizer_history: list[dict[str, Any]] = []
+
+    def _make_round_optimizers(self) -> None:
+        """Create fresh Adam state after each communication boundary."""
+        import torch
+
         self.optimizers = {
             client.grid_name: torch.optim.Adam(
                 client.model.parameters(), lr=self.learning_rate
             )
-            for client in clients
+            for client in self.clients
         }
+        self.optimizer_history.append(dict(self.optimizers))
+        self.optimizer_ids_by_round.append(
+            {client.grid_name: id(self.optimizers[client.grid_name]) for client in self.clients}
+        )
 
     def _train_local(self, client: FederatedClient) -> dict[str, float]:
         import torch
@@ -212,6 +224,7 @@ class FederatedTrainer:
         shared_groups = sharing_groups(self.mode)
         round_history = []
         for round_index in range(1, self.rounds + 1):
+            self._make_round_optimizers()
             snapshots = {
                 client.grid_name: _parameter_snapshot(
                     client.model,
@@ -288,6 +301,9 @@ class FederatedTrainer:
             "hidden_size": 32,
             "batch_size": self.batch_size,
             "optimizer": {"name": "Adam", "learning_rate": self.learning_rate},
+            "client_optimizer": "Adam",
+            "optimizer_state_persistent_across_rounds": False,
+            "common_trainable_initialization": True,
             "anchor_loss_weight": ANCHOR_LOSS_WEIGHT,
             "local_sample_counts": dict(self.local_sample_counts),
             "validation_used": True,
