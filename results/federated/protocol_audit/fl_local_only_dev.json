@@ -1,0 +1,2377 @@
+{
+  "experiment": "topology_heterogeneous_puc_rstattn_v2_conditional_utility_federated",
+  "sharing_mode": "local_only",
+  "algorithm": "FedAvg",
+  "client_grid_names": [
+    "39_bus_semi_urban_reference_grid",
+    "50_bus_rural_reference_grid",
+    "56_bus_semi_urban_reference_grid",
+    "80_bus_rural_reference_grid"
+  ],
+  "parameter_group_names": {
+    "temporal": [
+      "gru.bias_hh_l0",
+      "gru.bias_ih_l0",
+      "gru.weight_hh_l0",
+      "gru.weight_ih_l0",
+      "gru_head.bias",
+      "gru_head.weight",
+      "temporal_correction.0.bias",
+      "temporal_correction.0.weight",
+      "temporal_correction.2.bias",
+      "temporal_correction.2.weight",
+      "temporal_gate.0.bias",
+      "temporal_gate.0.weight",
+      "temporal_gate.2.bias",
+      "temporal_gate.2.weight",
+      "temporal_key.bias",
+      "temporal_key.weight",
+      "temporal_query.bias",
+      "temporal_query.weight",
+      "temporal_score.weight"
+    ],
+    "spatial": [
+      "dynamic_scale",
+      "k_projection.bias",
+      "k_projection.weight",
+      "physical_encoder.0.bias",
+      "physical_encoder.0.weight",
+      "physical_encoder.2.bias",
+      "physical_encoder.2.weight",
+      "q_projection.bias",
+      "q_projection.weight",
+      "spatial_correction.0.bias",
+      "spatial_correction.0.weight",
+      "spatial_correction.2.bias",
+      "spatial_correction.2.weight",
+      "spatial_gate.0.bias",
+      "spatial_gate.0.weight",
+      "spatial_gate.2.bias",
+      "spatial_gate.2.weight",
+      "v_projection.bias",
+      "v_projection.weight"
+    ]
+  },
+  "shared_parameter_groups": [],
+  "local_topology_buffers": [
+    "load_bus_mask",
+    "utility_edge_index",
+    "physical_relation_features",
+    "utility_prior",
+    "selected_utility"
+  ],
+  "rounds": 10,
+  "local_epochs": 5,
+  "seed": 42,
+  "feature_mode": "p_calendar",
+  "history_length": 168,
+  "forecast_horizon": 1,
+  "hidden_size": 32,
+  "batch_size": 32,
+  "optimizer": {
+    "name": "Adam",
+    "learning_rate": 0.001
+  },
+  "client_optimizer": "Adam",
+  "optimizer_state_persistent_across_rounds": false,
+  "common_trainable_initialization": true,
+  "anchor_loss_weight": 0.2,
+  "local_sample_counts": {
+    "39_bus_semi_urban_reference_grid": 5964,
+    "50_bus_rural_reference_grid": 5964,
+    "56_bus_semi_urban_reference_grid": 5964,
+    "80_bus_rural_reference_grid": 5964
+  },
+  "validation_used": true,
+  "test_evaluated": false,
+  "graph_metadata_by_client": {
+    "39_bus_semi_urban_reference_grid": {
+      "positive_edge_count": 84,
+      "targets_with_selected_neighbors": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 28
+      },
+      "mean_positive_utility": 0.007311188408986118,
+      "utility_semantics": "strong_temporal_conditional_predictive_utility",
+      "utility_direction": "source_to_target",
+      "utility_top_k": 3,
+      "utility_positive_only": true,
+      "utility_graph_fit_samples": 3578,
+      "utility_graph_selection_samples": 1193,
+      "utility_graph_audit_samples": 1193,
+      "utility_graph_uses_audit": false,
+      "utility_graph_uses_validation": false,
+      "utility_graph_uses_test": false,
+      "self_feature_dim": 173,
+      "pair_feature_dim": 176,
+      "self_history_lags": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168
+      ],
+      "source_lags": [
+        1,
+        24,
+        168
+      ],
+      "ridge_alpha": 1.0,
+      "causal_claim": false
+    },
+    "50_bus_rural_reference_grid": {
+      "positive_edge_count": 62,
+      "targets_with_selected_neighbors": {
+        "0": 0,
+        "1": 0,
+        "2": 1,
+        "3": 20
+      },
+      "mean_positive_utility": 0.005435474271785221,
+      "utility_semantics": "strong_temporal_conditional_predictive_utility",
+      "utility_direction": "source_to_target",
+      "utility_top_k": 3,
+      "utility_positive_only": true,
+      "utility_graph_fit_samples": 3578,
+      "utility_graph_selection_samples": 1193,
+      "utility_graph_audit_samples": 1193,
+      "utility_graph_uses_audit": false,
+      "utility_graph_uses_validation": false,
+      "utility_graph_uses_test": false,
+      "self_feature_dim": 173,
+      "pair_feature_dim": 176,
+      "self_history_lags": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168
+      ],
+      "source_lags": [
+        1,
+        24,
+        168
+      ],
+      "ridge_alpha": 1.0,
+      "causal_claim": false
+    },
+    "56_bus_semi_urban_reference_grid": {
+      "positive_edge_count": 131,
+      "targets_with_selected_neighbors": {
+        "0": 0,
+        "1": 0,
+        "2": 1,
+        "3": 43
+      },
+      "mean_positive_utility": 0.006069431895097311,
+      "utility_semantics": "strong_temporal_conditional_predictive_utility",
+      "utility_direction": "source_to_target",
+      "utility_top_k": 3,
+      "utility_positive_only": true,
+      "utility_graph_fit_samples": 3578,
+      "utility_graph_selection_samples": 1193,
+      "utility_graph_audit_samples": 1193,
+      "utility_graph_uses_audit": false,
+      "utility_graph_uses_validation": false,
+      "utility_graph_uses_test": false,
+      "self_feature_dim": 173,
+      "pair_feature_dim": 176,
+      "self_history_lags": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168
+      ],
+      "source_lags": [
+        1,
+        24,
+        168
+      ],
+      "ridge_alpha": 1.0,
+      "causal_claim": false
+    },
+    "80_bus_rural_reference_grid": {
+      "positive_edge_count": 95,
+      "targets_with_selected_neighbors": {
+        "0": 0,
+        "1": 0,
+        "2": 1,
+        "3": 31
+      },
+      "mean_positive_utility": 0.0034903468128855,
+      "utility_semantics": "strong_temporal_conditional_predictive_utility",
+      "utility_direction": "source_to_target",
+      "utility_top_k": 3,
+      "utility_positive_only": true,
+      "utility_graph_fit_samples": 3578,
+      "utility_graph_selection_samples": 1193,
+      "utility_graph_audit_samples": 1193,
+      "utility_graph_uses_audit": false,
+      "utility_graph_uses_validation": false,
+      "utility_graph_uses_test": false,
+      "self_feature_dim": 173,
+      "pair_feature_dim": 176,
+      "self_history_lags": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168
+      ],
+      "source_lags": [
+        1,
+        24,
+        168
+      ],
+      "ridge_alpha": 1.0,
+      "causal_claim": false
+    }
+  },
+  "round_history": [
+    {
+      "round": 1,
+      "local_training": {
+        "39_bus_semi_urban_reference_grid": {
+          "train_scaled_mae": 0.35123823157606276,
+          "train_anchor_scaled_mae": 0.3802410350604491,
+          "train_total_loss": 0.4272864405802864
+        },
+        "50_bus_rural_reference_grid": {
+          "train_scaled_mae": 0.14034886578506328,
+          "train_anchor_scaled_mae": 0.176909621944402,
+          "train_total_loss": 0.1757307908831433
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "train_scaled_mae": 0.3371621872333282,
+          "train_anchor_scaled_mae": 0.3664821007194366,
+          "train_total_loss": 0.410458609382099
+        },
+        "80_bus_rural_reference_grid": {
+          "train_scaled_mae": 0.22583802603782818,
+          "train_anchor_scaled_mae": 0.25396130638007813,
+          "train_total_loss": 0.2766302879800134
+        }
+      },
+      "aggregation_weights": {
+        "39_bus_semi_urban_reference_grid": 0.25,
+        "50_bus_rural_reference_grid": 0.25,
+        "56_bus_semi_urban_reference_grid": 0.25,
+        "80_bus_rural_reference_grid": 0.25
+      },
+      "aggregated_parameter_names": [],
+      "validation": {
+        "39_bus_semi_urban_reference_grid": {
+          "node_macro": {
+            "mae": 0.00041036437693209424,
+            "rmse": 0.0005874356618393087,
+            "wape_pct": 30.07840045546905,
+            "smape_pct": 30.25272895981284
+          },
+          "grid_aggregate": {
+            "mae": 0.0040551534849723745,
+            "rmse": 0.0051580657181742985,
+            "wape_pct": 10.00867356543424,
+            "smape_pct": 10.170478109946524
+          },
+          "node_count": 28,
+          "sample_count": 1314
+        },
+        "50_bus_rural_reference_grid": {
+          "node_macro": {
+            "mae": 0.0003505942322853276,
+            "rmse": 0.0005287470820962528,
+            "wape_pct": 36.855035630982584,
+            "smape_pct": 43.686483452288094
+          },
+          "grid_aggregate": {
+            "mae": 0.0028726307485813607,
+            "rmse": 0.0036786346992973957,
+            "wape_pct": 7.450115688289059,
+            "smape_pct": 7.5378998692606975
+          },
+          "node_count": 21,
+          "sample_count": 1314
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "node_macro": {
+            "mae": 0.00046003645499581217,
+            "rmse": 0.0006415772504014536,
+            "wape_pct": 27.037955063996943,
+            "smape_pct": 28.432430058088947
+          },
+          "grid_aggregate": {
+            "mae": 0.006679198662748201,
+            "rmse": 0.008318598085328926,
+            "wape_pct": 8.383876753800346,
+            "smape_pct": 8.644752072442232
+          },
+          "node_count": 44,
+          "sample_count": 1314
+        },
+        "80_bus_rural_reference_grid": {
+          "node_macro": {
+            "mae": 0.00021807408865280134,
+            "rmse": 0.0003622169446648355,
+            "wape_pct": 55.6386063255231,
+            "smape_pct": 56.351780984279614
+          },
+          "grid_aggregate": {
+            "mae": 0.002810600251828786,
+            "rmse": 0.003641553423604294,
+            "wape_pct": 11.631349064869992,
+            "smape_pct": 12.400804987004989
+          },
+          "node_count": 32,
+          "sample_count": 1314
+        }
+      },
+      "four_grid_unweighted_macro": {
+        "node_macro": {
+          "mae": 0.00035976728821650886,
+          "rmse": 0.0005299942347504627,
+          "wape_pct": 37.40249936899292,
+          "smape_pct": 39.68085586361737
+        },
+        "grid_aggregate": {
+          "mae": 0.004104395787032681,
+          "rmse": 0.005199212981601228,
+          "wape_pct": 9.36850376809841,
+          "smape_pct": 9.68848375966361
+        }
+      },
+      "primary_selection_metric": 0.00035976728821650886,
+      "update_cosines": {
+        "temporal": {
+          "pairwise_cosine": {
+            "39_bus_semi_urban_reference_grid|50_bus_rural_reference_grid": 0.5176900314188831,
+            "39_bus_semi_urban_reference_grid|56_bus_semi_urban_reference_grid": 0.8195360685393672,
+            "39_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.5045059923351677,
+            "50_bus_rural_reference_grid|56_bus_semi_urban_reference_grid": 0.4777461685403866,
+            "50_bus_rural_reference_grid|80_bus_rural_reference_grid": 0.7407861766629379,
+            "56_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.4486586773304983
+          },
+          "mean_cosine": 0.5848205191378736,
+          "median_cosine": 0.5110980118770254,
+          "minimum_cosine": 0.4486586773304983,
+          "maximum_cosine": 0.8195360685393672,
+          "negative_pair_fraction": 0.0,
+          "zero_norm_pairs": [],
+          "zero_norm_cosine": 0.0
+        },
+        "spatial": {
+          "pairwise_cosine": {
+            "39_bus_semi_urban_reference_grid|50_bus_rural_reference_grid": 0.6244808906808391,
+            "39_bus_semi_urban_reference_grid|56_bus_semi_urban_reference_grid": 0.1859461115332678,
+            "39_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.27457676364094513,
+            "50_bus_rural_reference_grid|56_bus_semi_urban_reference_grid": 0.0682116272465715,
+            "50_bus_rural_reference_grid|80_bus_rural_reference_grid": 0.4502070306860661,
+            "56_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.10821347113267554
+          },
+          "mean_cosine": 0.2852726491533942,
+          "median_cosine": 0.23026143758710646,
+          "minimum_cosine": 0.0682116272465715,
+          "maximum_cosine": 0.6244808906808391,
+          "negative_pair_fraction": 0.0,
+          "zero_norm_pairs": [],
+          "zero_norm_cosine": 0.0
+        }
+      }
+    },
+    {
+      "round": 2,
+      "local_training": {
+        "39_bus_semi_urban_reference_grid": {
+          "train_scaled_mae": 0.3200210202983356,
+          "train_anchor_scaled_mae": 0.3286543970758265,
+          "train_total_loss": 0.3857519015271396
+        },
+        "50_bus_rural_reference_grid": {
+          "train_scaled_mae": 0.11030319281280997,
+          "train_anchor_scaled_mae": 0.11864596766265319,
+          "train_total_loss": 0.1340323866130834
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "train_scaled_mae": 0.29697453913522914,
+          "train_anchor_scaled_mae": 0.3070856693753584,
+          "train_total_loss": 0.35839167485900103
+        },
+        "80_bus_rural_reference_grid": {
+          "train_scaled_mae": 0.19474750650439032,
+          "train_anchor_scaled_mae": 0.20240092175529603,
+          "train_total_loss": 0.2352276915694303
+        }
+      },
+      "aggregation_weights": {
+        "39_bus_semi_urban_reference_grid": 0.25,
+        "50_bus_rural_reference_grid": 0.25,
+        "56_bus_semi_urban_reference_grid": 0.25,
+        "80_bus_rural_reference_grid": 0.25
+      },
+      "aggregated_parameter_names": [],
+      "validation": {
+        "39_bus_semi_urban_reference_grid": {
+          "node_macro": {
+            "mae": 0.0004073607913303183,
+            "rmse": 0.0005878085081825287,
+            "wape_pct": 29.857551471306028,
+            "smape_pct": 30.039557610349984
+          },
+          "grid_aggregate": {
+            "mae": 0.004333232441334584,
+            "rmse": 0.005382273447104434,
+            "wape_pct": 10.695010472276362,
+            "smape_pct": 10.971217701242319
+          },
+          "node_count": 28,
+          "sample_count": 1314
+        },
+        "50_bus_rural_reference_grid": {
+          "node_macro": {
+            "mae": 0.00033889999144050395,
+            "rmse": 0.00051366586868566,
+            "wape_pct": 31.970111994480746,
+            "smape_pct": 33.98631523135163
+          },
+          "grid_aggregate": {
+            "mae": 0.0026977425384801666,
+            "rmse": 0.003495137168616746,
+            "wape_pct": 6.9965462908246785,
+            "smape_pct": 7.020320380411088
+          },
+          "node_count": 21,
+          "sample_count": 1314
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "node_macro": {
+            "mae": 0.00046024558656093147,
+            "rmse": 0.0006460211631523774,
+            "wape_pct": 27.12152152614457,
+            "smape_pct": 28.585751150288274
+          },
+          "grid_aggregate": {
+            "mae": 0.007577976184475805,
+            "rmse": 0.008985292507575685,
+            "wape_pct": 9.512042025074058,
+            "smape_pct": 9.94095421723805
+          },
+          "node_count": 44,
+          "sample_count": 1314
+        },
+        "80_bus_rural_reference_grid": {
+          "node_macro": {
+            "mae": 0.0002156661276140483,
+            "rmse": 0.0003643321367663326,
+            "wape_pct": 64.33124040817904,
+            "smape_pct": 62.89431856862952
+          },
+          "grid_aggregate": {
+            "mae": 0.002796068925416106,
+            "rmse": 0.0036321637285430266,
+            "wape_pct": 11.571212825370448,
+            "smape_pct": 12.277972281005312
+          },
+          "node_count": 32,
+          "sample_count": 1314
+        }
+      },
+      "four_grid_unweighted_macro": {
+        "node_macro": {
+          "mae": 0.0003555431242364505,
+          "rmse": 0.0005279569191967248,
+          "wape_pct": 38.320106350027594,
+          "smape_pct": 38.876485640154854
+        },
+        "grid_aggregate": {
+          "mae": 0.004351255022426666,
+          "rmse": 0.005373716712959973,
+          "wape_pct": 9.693702903386388,
+          "smape_pct": 10.052616144974191
+        }
+      },
+      "primary_selection_metric": 0.0003555431242364505,
+      "update_cosines": {
+        "temporal": {
+          "pairwise_cosine": {
+            "39_bus_semi_urban_reference_grid|50_bus_rural_reference_grid": 0.25260570670415394,
+            "39_bus_semi_urban_reference_grid|56_bus_semi_urban_reference_grid": 0.49036608815657223,
+            "39_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.20453980528687682,
+            "50_bus_rural_reference_grid|56_bus_semi_urban_reference_grid": 0.22925752796901336,
+            "50_bus_rural_reference_grid|80_bus_rural_reference_grid": 0.4027446676761156,
+            "56_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.17374210540009136
+          },
+          "mean_cosine": 0.2922093168654706,
+          "median_cosine": 0.24093161733658364,
+          "minimum_cosine": 0.17374210540009136,
+          "maximum_cosine": 0.49036608815657223,
+          "negative_pair_fraction": 0.0,
+          "zero_norm_pairs": [],
+          "zero_norm_cosine": 0.0
+        },
+        "spatial": {
+          "pairwise_cosine": {
+            "39_bus_semi_urban_reference_grid|50_bus_rural_reference_grid": 0.11742755010727919,
+            "39_bus_semi_urban_reference_grid|56_bus_semi_urban_reference_grid": 0.121485462933776,
+            "39_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": -0.1571753883732589,
+            "50_bus_rural_reference_grid|56_bus_semi_urban_reference_grid": 0.2228337052449863,
+            "50_bus_rural_reference_grid|80_bus_rural_reference_grid": 0.06808080251320987,
+            "56_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.11652028293559534
+          },
+          "mean_cosine": 0.08152873589359796,
+          "median_cosine": 0.11697391652143727,
+          "minimum_cosine": -0.1571753883732589,
+          "maximum_cosine": 0.2228337052449863,
+          "negative_pair_fraction": 0.16666666666666666,
+          "zero_norm_pairs": [],
+          "zero_norm_cosine": 0.0
+        }
+      }
+    },
+    {
+      "round": 3,
+      "local_training": {
+        "39_bus_semi_urban_reference_grid": {
+          "train_scaled_mae": 0.3169288745219695,
+          "train_anchor_scaled_mae": 0.32558951129250346,
+          "train_total_loss": 0.38204677841242624
+        },
+        "50_bus_rural_reference_grid": {
+          "train_scaled_mae": 0.10858606975027583,
+          "train_anchor_scaled_mae": 0.1133818236583057,
+          "train_total_loss": 0.13126243463652656
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "train_scaled_mae": 0.293964602746428,
+          "train_anchor_scaled_mae": 0.30332374097829196,
+          "train_total_loss": 0.35462935192380995
+        },
+        "80_bus_rural_reference_grid": {
+          "train_scaled_mae": 0.18963075313657363,
+          "train_anchor_scaled_mae": 0.1976136968575697,
+          "train_total_loss": 0.22915349309457178
+        }
+      },
+      "aggregation_weights": {
+        "39_bus_semi_urban_reference_grid": 0.25,
+        "50_bus_rural_reference_grid": 0.25,
+        "56_bus_semi_urban_reference_grid": 0.25,
+        "80_bus_rural_reference_grid": 0.25
+      },
+      "aggregated_parameter_names": [],
+      "validation": {
+        "39_bus_semi_urban_reference_grid": {
+          "node_macro": {
+            "mae": 0.00040537939675566834,
+            "rmse": 0.0005891417782312742,
+            "wape_pct": 29.717399846905174,
+            "smape_pct": 29.884433956792236
+          },
+          "grid_aggregate": {
+            "mae": 0.004669713003857633,
+            "rmse": 0.005675389495557811,
+            "wape_pct": 11.525490532744364,
+            "smape_pct": 11.9545844440004
+          },
+          "node_count": 28,
+          "sample_count": 1314
+        },
+        "50_bus_rural_reference_grid": {
+          "node_macro": {
+            "mae": 0.0003375194403278064,
+            "rmse": 0.0005090891884141356,
+            "wape_pct": 32.96856401462091,
+            "smape_pct": 34.704956296284365
+          },
+          "grid_aggregate": {
+            "mae": 0.0025611534615681284,
+            "rmse": 0.0033398370805774623,
+            "wape_pct": 6.642304999891677,
+            "smape_pct": 6.655376343568575
+          },
+          "node_count": 21,
+          "sample_count": 1314
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "node_macro": {
+            "mae": 0.0004555689547180178,
+            "rmse": 0.0006390221963557281,
+            "wape_pct": 26.85481652395556,
+            "smape_pct": 28.278424638781587
+          },
+          "grid_aggregate": {
+            "mae": 0.007494343579644362,
+            "rmse": 0.008800402009850739,
+            "wape_pct": 9.407064543955446,
+            "smape_pct": 9.791923819974958
+          },
+          "node_count": 44,
+          "sample_count": 1314
+        },
+        "80_bus_rural_reference_grid": {
+          "node_macro": {
+            "mae": 0.00020847179543037278,
+            "rmse": 0.0003663474237240689,
+            "wape_pct": 55.27632215699504,
+            "smape_pct": 55.928666844104676
+          },
+          "grid_aggregate": {
+            "mae": 0.002762944975666584,
+            "rmse": 0.003591130010477815,
+            "wape_pct": 11.434133131560127,
+            "smape_pct": 12.091383550481591
+          },
+          "node_count": 32,
+          "sample_count": 1314
+        }
+      },
+      "four_grid_unweighted_macro": {
+        "node_macro": {
+          "mae": 0.0003517348968079663,
+          "rmse": 0.0005259001466813017,
+          "wape_pct": 36.20427563561917,
+          "smape_pct": 37.199120433990714
+        },
+        "grid_aggregate": {
+          "mae": 0.004372038755184177,
+          "rmse": 0.005351689649115956,
+          "wape_pct": 9.752248302037904,
+          "smape_pct": 10.12331703950638
+        }
+      },
+      "primary_selection_metric": 0.0003517348968079663,
+      "update_cosines": {
+        "temporal": {
+          "pairwise_cosine": {
+            "39_bus_semi_urban_reference_grid|50_bus_rural_reference_grid": 0.10516804748343782,
+            "39_bus_semi_urban_reference_grid|56_bus_semi_urban_reference_grid": 0.33718595791763695,
+            "39_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.0659510286380658,
+            "50_bus_rural_reference_grid|56_bus_semi_urban_reference_grid": 0.07761488963777784,
+            "50_bus_rural_reference_grid|80_bus_rural_reference_grid": 0.16599697749736736,
+            "56_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.03688366028182663
+          },
+          "mean_cosine": 0.13146676024268542,
+          "median_cosine": 0.09139146856060783,
+          "minimum_cosine": 0.03688366028182663,
+          "maximum_cosine": 0.33718595791763695,
+          "negative_pair_fraction": 0.0,
+          "zero_norm_pairs": [],
+          "zero_norm_cosine": 0.0
+        },
+        "spatial": {
+          "pairwise_cosine": {
+            "39_bus_semi_urban_reference_grid|50_bus_rural_reference_grid": 0.050895538979816995,
+            "39_bus_semi_urban_reference_grid|56_bus_semi_urban_reference_grid": 0.07953798042025932,
+            "39_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.03313532670858454,
+            "50_bus_rural_reference_grid|56_bus_semi_urban_reference_grid": 0.20999779654267006,
+            "50_bus_rural_reference_grid|80_bus_rural_reference_grid": 0.1216999047023956,
+            "56_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.06675071737877891
+          },
+          "mean_cosine": 0.09366954412208424,
+          "median_cosine": 0.07314434889951912,
+          "minimum_cosine": 0.03313532670858454,
+          "maximum_cosine": 0.20999779654267006,
+          "negative_pair_fraction": 0.0,
+          "zero_norm_pairs": [],
+          "zero_norm_cosine": 0.0
+        }
+      }
+    },
+    {
+      "round": 4,
+      "local_training": {
+        "39_bus_semi_urban_reference_grid": {
+          "train_scaled_mae": 0.3132695496719789,
+          "train_anchor_scaled_mae": 0.3238897275797186,
+          "train_total_loss": 0.3780474967816297
+        },
+        "50_bus_rural_reference_grid": {
+          "train_scaled_mae": 0.10731549059802836,
+          "train_anchor_scaled_mae": 0.11171759178134846,
+          "train_total_loss": 0.12965900929853877
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "train_scaled_mae": 0.289987970848772,
+          "train_anchor_scaled_mae": 0.3019578685575628,
+          "train_total_loss": 0.35037954620180284
+        },
+        "80_bus_rural_reference_grid": {
+          "train_scaled_mae": 0.18432177804051875,
+          "train_anchor_scaled_mae": 0.19543665716036118,
+          "train_total_loss": 0.22340911005270034
+        }
+      },
+      "aggregation_weights": {
+        "39_bus_semi_urban_reference_grid": 0.25,
+        "50_bus_rural_reference_grid": 0.25,
+        "56_bus_semi_urban_reference_grid": 0.25,
+        "80_bus_rural_reference_grid": 0.25
+      },
+      "aggregated_parameter_names": [],
+      "validation": {
+        "39_bus_semi_urban_reference_grid": {
+          "node_macro": {
+            "mae": 0.000401302893924066,
+            "rmse": 0.0005825519433764462,
+            "wape_pct": 29.434356155719392,
+            "smape_pct": 29.57378801780485
+          },
+          "grid_aggregate": {
+            "mae": 0.004556793543338194,
+            "rmse": 0.005533553560916594,
+            "wape_pct": 11.246789856256479,
+            "smape_pct": 11.633900467810982
+          },
+          "node_count": 28,
+          "sample_count": 1314
+        },
+        "50_bus_rural_reference_grid": {
+          "node_macro": {
+            "mae": 0.0003341049247343513,
+            "rmse": 0.0005140731652126444,
+            "wape_pct": 32.70409914758858,
+            "smape_pct": 37.01373202948699
+          },
+          "grid_aggregate": {
+            "mae": 0.0028990847729046553,
+            "rmse": 0.003754206632335891,
+            "wape_pct": 7.518723720047644,
+            "smape_pct": 7.582916129142056
+          },
+          "node_count": 21,
+          "sample_count": 1314
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "node_macro": {
+            "mae": 0.00045013556711321316,
+            "rmse": 0.000631984938190418,
+            "wape_pct": 26.544785251778933,
+            "smape_pct": 27.942499530701866
+          },
+          "grid_aggregate": {
+            "mae": 0.007411589542754151,
+            "rmse": 0.008731443741771625,
+            "wape_pct": 9.303189860599119,
+            "smape_pct": 9.631930140408652
+          },
+          "node_count": 44,
+          "sample_count": 1314
+        },
+        "80_bus_rural_reference_grid": {
+          "node_macro": {
+            "mae": 0.00020119097123365965,
+            "rmse": 0.00036375015450991856,
+            "wape_pct": 52.48473028392118,
+            "smape_pct": 55.38220372069625
+          },
+          "grid_aggregate": {
+            "mae": 0.0029437997101008522,
+            "rmse": 0.0036977221066171757,
+            "wape_pct": 12.182579853882375,
+            "smape_pct": 12.928764338497642
+          },
+          "node_count": 32,
+          "sample_count": 1314
+        }
+      },
+      "four_grid_unweighted_macro": {
+        "node_macro": {
+          "mae": 0.0003466835892513225,
+          "rmse": 0.0005230900503223569,
+          "wape_pct": 35.29199270975202,
+          "smape_pct": 37.47805582467249
+        },
+        "grid_aggregate": {
+          "mae": 0.004452816892274464,
+          "rmse": 0.005429231510410321,
+          "wape_pct": 10.062820822696404,
+          "smape_pct": 10.444377768964832
+        }
+      },
+      "primary_selection_metric": 0.0003466835892513225,
+      "update_cosines": {
+        "temporal": {
+          "pairwise_cosine": {
+            "39_bus_semi_urban_reference_grid|50_bus_rural_reference_grid": 0.06253025323036317,
+            "39_bus_semi_urban_reference_grid|56_bus_semi_urban_reference_grid": 0.3407607265508788,
+            "39_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.049151265162563205,
+            "50_bus_rural_reference_grid|56_bus_semi_urban_reference_grid": 0.0730744663987768,
+            "50_bus_rural_reference_grid|80_bus_rural_reference_grid": 0.12036070444161504,
+            "56_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.06521062170769974
+          },
+          "mean_cosine": 0.11851467291531613,
+          "median_cosine": 0.06914254405323828,
+          "minimum_cosine": 0.049151265162563205,
+          "maximum_cosine": 0.3407607265508788,
+          "negative_pair_fraction": 0.0,
+          "zero_norm_pairs": [],
+          "zero_norm_cosine": 0.0
+        },
+        "spatial": {
+          "pairwise_cosine": {
+            "39_bus_semi_urban_reference_grid|50_bus_rural_reference_grid": -0.003463611723728226,
+            "39_bus_semi_urban_reference_grid|56_bus_semi_urban_reference_grid": 0.06454779966486714,
+            "39_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": -0.06434135929948613,
+            "50_bus_rural_reference_grid|56_bus_semi_urban_reference_grid": 0.06087261192481207,
+            "50_bus_rural_reference_grid|80_bus_rural_reference_grid": 0.03427874601397432,
+            "56_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.028933398647181172
+          },
+          "mean_cosine": 0.020137930871270054,
+          "median_cosine": 0.031606072330577745,
+          "minimum_cosine": -0.06434135929948613,
+          "maximum_cosine": 0.06454779966486714,
+          "negative_pair_fraction": 0.3333333333333333,
+          "zero_norm_pairs": [],
+          "zero_norm_cosine": 0.0
+        }
+      }
+    },
+    {
+      "round": 5,
+      "local_training": {
+        "39_bus_semi_urban_reference_grid": {
+          "train_scaled_mae": 0.3084212477353805,
+          "train_anchor_scaled_mae": 0.32195413393132827,
+          "train_total_loss": 0.37281207652652965
+        },
+        "50_bus_rural_reference_grid": {
+          "train_scaled_mae": 0.10602992774649737,
+          "train_anchor_scaled_mae": 0.11081918874048294,
+          "train_total_loss": 0.12819376571930666
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "train_scaled_mae": 0.2869358444596357,
+          "train_anchor_scaled_mae": 0.3005257516302527,
+          "train_total_loss": 0.34704099573234826
+        },
+        "80_bus_rural_reference_grid": {
+          "train_scaled_mae": 0.1802364497659678,
+          "train_anchor_scaled_mae": 0.19411593270811806,
+          "train_total_loss": 0.21905963659923983
+        }
+      },
+      "aggregation_weights": {
+        "39_bus_semi_urban_reference_grid": 0.25,
+        "50_bus_rural_reference_grid": 0.25,
+        "56_bus_semi_urban_reference_grid": 0.25,
+        "80_bus_rural_reference_grid": 0.25
+      },
+      "aggregated_parameter_names": [],
+      "validation": {
+        "39_bus_semi_urban_reference_grid": {
+          "node_macro": {
+            "mae": 0.00039740219463056637,
+            "rmse": 0.0005778842399687537,
+            "wape_pct": 29.101640700834142,
+            "smape_pct": 29.23502728817678
+          },
+          "grid_aggregate": {
+            "mae": 0.004615138327905694,
+            "rmse": 0.005621059418906869,
+            "wape_pct": 11.39079276641653,
+            "smape_pct": 11.782952007339672
+          },
+          "node_count": 28,
+          "sample_count": 1314
+        },
+        "50_bus_rural_reference_grid": {
+          "node_macro": {
+            "mae": 0.00032885677422202296,
+            "rmse": 0.000508710161071744,
+            "wape_pct": 31.631849568065597,
+            "smape_pct": 33.89582920044781
+          },
+          "grid_aggregate": {
+            "mae": 0.0027767580868008636,
+            "rmse": 0.003609304517570006,
+            "wape_pct": 7.201471680714592,
+            "smape_pct": 7.252327198787448
+          },
+          "node_count": 21,
+          "sample_count": 1314
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "node_macro": {
+            "mae": 0.0004474287008595573,
+            "rmse": 0.0006305519396440969,
+            "wape_pct": 26.371588111958136,
+            "smape_pct": 27.752205919171875
+          },
+          "grid_aggregate": {
+            "mae": 0.0076450883084628884,
+            "rmse": 0.008946393776742877,
+            "wape_pct": 9.596282636052077,
+            "smape_pct": 9.989334064753418
+          },
+          "node_count": 44,
+          "sample_count": 1314
+        },
+        "80_bus_rural_reference_grid": {
+          "node_macro": {
+            "mae": 0.00019859767165186882,
+            "rmse": 0.00036032360259200306,
+            "wape_pct": 60.3525067411647,
+            "smape_pct": 59.67527986815007
+          },
+          "grid_aggregate": {
+            "mae": 0.002991923598018023,
+            "rmse": 0.003700204005122752,
+            "wape_pct": 12.381735083573643,
+            "smape_pct": 13.167913135387177
+          },
+          "node_count": 32,
+          "sample_count": 1314
+        }
+      },
+      "four_grid_unweighted_macro": {
+        "node_macro": {
+          "mae": 0.00034307133534100385,
+          "rmse": 0.0005193674858191494,
+          "wape_pct": 36.864396280505645,
+          "smape_pct": 37.63958556898663
+        },
+        "grid_aggregate": {
+          "mae": 0.004507227080296867,
+          "rmse": 0.005469240429585626,
+          "wape_pct": 10.14257054168921,
+          "smape_pct": 10.54813160156693
+        }
+      },
+      "primary_selection_metric": 0.00034307133534100385,
+      "update_cosines": {
+        "temporal": {
+          "pairwise_cosine": {
+            "39_bus_semi_urban_reference_grid|50_bus_rural_reference_grid": 0.045531409432250355,
+            "39_bus_semi_urban_reference_grid|56_bus_semi_urban_reference_grid": 0.25305551275102356,
+            "39_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.03725683586816641,
+            "50_bus_rural_reference_grid|56_bus_semi_urban_reference_grid": 0.08670598094332287,
+            "50_bus_rural_reference_grid|80_bus_rural_reference_grid": 0.059960747650985746,
+            "56_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.0802913767298381
+          },
+          "mean_cosine": 0.09380031056259786,
+          "median_cosine": 0.07012606219041193,
+          "minimum_cosine": 0.03725683586816641,
+          "maximum_cosine": 0.25305551275102356,
+          "negative_pair_fraction": 0.0,
+          "zero_norm_pairs": [],
+          "zero_norm_cosine": 0.0
+        },
+        "spatial": {
+          "pairwise_cosine": {
+            "39_bus_semi_urban_reference_grid|50_bus_rural_reference_grid": 0.008213620349053785,
+            "39_bus_semi_urban_reference_grid|56_bus_semi_urban_reference_grid": 0.07735399128818385,
+            "39_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": -0.01028883717911501,
+            "50_bus_rural_reference_grid|56_bus_semi_urban_reference_grid": -0.0036899989328550635,
+            "50_bus_rural_reference_grid|80_bus_rural_reference_grid": 0.022033322426709058,
+            "56_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.03869188953932836
+          },
+          "mean_cosine": 0.02205233124855083,
+          "median_cosine": 0.015123471387881421,
+          "minimum_cosine": -0.01028883717911501,
+          "maximum_cosine": 0.07735399128818385,
+          "negative_pair_fraction": 0.3333333333333333,
+          "zero_norm_pairs": [],
+          "zero_norm_cosine": 0.0
+        }
+      }
+    },
+    {
+      "round": 6,
+      "local_training": {
+        "39_bus_semi_urban_reference_grid": {
+          "train_scaled_mae": 0.3045085999098691,
+          "train_anchor_scaled_mae": 0.3202020406404281,
+          "train_total_loss": 0.36854900966353593
+        },
+        "50_bus_rural_reference_grid": {
+          "train_scaled_mae": 0.10430921932911491,
+          "train_anchor_scaled_mae": 0.11035683841947566,
+          "train_total_loss": 0.12638058718194298
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "train_scaled_mae": 0.2850499711890909,
+          "train_anchor_scaled_mae": 0.2992960651928091,
+          "train_total_loss": 0.344909185330498
+        },
+        "80_bus_rural_reference_grid": {
+          "train_scaled_mae": 0.17701502114056267,
+          "train_anchor_scaled_mae": 0.19293348905555704,
+          "train_total_loss": 0.21560171966884226
+        }
+      },
+      "aggregation_weights": {
+        "39_bus_semi_urban_reference_grid": 0.25,
+        "50_bus_rural_reference_grid": 0.25,
+        "56_bus_semi_urban_reference_grid": 0.25,
+        "80_bus_rural_reference_grid": 0.25
+      },
+      "aggregated_parameter_names": [],
+      "validation": {
+        "39_bus_semi_urban_reference_grid": {
+          "node_macro": {
+            "mae": 0.00039294019202045107,
+            "rmse": 0.0005706825220699082,
+            "wape_pct": 28.73357854039397,
+            "smape_pct": 28.829410058619136
+          },
+          "grid_aggregate": {
+            "mae": 0.004384278360399801,
+            "rmse": 0.005368826899828884,
+            "wape_pct": 10.820998783856833,
+            "smape_pct": 11.13330334937796
+          },
+          "node_count": 28,
+          "sample_count": 1314
+        },
+        "50_bus_rural_reference_grid": {
+          "node_macro": {
+            "mae": 0.00032370232533204156,
+            "rmse": 0.0005044815587471414,
+            "wape_pct": 30.94908503993518,
+            "smape_pct": 33.07978029165771
+          },
+          "grid_aggregate": {
+            "mae": 0.0027630202988674344,
+            "rmse": 0.0035649740731672403,
+            "wape_pct": 7.165842977145303,
+            "smape_pct": 7.215493950647438
+          },
+          "node_count": 21,
+          "sample_count": 1314
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "node_macro": {
+            "mae": 0.0004457700294325368,
+            "rmse": 0.0006300759468715988,
+            "wape_pct": 26.270197939455716,
+            "smape_pct": 27.637302677482293
+          },
+          "grid_aggregate": {
+            "mae": 0.007815242851718342,
+            "rmse": 0.009123557847753322,
+            "wape_pct": 9.809864353228601,
+            "smape_pct": 10.221257099923484
+          },
+          "node_count": 44,
+          "sample_count": 1314
+        },
+        "80_bus_rural_reference_grid": {
+          "node_macro": {
+            "mae": 0.0001960779535971364,
+            "rmse": 0.0003587862276279222,
+            "wape_pct": 45.91639623885046,
+            "smape_pct": 50.55564892640518
+          },
+          "grid_aggregate": {
+            "mae": 0.0029725237554792286,
+            "rmse": 0.003697955412851235,
+            "wape_pct": 12.301451044523473,
+            "smape_pct": 13.091007962095787
+          },
+          "node_count": 32,
+          "sample_count": 1314
+        }
+      },
+      "four_grid_unweighted_macro": {
+        "node_macro": {
+          "mae": 0.00033962262509554145,
+          "rmse": 0.0005160065638291427,
+          "wape_pct": 32.96731443965883,
+          "smape_pct": 35.02553548854108
+        },
+        "grid_aggregate": {
+          "mae": 0.004483766316616201,
+          "rmse": 0.0054388285584001704,
+          "wape_pct": 10.024539289688553,
+          "smape_pct": 10.415265590511167
+        }
+      },
+      "primary_selection_metric": 0.00033962262509554145,
+      "update_cosines": {
+        "temporal": {
+          "pairwise_cosine": {
+            "39_bus_semi_urban_reference_grid|50_bus_rural_reference_grid": 0.06500583547336322,
+            "39_bus_semi_urban_reference_grid|56_bus_semi_urban_reference_grid": 0.18808245123051529,
+            "39_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.034316432469731,
+            "50_bus_rural_reference_grid|56_bus_semi_urban_reference_grid": 0.06569889522467123,
+            "50_bus_rural_reference_grid|80_bus_rural_reference_grid": 0.057072794664587034,
+            "56_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.0033658632959516106
+          },
+          "mean_cosine": 0.06892371205980323,
+          "median_cosine": 0.06103931506897513,
+          "minimum_cosine": 0.0033658632959516106,
+          "maximum_cosine": 0.18808245123051529,
+          "negative_pair_fraction": 0.0,
+          "zero_norm_pairs": [],
+          "zero_norm_cosine": 0.0
+        },
+        "spatial": {
+          "pairwise_cosine": {
+            "39_bus_semi_urban_reference_grid|50_bus_rural_reference_grid": -0.015431721736552339,
+            "39_bus_semi_urban_reference_grid|56_bus_semi_urban_reference_grid": 0.07769221034680454,
+            "39_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": -0.08210644175006122,
+            "50_bus_rural_reference_grid|56_bus_semi_urban_reference_grid": -0.050191931227448985,
+            "50_bus_rural_reference_grid|80_bus_rural_reference_grid": 0.06856401080103142,
+            "56_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": -0.06425147936620616
+          },
+          "mean_cosine": -0.010954225488738792,
+          "median_cosine": -0.032811826482000664,
+          "minimum_cosine": -0.08210644175006122,
+          "maximum_cosine": 0.07769221034680454,
+          "negative_pair_fraction": 0.6666666666666666,
+          "zero_norm_pairs": [],
+          "zero_norm_cosine": 0.0
+        }
+      }
+    },
+    {
+      "round": 7,
+      "local_training": {
+        "39_bus_semi_urban_reference_grid": {
+          "train_scaled_mae": 0.30115136607764237,
+          "train_anchor_scaled_mae": 0.31884203079868767,
+          "train_total_loss": 0.3649197736525918
+        },
+        "50_bus_rural_reference_grid": {
+          "train_scaled_mae": 0.10294959185754551,
+          "train_anchor_scaled_mae": 0.1100069570589193,
+          "train_total_loss": 0.12495098361038269
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "train_scaled_mae": 0.2835303722377767,
+          "train_anchor_scaled_mae": 0.2982056397008386,
+          "train_total_loss": 0.3431715017334025
+        },
+        "80_bus_rural_reference_grid": {
+          "train_scaled_mae": 0.17480193845887873,
+          "train_anchor_scaled_mae": 0.1917648722303105,
+          "train_total_loss": 0.21315491363645236
+        }
+      },
+      "aggregation_weights": {
+        "39_bus_semi_urban_reference_grid": 0.25,
+        "50_bus_rural_reference_grid": 0.25,
+        "56_bus_semi_urban_reference_grid": 0.25,
+        "80_bus_rural_reference_grid": 0.25
+      },
+      "aggregated_parameter_names": [],
+      "validation": {
+        "39_bus_semi_urban_reference_grid": {
+          "node_macro": {
+            "mae": 0.0003889940193398419,
+            "rmse": 0.0005635140876029054,
+            "wape_pct": 28.401949101293603,
+            "smape_pct": 28.541063603544465
+          },
+          "grid_aggregate": {
+            "mae": 0.004202150629218773,
+            "rmse": 0.00517987605172952,
+            "wape_pct": 10.37148262735148,
+            "smape_pct": 10.623806148553694
+          },
+          "node_count": 28,
+          "sample_count": 1314
+        },
+        "50_bus_rural_reference_grid": {
+          "node_macro": {
+            "mae": 0.0003212781888642868,
+            "rmse": 0.0005012397782690931,
+            "wape_pct": 30.630868732211876,
+            "smape_pct": 32.66964688030352
+          },
+          "grid_aggregate": {
+            "mae": 0.0027156126579258298,
+            "rmse": 0.003511906049849046,
+            "wape_pct": 7.04289212114049,
+            "smape_pct": 7.08141952620999
+          },
+          "node_count": 21,
+          "sample_count": 1314
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "node_macro": {
+            "mae": 0.00044329700690642985,
+            "rmse": 0.0006260043754521384,
+            "wape_pct": 26.110082703542968,
+            "smape_pct": 27.44795414003897
+          },
+          "grid_aggregate": {
+            "mae": 0.007425138632196759,
+            "rmse": 0.008772323410476256,
+            "wape_pct": 9.320196975037351,
+            "smape_pct": 9.628597473199719
+          },
+          "node_count": 44,
+          "sample_count": 1314
+        },
+        "80_bus_rural_reference_grid": {
+          "node_macro": {
+            "mae": 0.00019466463288926911,
+            "rmse": 0.00035667731670080747,
+            "wape_pct": 47.51013986964632,
+            "smape_pct": 49.7802816166656
+          },
+          "grid_aggregate": {
+            "mae": 0.0029558544175039294,
+            "rmse": 0.0037063519550703137,
+            "wape_pct": 12.232466887653482,
+            "smape_pct": 13.024883179478772
+          },
+          "node_count": 32,
+          "sample_count": 1314
+        }
+      },
+      "four_grid_unweighted_macro": {
+        "node_macro": {
+          "mae": 0.00033705846199995695,
+          "rmse": 0.0005118588895062362,
+          "wape_pct": 33.16326010167369,
+          "smape_pct": 34.60973656013814
+        },
+        "grid_aggregate": {
+          "mae": 0.004324689084211322,
+          "rmse": 0.005292614366781284,
+          "wape_pct": 9.7417596527957,
+          "smape_pct": 10.089676581860543
+        }
+      },
+      "primary_selection_metric": 0.00033705846199995695,
+      "update_cosines": {
+        "temporal": {
+          "pairwise_cosine": {
+            "39_bus_semi_urban_reference_grid|50_bus_rural_reference_grid": 0.027580411309051034,
+            "39_bus_semi_urban_reference_grid|56_bus_semi_urban_reference_grid": 0.16057907828981607,
+            "39_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": -0.010393667359197738,
+            "50_bus_rural_reference_grid|56_bus_semi_urban_reference_grid": 0.03618091114541094,
+            "50_bus_rural_reference_grid|80_bus_rural_reference_grid": 0.034881589365484134,
+            "56_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.002590990524703427
+          },
+          "mean_cosine": 0.04190321887921131,
+          "median_cosine": 0.031231000337267584,
+          "minimum_cosine": -0.010393667359197738,
+          "maximum_cosine": 0.16057907828981607,
+          "negative_pair_fraction": 0.16666666666666666,
+          "zero_norm_pairs": [],
+          "zero_norm_cosine": 0.0
+        },
+        "spatial": {
+          "pairwise_cosine": {
+            "39_bus_semi_urban_reference_grid|50_bus_rural_reference_grid": -0.019402726399333842,
+            "39_bus_semi_urban_reference_grid|56_bus_semi_urban_reference_grid": 0.09155367954730079,
+            "39_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": -0.13128450477035264,
+            "50_bus_rural_reference_grid|56_bus_semi_urban_reference_grid": -0.04527012719222434,
+            "50_bus_rural_reference_grid|80_bus_rural_reference_grid": 0.08507775784655093,
+            "56_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": -0.07859866256686501
+          },
+          "mean_cosine": -0.016320763922487352,
+          "median_cosine": -0.03233642679577909,
+          "minimum_cosine": -0.13128450477035264,
+          "maximum_cosine": 0.09155367954730079,
+          "negative_pair_fraction": 0.6666666666666666,
+          "zero_norm_pairs": [],
+          "zero_norm_cosine": 0.0
+        }
+      }
+    },
+    {
+      "round": 8,
+      "local_training": {
+        "39_bus_semi_urban_reference_grid": {
+          "train_scaled_mae": 0.29773546764876113,
+          "train_anchor_scaled_mae": 0.317751546961101,
+          "train_total_loss": 0.36128577864106326
+        },
+        "50_bus_rural_reference_grid": {
+          "train_scaled_mae": 0.10207753360749566,
+          "train_anchor_scaled_mae": 0.1097933696712402,
+          "train_total_loss": 0.1240362078110802
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "train_scaled_mae": 0.2821238215116256,
+          "train_anchor_scaled_mae": 0.29722961933217584,
+          "train_total_loss": 0.3415697466402768
+        },
+        "80_bus_rural_reference_grid": {
+          "train_scaled_mae": 0.17311012641312604,
+          "train_anchor_scaled_mae": 0.19055611063292957,
+          "train_total_loss": 0.21122134890467087
+        }
+      },
+      "aggregation_weights": {
+        "39_bus_semi_urban_reference_grid": 0.25,
+        "50_bus_rural_reference_grid": 0.25,
+        "56_bus_semi_urban_reference_grid": 0.25,
+        "80_bus_rural_reference_grid": 0.25
+      },
+      "aggregated_parameter_names": [],
+      "validation": {
+        "39_bus_semi_urban_reference_grid": {
+          "node_macro": {
+            "mae": 0.0003868237442586144,
+            "rmse": 0.0005606628648391032,
+            "wape_pct": 28.213021127310487,
+            "smape_pct": 28.387140992196038
+          },
+          "grid_aggregate": {
+            "mae": 0.0041931519310427715,
+            "rmse": 0.005182933473604314,
+            "wape_pct": 10.349272609187867,
+            "smape_pct": 10.562785277720943
+          },
+          "node_count": 28,
+          "sample_count": 1314
+        },
+        "50_bus_rural_reference_grid": {
+          "node_macro": {
+            "mae": 0.00031976883075344597,
+            "rmse": 0.0005024987867718947,
+            "wape_pct": 30.994409454194614,
+            "smape_pct": 34.293225003578364
+          },
+          "grid_aggregate": {
+            "mae": 0.002866523466855921,
+            "rmse": 0.003692930272049946,
+            "wape_pct": 7.43427656402362,
+            "smape_pct": 7.490056341228037
+          },
+          "node_count": 21,
+          "sample_count": 1314
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "node_macro": {
+            "mae": 0.00044225852656676215,
+            "rmse": 0.0006256621906886605,
+            "wape_pct": 26.04826595189304,
+            "smape_pct": 27.3767179004136
+          },
+          "grid_aggregate": {
+            "mae": 0.007496980719161151,
+            "rmse": 0.008864448175314732,
+            "wape_pct": 9.41037473935578,
+            "smape_pct": 9.701290777686387
+          },
+          "node_count": 44,
+          "sample_count": 1314
+        },
+        "80_bus_rural_reference_grid": {
+          "node_macro": {
+            "mae": 0.00019381977191899747,
+            "rmse": 0.00035567559914092997,
+            "wape_pct": 49.30839862204352,
+            "smape_pct": 49.778565137149656
+          },
+          "grid_aggregate": {
+            "mae": 0.002846608745768334,
+            "rmse": 0.0036575433955826344,
+            "wape_pct": 11.780366116312512,
+            "smape_pct": 12.51439416108445
+          },
+          "node_count": 32,
+          "sample_count": 1314
+        }
+      },
+      "four_grid_unweighted_macro": {
+        "node_macro": {
+          "mae": 0.00033566771837445497,
+          "rmse": 0.000511124860360147,
+          "wape_pct": 33.641023788860416,
+          "smape_pct": 34.958912258334415
+        },
+        "grid_aggregate": {
+          "mae": 0.004350816215707045,
+          "rmse": 0.005349463829137906,
+          "wape_pct": 9.743572507219945,
+          "smape_pct": 10.067131639429956
+        }
+      },
+      "primary_selection_metric": 0.00033566771837445497,
+      "update_cosines": {
+        "temporal": {
+          "pairwise_cosine": {
+            "39_bus_semi_urban_reference_grid|50_bus_rural_reference_grid": 0.018193225246929748,
+            "39_bus_semi_urban_reference_grid|56_bus_semi_urban_reference_grid": 0.13059995471181005,
+            "39_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.010653859403720638,
+            "50_bus_rural_reference_grid|56_bus_semi_urban_reference_grid": 0.06252833367134351,
+            "50_bus_rural_reference_grid|80_bus_rural_reference_grid": 0.020541037148805147,
+            "56_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.00954617172764672
+          },
+          "mean_cosine": 0.04201043031837597,
+          "median_cosine": 0.019367131197867447,
+          "minimum_cosine": 0.00954617172764672,
+          "maximum_cosine": 0.13059995471181005,
+          "negative_pair_fraction": 0.0,
+          "zero_norm_pairs": [],
+          "zero_norm_cosine": 0.0
+        },
+        "spatial": {
+          "pairwise_cosine": {
+            "39_bus_semi_urban_reference_grid|50_bus_rural_reference_grid": 9.903190592071526e-05,
+            "39_bus_semi_urban_reference_grid|56_bus_semi_urban_reference_grid": 0.02920271415982355,
+            "39_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": -0.0673016919233791,
+            "50_bus_rural_reference_grid|56_bus_semi_urban_reference_grid": -0.029592557194040883,
+            "50_bus_rural_reference_grid|80_bus_rural_reference_grid": 0.11940935173267596,
+            "56_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": -0.04482220005149376
+          },
+          "mean_cosine": 0.0011657747715844134,
+          "median_cosine": -0.014746762644060083,
+          "minimum_cosine": -0.0673016919233791,
+          "maximum_cosine": 0.11940935173267596,
+          "negative_pair_fraction": 0.5,
+          "zero_norm_pairs": [],
+          "zero_norm_cosine": 0.0
+        }
+      }
+    },
+    {
+      "round": 9,
+      "local_training": {
+        "39_bus_semi_urban_reference_grid": {
+          "train_scaled_mae": 0.2950520250567778,
+          "train_anchor_scaled_mae": 0.3168963299556212,
+          "train_total_loss": 0.35843129275954344
+        },
+        "50_bus_rural_reference_grid": {
+          "train_scaled_mae": 0.10144249851053411,
+          "train_anchor_scaled_mae": 0.10956131462107367,
+          "train_total_loss": 0.12335476174870914
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "train_scaled_mae": 0.28078496360523814,
+          "train_anchor_scaled_mae": 0.2962856670114446,
+          "train_total_loss": 0.3400420980657486
+        },
+        "80_bus_rural_reference_grid": {
+          "train_scaled_mae": 0.17150244787733823,
+          "train_anchor_scaled_mae": 0.1891405269184852,
+          "train_total_loss": 0.20933055404354545
+        }
+      },
+      "aggregation_weights": {
+        "39_bus_semi_urban_reference_grid": 0.25,
+        "50_bus_rural_reference_grid": 0.25,
+        "56_bus_semi_urban_reference_grid": 0.25,
+        "80_bus_rural_reference_grid": 0.25
+      },
+      "aggregated_parameter_names": [],
+      "validation": {
+        "39_bus_semi_urban_reference_grid": {
+          "node_macro": {
+            "mae": 0.000384391239006907,
+            "rmse": 0.0005569278566947471,
+            "wape_pct": 28.019284625060102,
+            "smape_pct": 28.18046219368898
+          },
+          "grid_aggregate": {
+            "mae": 0.004091155604674077,
+            "rmse": 0.005049399005831681,
+            "wape_pct": 10.097531722121369,
+            "smape_pct": 10.3455373818346
+          },
+          "node_count": 28,
+          "sample_count": 1314
+        },
+        "50_bus_rural_reference_grid": {
+          "node_macro": {
+            "mae": 0.0003189107587109338,
+            "rmse": 0.0005015122797430395,
+            "wape_pct": 31.480876376125927,
+            "smape_pct": 35.691785060352125
+          },
+          "grid_aggregate": {
+            "mae": 0.0028936227473911414,
+            "rmse": 0.003721239185914244,
+            "wape_pct": 7.504558056051962,
+            "smape_pct": 7.564433665547098
+          },
+          "node_count": 21,
+          "sample_count": 1314
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "node_macro": {
+            "mae": 0.0004403175223931298,
+            "rmse": 0.0006227772308374231,
+            "wape_pct": 25.922546829602254,
+            "smape_pct": 27.23939426745744
+          },
+          "grid_aggregate": {
+            "mae": 0.0073200201082547385,
+            "rmse": 0.008688632535941359,
+            "wape_pct": 9.188249896686983,
+            "smape_pct": 9.472064921670858
+          },
+          "node_count": 44,
+          "sample_count": 1314
+        },
+        "80_bus_rural_reference_grid": {
+          "node_macro": {
+            "mae": 0.00019229950397991617,
+            "rmse": 0.0003535005117081883,
+            "wape_pct": 47.7570997256173,
+            "smape_pct": 49.5450399508016
+          },
+          "grid_aggregate": {
+            "mae": 0.0028641807364542995,
+            "rmse": 0.003664897020991209,
+            "wape_pct": 11.853085798629529,
+            "smape_pct": 12.621269844314249
+          },
+          "node_count": 32,
+          "sample_count": 1314
+        }
+      },
+      "four_grid_unweighted_macro": {
+        "node_macro": {
+          "mae": 0.0003339797560227217,
+          "rmse": 0.0005086794697458495,
+          "wape_pct": 33.2949518891014,
+          "smape_pct": 35.164170368075034
+        },
+        "grid_aggregate": {
+          "mae": 0.004292244799193564,
+          "rmse": 0.005281041937169623,
+          "wape_pct": 9.66085636837246,
+          "smape_pct": 10.0008264533417
+        }
+      },
+      "primary_selection_metric": 0.0003339797560227217,
+      "update_cosines": {
+        "temporal": {
+          "pairwise_cosine": {
+            "39_bus_semi_urban_reference_grid|50_bus_rural_reference_grid": 0.04423250542046674,
+            "39_bus_semi_urban_reference_grid|56_bus_semi_urban_reference_grid": 0.09454050126868588,
+            "39_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.011738364534438503,
+            "50_bus_rural_reference_grid|56_bus_semi_urban_reference_grid": 0.05961155932905384,
+            "50_bus_rural_reference_grid|80_bus_rural_reference_grid": 0.01922903749781455,
+            "56_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.0209263290749748
+          },
+          "mean_cosine": 0.041713049520905716,
+          "median_cosine": 0.032579417247720774,
+          "minimum_cosine": 0.011738364534438503,
+          "maximum_cosine": 0.09454050126868588,
+          "negative_pair_fraction": 0.0,
+          "zero_norm_pairs": [],
+          "zero_norm_cosine": 0.0
+        },
+        "spatial": {
+          "pairwise_cosine": {
+            "39_bus_semi_urban_reference_grid|50_bus_rural_reference_grid": -0.036503681593690454,
+            "39_bus_semi_urban_reference_grid|56_bus_semi_urban_reference_grid": 0.048979478080538395,
+            "39_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": -0.04321383519262155,
+            "50_bus_rural_reference_grid|56_bus_semi_urban_reference_grid": -0.010453865154691424,
+            "50_bus_rural_reference_grid|80_bus_rural_reference_grid": 0.0764928256128888,
+            "56_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": -0.03084063248982259
+          },
+          "mean_cosine": 0.0007433815437668621,
+          "median_cosine": -0.020647248822257006,
+          "minimum_cosine": -0.04321383519262155,
+          "maximum_cosine": 0.0764928256128888,
+          "negative_pair_fraction": 0.6666666666666666,
+          "zero_norm_pairs": [],
+          "zero_norm_cosine": 0.0
+        }
+      }
+    },
+    {
+      "round": 10,
+      "local_training": {
+        "39_bus_semi_urban_reference_grid": {
+          "train_scaled_mae": 0.29273356953087976,
+          "train_anchor_scaled_mae": 0.31621295141982525,
+          "train_total_loss": 0.355976161886664
+        },
+        "50_bus_rural_reference_grid": {
+          "train_scaled_mae": 0.10077997091460356,
+          "train_anchor_scaled_mae": 0.10928340637906987,
+          "train_total_loss": 0.12263665253465826
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "train_scaled_mae": 0.27964624188800546,
+          "train_anchor_scaled_mae": 0.2954266184791524,
+          "train_total_loss": 0.3387315668524268
+        },
+        "80_bus_rural_reference_grid": {
+          "train_scaled_mae": 0.1698730848928824,
+          "train_anchor_scaled_mae": 0.18752843834021513,
+          "train_total_loss": 0.2073787729848515
+        }
+      },
+      "aggregation_weights": {
+        "39_bus_semi_urban_reference_grid": 0.25,
+        "50_bus_rural_reference_grid": 0.25,
+        "56_bus_semi_urban_reference_grid": 0.25,
+        "80_bus_rural_reference_grid": 0.25
+      },
+      "aggregated_parameter_names": [],
+      "validation": {
+        "39_bus_semi_urban_reference_grid": {
+          "node_macro": {
+            "mae": 0.00038296679643575696,
+            "rmse": 0.0005559267776542642,
+            "wape_pct": 27.90902654125634,
+            "smape_pct": 28.07308644870925
+          },
+          "grid_aggregate": {
+            "mae": 0.004113583219942676,
+            "rmse": 0.005093427511595911,
+            "wape_pct": 10.152886144810028,
+            "smape_pct": 10.385464388592665
+          },
+          "node_count": 28,
+          "sample_count": 1314
+        },
+        "50_bus_rural_reference_grid": {
+          "node_macro": {
+            "mae": 0.00031898463652019194,
+            "rmse": 0.000503077811420095,
+            "wape_pct": 32.18241654918337,
+            "smape_pct": 36.89736533596604
+          },
+          "grid_aggregate": {
+            "mae": 0.0029739693686379955,
+            "rmse": 0.0038123226752912313,
+            "wape_pct": 7.712935559407665,
+            "smape_pct": 7.788885365856549
+          },
+          "node_count": 21,
+          "sample_count": 1314
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "node_macro": {
+            "mae": 0.00043929544149055687,
+            "rmse": 0.0006220275487925762,
+            "wape_pct": 25.846866371195894,
+            "smape_pct": 27.155764666480117
+          },
+          "grid_aggregate": {
+            "mae": 0.007367201125813774,
+            "rmse": 0.00873291729235082,
+            "wape_pct": 9.247472545436748,
+            "smape_pct": 9.554115794822513
+          },
+          "node_count": 44,
+          "sample_count": 1314
+        },
+        "80_bus_rural_reference_grid": {
+          "node_macro": {
+            "mae": 0.00019032434585570558,
+            "rmse": 0.0003518922147462926,
+            "wape_pct": 46.79805232244824,
+            "smape_pct": 50.42231580503139
+          },
+          "grid_aggregate": {
+            "mae": 0.002858356828817337,
+            "rmse": 0.0036490677530856305,
+            "wape_pct": 11.828984220113341,
+            "smape_pct": 12.627439560947131
+          },
+          "node_count": 32,
+          "sample_count": 1314
+        }
+      },
+      "four_grid_unweighted_macro": {
+        "node_macro": {
+          "mae": 0.0003328928050755528,
+          "rmse": 0.0005082310881533071,
+          "wape_pct": 33.18409044602096,
+          "smape_pct": 35.6371330640467
+        },
+        "grid_aggregate": {
+          "mae": 0.004328277635802945,
+          "rmse": 0.005321933808080898,
+          "wape_pct": 9.735569617441946,
+          "smape_pct": 10.088976277554714
+        }
+      },
+      "primary_selection_metric": 0.0003328928050755528,
+      "update_cosines": {
+        "temporal": {
+          "pairwise_cosine": {
+            "39_bus_semi_urban_reference_grid|50_bus_rural_reference_grid": 0.04574305027844305,
+            "39_bus_semi_urban_reference_grid|56_bus_semi_urban_reference_grid": 0.07955232317071749,
+            "39_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.03215806620598038,
+            "50_bus_rural_reference_grid|56_bus_semi_urban_reference_grid": 0.06456853910786488,
+            "50_bus_rural_reference_grid|80_bus_rural_reference_grid": 0.01641119319644569,
+            "56_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.01258934314793108
+          },
+          "mean_cosine": 0.04183708585123042,
+          "median_cosine": 0.03895055824221171,
+          "minimum_cosine": 0.01258934314793108,
+          "maximum_cosine": 0.07955232317071749,
+          "negative_pair_fraction": 0.0,
+          "zero_norm_pairs": [],
+          "zero_norm_cosine": 0.0
+        },
+        "spatial": {
+          "pairwise_cosine": {
+            "39_bus_semi_urban_reference_grid|50_bus_rural_reference_grid": -0.03620151959678028,
+            "39_bus_semi_urban_reference_grid|56_bus_semi_urban_reference_grid": 0.06776826633406458,
+            "39_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.008482097007056563,
+            "50_bus_rural_reference_grid|56_bus_semi_urban_reference_grid": -0.048203154323205245,
+            "50_bus_rural_reference_grid|80_bus_rural_reference_grid": 0.04058823384251207,
+            "56_bus_semi_urban_reference_grid|80_bus_rural_reference_grid": 0.002389829157421019
+          },
+          "mean_cosine": 0.005803958736844784,
+          "median_cosine": 0.005435963082238791,
+          "minimum_cosine": -0.048203154323205245,
+          "maximum_cosine": 0.06776826633406458,
+          "negative_pair_fraction": 0.3333333333333333,
+          "zero_norm_pairs": [],
+          "zero_norm_cosine": 0.0
+        }
+      }
+    }
+  ]
+}
