@@ -1,0 +1,27 @@
+"""Run the train-only directed cross-grid transfer-benefit audit."""
+from __future__ import annotations
+import argparse, json, sys
+from pathlib import Path
+import numpy as np
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path: sys.path.insert(0, str(ROOT))
+from code.audits.federated_transfer_benefit import *  # noqa: F401,F403,E402
+from code.data.lv_grid_loader import LVGridLoader
+from scripts.run_federated import CLIENT_GRID_NAMES, build_synthetic_clients
+
+def _matrix(rows, names): return {t: {d: (None if t == d else rows[t].get(d)) for d in names} for t in names}
+def _grid_from_client(client):
+    from types import SimpleNamespace
+    n=6200; nodes=client.model.num_nodes; rng=np.random.default_rng(100+nodes); dynamic=rng.normal(size=(n,nodes,7)).astype(np.float32); return SimpleNamespace(grid_name=client.grid_name,num_nodes=nodes,load_bus_mask=client.load_bus_mask,dynamic_features=dynamic,p=dynamic[:,:,0].copy(),timestamps=np.arange(n),splits={'train':SimpleNamespace(start_index=0,end_index=5964),'validation':SimpleNamespace(start_index=5964,end_index=6082),'test':SimpleNamespace(start_index=6082,end_index=n)})
+def run_audit(data_root,mapping_json,device='cpu',synthetic=False,max_epochs=MAX_EPOCHS):
+    grids={c.grid_name:_grid_from_client(c) for c in build_synthetic_clients(SEED)} if synthetic else {n:LVGridLoader(data_root,mapping_json).load(n) for n in CLIENT_GRID_NAMES}; names=tuple(CLIENT_GRID_NAMES); local={}; transfers={}; cb={t:{} for t in names}; ab={t:{} for t in names}; vb={t:{} for t in names}; selected={}; scarcity={}
+    for target in names:
+        grid=grids[target]; split=scarce_split(grid); scarcity[target]={'canonical_train_raw_hours':split.raw_train_hours,'available_raw_hours':split.available_raw_hours,'history_fraction':HISTORY_FRACTION,'available_raw_start_index':split.available_start,'available_raw_end_index':split.available_end,'eligible_target_count':len(split.eligible_indices)}; scaler=fit_fit_only_scaler(grid,split.fit_indices,split.available_start); local_model,_=train_proxy(grid,split.fit_indices,split.calibration_indices,scaler,device=device,max_epochs=max_epochs,history_start_index=split.available_start); val_idx=np.arange(grid.splits['validation'].start_index,grid.splits['validation'].end_index,dtype=np.int64); local[target]={k:_evaluate(local_model,grid,idx,scaler,device,split.available_start if k != 'validation' else None) for k,idx in [('calibration',split.calibration_indices),('audit',split.audit_indices),('validation',val_idx)]}; transfers[target]={}
+        for donor in names:
+            if donor==target: continue
+            dg=grids[donor]; dfit,dcal=donor_split(dg); dscaler=fit_fit_only_scaler(dg,dfit); donor_model,_=train_proxy(dg,dfit,dcal,dscaler,device=device,max_epochs=max_epochs); target_model=make_proxy(grid); transfer_temporal_parameters(target_model,donor_model); target_model,_=train_proxy(grid,split.fit_indices,split.calibration_indices,scaler,initial_state=target_model.state_dict(),device=device,max_epochs=max_epochs,history_start_index=split.available_start); metrics={k:_evaluate(target_model,grid,idx,scaler,device,split.available_start if k != 'validation' else None) for k,idx in [('calibration',split.calibration_indices),('audit',split.audit_indices),('validation',val_idx)]}; transfers[target][donor]=metrics; cb[target][donor]=benefit(local[target]['calibration']['node_macro']['mae'],metrics['calibration']['node_macro']['mae']); ab[target][donor]=benefit(local[target]['audit']['node_macro']['mae'],metrics['audit']['node_macro']['mae']); vb[target][donor]=benefit(local[target]['validation']['node_macro']['mae'],metrics['validation']['node_macro']['mae'])
+        donor,value=select_donor(cb[target]); selected[target]={'selected_donor':donor,'selected_calibration_benefit':value,'zero_transfer_fallback':donor is None,'audit':local[target]['audit'] if donor is None else transfers[target][donor]['audit'],'validation':local[target]['validation'] if donor is None else transfers[target][donor]['validation']}
+    return {'experiment':'directed_cross_grid_transfer_benefit_audit','history_fraction':HISTORY_FRACTION,'client_grid_names':list(names),'max_epochs':max_epochs,'patience':PATIENCE,'batch_size':BATCH_SIZE,'learning_rate':LEARNING_RATE,'seed':SEED,'validation_used':True,'test_evaluated':False,'scarcity_by_target':scarcity,'local_metrics':local,'transfer_metrics':transfers,'calibration_benefit':_matrix(cb,names),'audit_benefit':_matrix(ab,names),'validation_benefit':_matrix(vb,names),'selected_policy':selected}
+def main():
+    p=argparse.ArgumentParser(description=__doc__); p.add_argument('--data-root',type=Path,default=ROOT.parent/'pa_stfed_data_v2'/'raw'); p.add_argument('--mapping-json',type=Path,default=ROOT/'results'/'audits'/'v2_schema_mapping.json'); p.add_argument('--device',default='cpu'); p.add_argument('--max-epochs',type=int,default=MAX_EPOCHS); p.add_argument('--synthetic-smoke',action='store_true'); p.add_argument('--output-dir',type=Path,default=ROOT/'results'/'audits'); a=p.parse_args(); report=run_audit(a.data_root,a.mapping_json,a.device,a.synthetic_smoke,a.max_epochs); out=a.output_dir/'federated_transfer_benefit_25pct.json'; out.parent.mkdir(parents=True,exist_ok=True); out.write_text(json.dumps(report,indent=2,default=lambda x:x.tolist() if isinstance(x,np.ndarray) else x)+'\n',encoding='utf-8'); print(f'wrote {out}')
+if __name__=='__main__': main()
