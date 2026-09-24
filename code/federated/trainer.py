@@ -171,8 +171,6 @@ class FederatedTrainer:
             for client in clients
         }
         self.optimizers: dict[str, Any] = {}
-        self.optimizer_ids_by_round: list[dict[str, int]] = []
-        self.optimizer_history: list[dict[str, Any]] = []
 
     def _make_round_optimizers(self) -> None:
         """Create fresh Adam state after each communication boundary."""
@@ -184,10 +182,6 @@ class FederatedTrainer:
             )
             for client in self.clients
         }
-        self.optimizer_history.append(dict(self.optimizers))
-        self.optimizer_ids_by_round.append(
-            {client.grid_name: id(self.optimizers[client.grid_name]) for client in self.clients}
-        )
 
     def _train_local(self, client: FederatedClient) -> dict[str, float]:
         import torch

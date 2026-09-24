@@ -331,25 +331,49 @@ def test_optimizer_state_is_fresh_at_each_round(monkeypatch):
         clients, "local_only", rounds=2, local_epochs=1, batch_size=32,
         seed=42, device="cpu"
     )
-    observations = []
+    round_optimizers = []
+    before_local_state_sizes = []
+    after_local_state_sizes = []
+    current_round = {"index": -1}
+    original_make_optimizers = trainer._make_round_optimizers
     original_train_local = trainer._train_local
+
+    def observe_new_optimizers():
+        original_make_optimizers()
+        current_round["index"] += 1
+        round_optimizers.append(dict(trainer.optimizers))
+        before_local_state_sizes.append(
+            {name: len(optimizer.state) for name, optimizer in trainer.optimizers.items()}
+        )
 
     def observe_optimizer(client):
         optimizer = trainer.optimizers[client.grid_name]
-        observations.append((client.grid_name, id(optimizer), len(optimizer.state)))
-        return original_train_local(client)
+        result = original_train_local(client)
+        after_local_state_sizes.append(
+            (current_round["index"], client.grid_name, len(optimizer.state))
+        )
+        return result
 
+    monkeypatch.setattr(trainer, "_make_round_optimizers", observe_new_optimizers)
     monkeypatch.setattr(trainer, "_train_local", observe_optimizer)
     trainer.run()
-    assert len(observations) == 8
-    first_round = observations[:4]
-    second_round = observations[4:]
-    assert all(state_size == 0 for _name, _optimizer_id, state_size in first_round)
-    assert all(state_size == 0 for _name, _optimizer_id, state_size in second_round)
-    assert {first_id for _name, first_id, _state in first_round}.isdisjoint(
-        {second_id for _name, second_id, _state in second_round}
+    assert len(round_optimizers) == 2
+    assert all(
+        state_size == 0
+        for round_state in before_local_state_sizes
+        for state_size in round_state.values()
+    )
+    assert len(after_local_state_sizes) == 8
+    assert all(state_size > 0 for _round, _name, state_size in after_local_state_sizes)
+    assert all(
+        first_optimizer is not second_optimizer
+        for first_optimizer, second_optimizer in zip(
+            round_optimizers[0].values(), round_optimizers[1].values()
+        )
     )
     assert all(len(trainer.optimizers[name].state) > 0 for name in CLIENT_GRID_NAMES)
+    assert not hasattr(trainer, "optimizer_history")
+    assert not hasattr(trainer, "optimizer_ids_by_round")
 
 
 def test_runner_defaults_outputs_and_direct_help():
