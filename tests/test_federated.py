@@ -26,7 +26,7 @@ from code.federated.trainer import (
     cosine_diagnostics,
 )
 from code.models.puc_rstattn_v2_conditional_utility import PUCRSTAttnV2ConditionalUtility
-from scripts.run_federated import build_parser, build_synthetic_clients, output_paths
+from scripts.run_federated import build_parser, build_synthetic_clients, output_paths, render_markdown
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -355,10 +355,13 @@ def test_fedper_groups_and_fedprox_metadata():
     fedper = FederatedTrainer(build_synthetic_clients(), "fedavg_all", rounds=1, local_epochs=1, algorithm="fedper")
     per_report = fedper.run()
     assert per_report["algorithm"] == "FedPer"
+    assert per_report["shared_parameter_groups"] == ["fedper_shared"]
     assert set(per_report["fedper_shared_parameter_names"]).isdisjoint(per_report["fedper_local_personalized_parameter_names"])
     fedper_groups = fedper.parameter_group_names
     assert set(per_report["round_history"][0]["aggregated_parameter_names"]) == set(fedper_groups["shared"])
     assert set(per_report["round_history"][0]["aggregated_parameter_names"]).isdisjoint(fedper_groups["local"])
+    assert "# Federated PUC-RSTAttn V2-CU: FedProx" in render_markdown(report)
+    assert "# Federated PUC-RSTAttn V2-CU: FedPer" in render_markdown(per_report)
 
 
 def test_optimizer_state_is_fresh_at_each_round(monkeypatch):
@@ -430,3 +433,110 @@ def test_runner_defaults_outputs_and_direct_help():
     assert result.returncode == 0, result.stderr
     assert "--rounds" in result.stdout and "--local-epochs" in result.stdout and "--algorithm" in result.stdout
     assert "--batch-size" not in result.stdout and "--learning-rate" not in result.stdout
+
+
+def _assert_topology_buffers_unchanged(clients, before):
+    for client in clients:
+        buffers = dict(client.model.named_buffers())
+        for name in TOPOLOGY_BUFFER_NAMES:
+            torch.testing.assert_close(buffers[name], before[client.grid_name][name])
+
+
+def test_two_round_synthetic_fedprox_smoke_contract():
+    clients = build_synthetic_clients(seed=42)
+    topology_before = {
+        client.grid_name: {
+            name: dict(client.model.named_buffers())[name].detach().clone()
+            for name in TOPOLOGY_BUFFER_NAMES
+        }
+        for client in clients
+    }
+    trainer = FederatedTrainer(
+        clients, "fedavg_all", rounds=2, local_epochs=1, batch_size=32,
+        seed=42, device="cpu", algorithm="fedprox"
+    )
+    trainable_names = {
+        name for name, parameter in clients[0].model.named_parameters()
+        if parameter.requires_grad
+    }
+    report = trainer.run()
+
+    assert len(report["round_history"]) == 2
+    assert report["test_evaluated"] is False
+    assert report["algorithm"] == "FedProx"
+    assert report["fedprox_mu"] == 0.01
+    for round_item in report["round_history"]:
+        assert len(round_item["validation"]) == 4
+        assert set(round_item["aggregated_parameter_names"]) == trainable_names
+        assert set(round_item["update_cosines"]) == {"temporal", "spatial"}
+        assert all(
+            np.isfinite(metrics["train_proximal_loss"])
+            for metrics in round_item["local_training"].values()
+        )
+    _assert_topology_buffers_unchanged(clients, topology_before)
+
+
+def test_two_round_synthetic_fedper_smoke_contract():
+    clients = build_synthetic_clients(seed=42)
+    topology_before = {
+        client.grid_name: {
+            name: dict(client.model.named_buffers())[name].detach().clone()
+            for name in TOPOLOGY_BUFFER_NAMES
+        }
+        for client in clients
+    }
+    trainer = FederatedTrainer(
+        clients, "fedavg_all", rounds=2, local_epochs=1, batch_size=32,
+        seed=42, device="cpu", algorithm="fedper"
+    )
+    groups = trainer.parameter_group_names
+    local_before = {
+        client.grid_name: {
+            name: dict(client.model.named_parameters())[name].detach().clone()
+            for name in groups["local"]
+        }
+        for client in clients
+    }
+    # Make the locality assertion deterministic: each client's personalized
+    # head receives a distinct local update before the shared broadcast.
+    original_train_local = trainer._train_local
+
+    def local_update(client, round_start_parameters=None):
+        result = original_train_local(client, round_start_parameters)
+        offset = float(CLIENT_GRID_NAMES.index(client.grid_name) + 1)
+        with torch.no_grad():
+            parameters = dict(client.model.named_parameters())
+            for name in groups["local"]:
+                parameters[name].add_(offset)
+        return result
+
+    trainer._train_local = local_update
+    report = trainer.run()
+
+    shared_names = set(report["fedper_shared_parameter_names"])
+    local_names = set(report["fedper_local_personalized_parameter_names"])
+    assert len(report["round_history"]) == 2
+    assert report["test_evaluated"] is False
+    assert report["algorithm"] == "FedPer"
+    assert report["shared_parameter_groups"] == ["fedper_shared"]
+    assert shared_names.isdisjoint(local_names)
+    assert shared_names | local_names == {
+        name for name, parameter in clients[0].model.named_parameters()
+        if parameter.requires_grad
+    }
+    for round_item in report["round_history"]:
+        assert len(round_item["validation"]) == 4
+        assert set(round_item["aggregated_parameter_names"]) == shared_names
+        assert set(round_item["aggregated_parameter_names"]).isdisjoint(local_names)
+        assert set(round_item["update_cosines"]) == {"temporal", "spatial"}
+    # Personalized heads evolve independently; none is overwritten by broadcast.
+    assert any(
+        not torch.equal(
+            dict(client.model.named_parameters())[name], local_before[client.grid_name][name]
+        )
+        for client in clients for name in groups["local"]
+    )
+    for name in groups["local"]:
+        values = [dict(client.model.named_parameters())[name] for client in clients]
+        assert not all(torch.equal(values[0], value) for value in values[1:])
+    _assert_topology_buffers_unchanged(clients, topology_before)

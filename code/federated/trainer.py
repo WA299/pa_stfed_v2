@@ -208,7 +208,7 @@ class FederatedTrainer:
 
         model = client.model
         optimizer = self.optimizers[client.grid_name]
-        final_losses, anchor_losses, total_losses = [], [], []
+        final_losses, anchor_losses, total_losses, proximal_losses = [], [], [], []
         for _epoch in range(self.local_epochs):
             model.train()
             for indices in _batch_indices(len(client.train_dataset), self.batch_size):
@@ -235,13 +235,15 @@ class FederatedTrainer:
                 final_losses.append(float(final_loss.detach()))
                 anchor_losses.append(float(anchor_loss.detach()))
                 total_losses.append(float(total_loss.detach()))
+                if self.algorithm == "fedprox":
+                    proximal_losses.append(float(proximal_loss.detach()))
         if not total_losses:
             raise ValueError(f"client {client.grid_name} has no training samples")
         return {
             "train_scaled_mae": float(np.mean(final_losses)),
             "train_anchor_scaled_mae": float(np.mean(anchor_losses)),
             "train_total_loss": float(np.mean(total_losses)),
-            **({"train_proximal_loss": float(proximal_loss.detach())} if self.algorithm == "fedprox" else {}),
+            **({"train_proximal_loss": float(np.mean(proximal_losses))} if self.algorithm == "fedprox" else {}),
         }
 
     def run(self) -> dict[str, Any]:
@@ -335,7 +337,9 @@ class FederatedTrainer:
             **({"fedper_shared_parameter_names": list(self.parameter_group_names["shared"]),
                 "fedper_local_personalized_parameter_names": list(self.parameter_group_names["local"])}
                if self.algorithm == "fedper" else {}),
-            "shared_parameter_groups": list(shared_groups),
+            "shared_parameter_groups": (
+                ["fedper_shared"] if self.algorithm == "fedper" else list(shared_groups)
+            ),
             "local_topology_buffers": [
                 "load_bus_mask",
                 "utility_edge_index",

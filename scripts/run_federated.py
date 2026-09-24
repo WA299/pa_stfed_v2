@@ -167,8 +167,9 @@ def _json_default(value: Any) -> Any:
 
 
 def render_markdown(report: dict[str, Any]) -> str:
+    title = report["algorithm"] if report["algorithm"] in ("FedProx", "FedPer") else report["sharing_mode"]
     lines = [
-        f"# Federated PUC-RSTAttn V2-CU: {report['sharing_mode']}",
+        f"# Federated PUC-RSTAttn V2-CU: {title}",
         "",
         "Validation-only metrics; test labels are not evaluated.",
         "",
