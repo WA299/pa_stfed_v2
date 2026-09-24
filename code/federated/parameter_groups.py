@@ -22,6 +22,24 @@ SPATIAL_PREFIXES = (
 )
 SPATIAL_SCALARS = ("dynamic_scale",)
 PARAMETER_GROUPS = ("temporal", "spatial")
+FEDPER_GROUPS = ("shared", "local")
+FEDPER_LOCAL_PREFIXES = (
+    "gru_head.",
+    "temporal_correction.",
+    "temporal_gate.",
+    "spatial_correction.",
+    "spatial_gate.",
+)
+FEDPER_SHARED_PREFIXES = (
+    "gru.",
+    "temporal_query.",
+    "temporal_key.",
+    "temporal_score.",
+    "q_projection.",
+    "k_projection.",
+    "v_projection.",
+    "physical_encoder.",
+)
 TOPOLOGY_BUFFER_NAMES = frozenset(
     {
         "load_bus_mask",
@@ -59,3 +77,18 @@ def parameter_groups(model: Any) -> dict[str, tuple[str, ...]]:
     if (temporal_set | spatial_set) & buffers.keys():
         raise ValueError("buffers must never be included in trainable parameter groups")
     return {"temporal": temporal, "spatial": spatial}
+
+
+def fedper_parameter_groups(model: Any) -> dict[str, tuple[str, ...]]:
+    """Partition all trainables into shared representation and local heads."""
+    named_parameters = dict(model.named_parameters())
+    shared = tuple(sorted(name for name in named_parameters if name.startswith(FEDPER_SHARED_PREFIXES) or name == "dynamic_scale"))
+    local = tuple(sorted(name for name in named_parameters if name.startswith(FEDPER_LOCAL_PREFIXES)))
+    shared_set, local_set = set(shared), set(local)
+    all_trainable = {name for name, parameter in named_parameters.items() if parameter.requires_grad}
+    if shared_set & local_set or shared_set | local_set != all_trainable:
+        raise ValueError("FedPer groups must be disjoint and cover all trainable parameters")
+    buffers = set(dict(model.named_buffers()))
+    if (shared_set | local_set) & buffers:
+        raise ValueError("FedPer groups must exclude topology buffers")
+    return {"shared": shared, "local": local}

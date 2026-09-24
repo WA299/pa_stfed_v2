@@ -13,6 +13,7 @@ SHARING_MODES = (
     "temporal_shared_spatial_local",
     "temporal_local_spatial_shared",
 )
+ALGORITHMS = ("standard", "fedprox", "fedper")
 
 
 def sharing_groups(mode: str) -> tuple[str, ...]:

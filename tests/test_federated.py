@@ -14,7 +14,7 @@ from code.federated.aggregation import (
     normalize_sample_weights,
     sharing_groups,
 )
-from code.federated.parameter_groups import TOPOLOGY_BUFFER_NAMES, parameter_groups
+from code.federated.parameter_groups import TOPOLOGY_BUFFER_NAMES, fedper_parameter_groups, parameter_groups
 from code.federated.trainer import (
     CLIENT_GRID_NAMES,
     FederatedClient,
@@ -26,7 +26,7 @@ from code.federated.trainer import (
     cosine_diagnostics,
 )
 from code.models.puc_rstattn_v2_conditional_utility import PUCRSTAttnV2ConditionalUtility
-from scripts.run_federated import build_parser, build_synthetic_clients
+from scripts.run_federated import build_parser, build_synthetic_clients, output_paths
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -168,6 +168,20 @@ def test_sample_count_weighted_aggregation_is_exact_and_broadcasts_only_selected
             torch.testing.assert_close(value, before_buffers[client_name][name])
 
 
+def test_fedprox_penalty_exact_zero_positive_and_trainable_only():
+    model = _model(4)
+    groups = parameter_groups(model)
+    parameters = dict(model.named_parameters())
+    start = {name: parameter.detach().clone() for name, parameter in parameters.items()}
+    zero = sum(torch.sum((parameters[name] - start[name]) ** 2) for name in groups["temporal"] + groups["spatial"])
+    assert float(zero.detach()) == 0.0
+    with torch.no_grad():
+        parameters[groups["temporal"][0]].add_(1.0)
+    positive = sum(torch.sum((parameters[name] - start[name]) ** 2) for name in groups["temporal"] + groups["spatial"])
+    assert float((0.01 / 2.0 * positive).detach()) > 0.0
+    assert not (set(dict(model.named_buffers())) & set(groups["temporal"] + groups["spatial"]))
+
+
 @pytest.mark.parametrize(
     "mode,shared_groups,local_groups",
     [
@@ -197,7 +211,7 @@ def test_sharing_modes_broadcast_selected_groups_and_retain_local_groups(
     }
     trainer = FederatedTrainer(clients, mode, rounds=1, local_epochs=1, batch_size=1)
 
-    def local_update(client):
+    def local_update(client, round_start_parameters=None):
         offset = float(CLIENT_GRID_NAMES.index(client.grid_name) + 1)
         with torch.no_grad():
             for group_names in groups.values():
@@ -325,6 +339,28 @@ def test_two_round_synthetic_smoke_is_validation_only():
     assert report["common_trainable_initialization"] is True
 
 
+def test_fedper_groups_and_fedprox_metadata():
+    model = _model(4)
+    groups = fedper_parameter_groups(model)
+    trainable = {name for name, parameter in model.named_parameters() if parameter.requires_grad}
+    assert set(groups["shared"]).isdisjoint(groups["local"])
+    assert set(groups["shared"]) | set(groups["local"]) == trainable
+    assert all(name.startswith(("gru_head.", "temporal_correction.", "temporal_gate.", "spatial_correction.", "spatial_gate.")) for name in groups["local"])
+    assert "dynamic_scale" in groups["shared"]
+    fedprox = FederatedTrainer(build_synthetic_clients(), "fedavg_all", rounds=1, local_epochs=1, algorithm="fedprox")
+    report = fedprox.run()
+    assert report["algorithm"] == "FedProx"
+    assert report["fedprox_mu"] == 0.01
+    assert report["fedprox_mu_selection"] == "fixed_not_validation_optimized"
+    fedper = FederatedTrainer(build_synthetic_clients(), "fedavg_all", rounds=1, local_epochs=1, algorithm="fedper")
+    per_report = fedper.run()
+    assert per_report["algorithm"] == "FedPer"
+    assert set(per_report["fedper_shared_parameter_names"]).isdisjoint(per_report["fedper_local_personalized_parameter_names"])
+    fedper_groups = fedper.parameter_group_names
+    assert set(per_report["round_history"][0]["aggregated_parameter_names"]) == set(fedper_groups["shared"])
+    assert set(per_report["round_history"][0]["aggregated_parameter_names"]).isdisjoint(fedper_groups["local"])
+
+
 def test_optimizer_state_is_fresh_at_each_round(monkeypatch):
     clients = build_synthetic_clients(seed=42)
     trainer = FederatedTrainer(
@@ -346,9 +382,9 @@ def test_optimizer_state_is_fresh_at_each_round(monkeypatch):
             {name: len(optimizer.state) for name, optimizer in trainer.optimizers.items()}
         )
 
-    def observe_optimizer(client):
+    def observe_optimizer(client, round_start_parameters=None):
         optimizer = trainer.optimizers[client.grid_name]
-        result = original_train_local(client)
+        result = original_train_local(client, round_start_parameters)
         after_local_state_sizes.append(
             (current_round["index"], client.grid_name, len(optimizer.state))
         )
@@ -382,6 +418,8 @@ def test_runner_defaults_outputs_and_direct_help():
     from scripts.run_federated import output_paths
 
     assert str(output_paths("local_only", Path("results/federated"))[0]).endswith("fl_local_only_dev.json")
+    assert str(output_paths("fedavg_all", Path("results/federated"), "fedprox")[0]).endswith("results\\federated\\baselines\\fl_fedprox_dev.json")
+    assert str(output_paths("fedavg_all", Path("results/federated"), "fedper")[0]).endswith("results\\federated\\baselines\\fl_fedper_dev.json")
     result = subprocess.run(
         [sys.executable, str(REPO_ROOT / "scripts" / "run_federated.py"), "--help"],
         cwd=REPO_ROOT,
@@ -390,5 +428,5 @@ def test_runner_defaults_outputs_and_direct_help():
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    assert "--rounds" in result.stdout and "--local-epochs" in result.stdout
+    assert "--rounds" in result.stdout and "--local-epochs" in result.stdout and "--algorithm" in result.stdout
     assert "--batch-size" not in result.stdout and "--learning-rate" not in result.stdout

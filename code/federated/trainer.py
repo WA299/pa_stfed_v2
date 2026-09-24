@@ -10,8 +10,8 @@ import numpy as np
 from code.models.centralized_gru import evaluate_validation, masked_scaled_mae
 from scripts.run_puc_rstattn_v2 import _batch_indices, _to_batch
 
-from .aggregation import SHARING_MODES, aggregate_named_parameters, normalize_sample_weights, sharing_groups
-from .parameter_groups import parameter_groups
+from .aggregation import ALGORITHMS, SHARING_MODES, aggregate_named_parameters, normalize_sample_weights, sharing_groups
+from .parameter_groups import fedper_parameter_groups, parameter_groups
 
 CLIENT_GRID_NAMES = (
     "39_bus_semi_urban_reference_grid",
@@ -20,6 +20,7 @@ CLIENT_GRID_NAMES = (
     "80_bus_rural_reference_grid",
 )
 ANCHOR_LOSS_WEIGHT = 0.2
+FEDPROX_MU = 0.01
 METRICS = ("mae", "rmse", "wape_pct", "smape_pct")
 CLIENT_PAIRS = ((0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3))
 
@@ -139,15 +140,21 @@ class FederatedTrainer:
         learning_rate: float = 1e-3,
         seed: int = 42,
         device: str = "cpu",
+        algorithm: str = "standard",
     ) -> None:
         if mode not in SHARING_MODES:
             raise ValueError(f"unknown sharing mode: {mode}")
+        if algorithm not in ALGORITHMS:
+            raise ValueError(f"unknown federated algorithm: {algorithm}")
+        if algorithm != "standard" and mode != "fedavg_all":
+            raise ValueError("FedProx and FedPer use --mode fedavg_all; their sharing is algorithm-defined")
         if len(clients) != 4:
             raise ValueError("the topology-heterogeneous framework requires exactly four clients")
         if rounds < 1 or local_epochs < 1 or batch_size < 1 or learning_rate <= 0:
             raise ValueError("rounds, local_epochs, batch_size, and learning_rate must be positive")
         self.clients = clients
         self.mode = mode
+        self.algorithm = algorithm
         self.rounds = int(rounds)
         self.local_epochs = int(local_epochs)
         self.batch_size = int(batch_size)
@@ -155,11 +162,22 @@ class FederatedTrainer:
         self.seed = int(seed)
         self.device = device
         self.client_order = tuple(client.grid_name for client in clients)
-        self.groups = {client.grid_name: parameter_groups(client.model) for client in clients}
+        self.groups = {
+            client.grid_name: (
+                fedper_parameter_groups(client.model)
+                if self.algorithm == "fedper"
+                else parameter_groups(client.model)
+            )
+            for client in clients
+        }
         reference_groups = self.groups[self.client_order[0]]
         if any(self.groups[name] != reference_groups for name in self.client_order[1:]):
             raise ValueError("clients must share identical named parameter groups")
         self.parameter_group_names = reference_groups
+        self.federated_parameter_names = (
+            reference_groups["shared"] if self.algorithm == "fedper"
+            else tuple(name for names in reference_groups.values() for name in names)
+        )
         self.local_sample_counts = {client.grid_name: len(client.train_dataset) for client in clients}
         self.weights = normalize_sample_weights(self.local_sample_counts)
         import torch
@@ -183,7 +201,9 @@ class FederatedTrainer:
             for client in self.clients
         }
 
-    def _train_local(self, client: FederatedClient) -> dict[str, float]:
+    def _train_local(
+        self, client: FederatedClient, round_start_parameters: Mapping[str, Any] | None = None
+    ) -> dict[str, float]:
         import torch
 
         model = client.model
@@ -200,6 +220,16 @@ class FederatedTrainer:
                 final_loss = masked_scaled_mae(final, target, load_mask)
                 anchor_loss = masked_scaled_mae(details["y_gru"], target, load_mask)
                 total_loss = final_loss + ANCHOR_LOSS_WEIGHT * anchor_loss
+                proximal_loss = torch.zeros((), device=final.device, dtype=final.dtype)
+                if self.algorithm == "fedprox":
+                    if round_start_parameters is None:
+                        raise ValueError("FedProx requires round-start parameters")
+                    parameters = _named_parameters(model)
+                    proximal_loss = (FEDPROX_MU / 2.0) * sum(
+                        torch.sum((parameters[name] - round_start_parameters[name].to(device=parameters[name].device)) ** 2)
+                        for name in self.federated_parameter_names
+                    )
+                    total_loss = total_loss + proximal_loss
                 total_loss.backward()
                 optimizer.step()
                 final_losses.append(float(final_loss.detach()))
@@ -211,6 +241,7 @@ class FederatedTrainer:
             "train_scaled_mae": float(np.mean(final_losses)),
             "train_anchor_scaled_mae": float(np.mean(anchor_losses)),
             "train_total_loss": float(np.mean(total_losses)),
+            **({"train_proximal_loss": float(proximal_loss.detach())} if self.algorithm == "fedprox" else {}),
         }
 
     def run(self) -> dict[str, Any]:
@@ -226,12 +257,29 @@ class FederatedTrainer:
                 )
                 for client in self.clients
             }
-            local_training = {
-                client.grid_name: self._train_local(client) for client in self.clients
+            if self.algorithm == "fedprox":
+                local_training = {
+                    client.grid_name: self._train_local(
+                        client,
+                        {
+                            name: snapshots[client.grid_name][name]
+                            for name in self.federated_parameter_names
+                        },
+                    )
+                    for client in self.clients
+                }
+            else:
+                local_training = {
+                    client.grid_name: self._train_local(client)
+                    for client in self.clients
+                }
+            cosine_groups = {
+                client.grid_name: parameter_groups(client.model)
+                for client in self.clients
             }
             deltas = {
                 client.grid_name: _update_vectors(
-                    client.model, snapshots[client.grid_name], self.parameter_group_names
+                    client.model, snapshots[client.grid_name], cosine_groups[client.grid_name]
                 )
                 for client in self.clients
             }
@@ -244,9 +292,14 @@ class FederatedTrainer:
             }
 
             aggregated_parameter_names = []
-            if shared_groups:
+            if self.algorithm == "fedprox":
+                aggregated_parameter_names = list(self.federated_parameter_names)
+            elif self.algorithm == "fedper":
+                aggregated_parameter_names = list(self.parameter_group_names["shared"])
+            elif shared_groups:
                 for group in shared_groups:
                     aggregated_parameter_names.extend(self.parameter_group_names[group])
+            if aggregated_parameter_names:
                 aggregate_named_parameters(
                     {client.grid_name: client.model for client in self.clients},
                     aggregated_parameter_names,
@@ -274,10 +327,14 @@ class FederatedTrainer:
         return {
             "experiment": "topology_heterogeneous_puc_rstattn_v2_conditional_utility_federated",
             "sharing_mode": self.mode,
+            "algorithm": "FedProx" if self.algorithm == "fedprox" else "FedPer" if self.algorithm == "fedper" else "FedAvg",
             "client_grid_names": list(self.client_order),
             "parameter_group_names": {
                 group: list(names) for group, names in self.parameter_group_names.items()
             },
+            **({"fedper_shared_parameter_names": list(self.parameter_group_names["shared"]),
+                "fedper_local_personalized_parameter_names": list(self.parameter_group_names["local"])}
+               if self.algorithm == "fedper" else {}),
             "shared_parameter_groups": list(shared_groups),
             "local_topology_buffers": [
                 "load_bus_mask",
@@ -299,6 +356,8 @@ class FederatedTrainer:
             "optimizer_state_persistent_across_rounds": False,
             "common_trainable_initialization": True,
             "anchor_loss_weight": ANCHOR_LOSS_WEIGHT,
+            **({"fedprox_mu": FEDPROX_MU, "fedprox_mu_selection": "fixed_not_validation_optimized"}
+               if self.algorithm == "fedprox" else {}),
             "local_sample_counts": dict(self.local_sample_counts),
             "validation_used": True,
             "test_evaluated": False,
@@ -316,8 +375,9 @@ class FederatedTrainer:
 
 def train_federated(
     clients: list[FederatedClient], mode: str, rounds: int = 2, local_epochs: int = 1,
-    batch_size: int = 32, learning_rate: float = 1e-3, seed: int = 42, device: str = "cpu"
+    batch_size: int = 32, learning_rate: float = 1e-3, seed: int = 42, device: str = "cpu",
+    algorithm: str = "standard",
 ) -> dict[str, Any]:
     return FederatedTrainer(
-        clients, mode, rounds, local_epochs, batch_size, learning_rate, seed, device
+        clients, mode, rounds, local_epochs, batch_size, learning_rate, seed, device, algorithm
     ).run()

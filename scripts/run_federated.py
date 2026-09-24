@@ -15,7 +15,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from code.data.forecast_dataset import ForecastWindowDataset
 from code.data.lv_grid_loader import LVGridLoader
-from code.federated.aggregation import SHARING_MODES
+from code.federated.aggregation import ALGORITHMS, SHARING_MODES
 from code.federated.trainer import CLIENT_GRID_NAMES, FederatedClient, train_federated
 from code.models.puc_rstattn_v2_conditional_utility import (
     PUCRSTAttnV2ConditionalUtility,
@@ -29,7 +29,13 @@ DEFAULT_HIDDEN_SIZE = 32
 FEATURE_MODE = "p_calendar"
 
 
-def output_paths(mode: str, output_dir: Path) -> tuple[Path, Path]:
+def output_paths(mode: str, output_dir: Path, algorithm: str = "standard") -> tuple[Path, Path]:
+    if algorithm in ("fedprox", "fedper"):
+        output_dir = output_dir / "baselines"
+        stem = f"fl_{algorithm}_dev"
+        return output_dir / f"{stem}.json", output_dir / f"{stem}.md"
+    if algorithm != "standard":
+        raise ValueError(f"unsupported algorithm: {algorithm}")
     if mode not in SHARING_MODES:
         raise ValueError(f"unsupported sharing mode {mode!r}")
     stem = f"fl_{mode}_dev"
@@ -185,6 +191,7 @@ def render_markdown(report: dict[str, Any]) -> str:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--algorithm", choices=ALGORITHMS, default="standard")
     parser.add_argument("--mode", choices=SHARING_MODES, default="fedavg_all")
     parser.add_argument("--rounds", type=int, default=DEFAULT_ROUNDS)
     parser.add_argument("--local-epochs", type=int, default=DEFAULT_LOCAL_EPOCHS)
@@ -213,10 +220,11 @@ def main() -> None:
         learning_rate=DEFAULT_LEARNING_RATE,
         seed=args.seed,
         device=args.device,
+        algorithm=args.algorithm,
     )
     if args.synthetic_smoke:
         report["synthetic_smoke"] = True
-    output_json, output_md = output_paths(args.mode, args.output_dir)
+    output_json, output_md = output_paths(args.mode, args.output_dir, args.algorithm)
     output_json.parent.mkdir(parents=True, exist_ok=True)
     output_json.write_text(json.dumps(report, indent=2, ensure_ascii=True, default=_json_default) + "\n", encoding="utf-8")
     output_md.write_text(render_markdown(report) + "\n", encoding="utf-8")
