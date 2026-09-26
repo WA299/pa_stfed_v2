@@ -102,7 +102,7 @@ def inject_temporal_state(model: Any, state: Mapping[str, Any]) -> tuple[str, ..
 
 def train_full_model(model: Any, grid: Any, fit_indices: np.ndarray, calibration_indices: np.ndarray,
                      scaler: Any, device: str = "cpu", max_epochs: int = 50,
-                     patience: int = PATIENCE) -> tuple[dict[str, Any], dict[str, Any]]:
+                     patience: int = PATIENCE, batch_size: int = BATCH_SIZE) -> tuple[dict[str, Any], dict[str, Any]]:
     import torch
     model = model.to(device)
     fit_ds = IndexDataset(grid, fit_indices)
@@ -111,14 +111,14 @@ def train_full_model(model: Any, grid: Any, fit_indices: np.ndarray, calibration
     best_state, best_mae, stale = None, float("inf"), 0
     for epoch in range(1, max_epochs + 1):
         model.train()
-        for batch in __import__("scripts.run_puc_rstattn_v2", fromlist=["_batch_indices"])._batch_indices(len(fit_ds), BATCH_SIZE):
+        for batch in __import__("scripts.run_puc_rstattn_v2", fromlist=["_batch_indices"])._batch_indices(len(fit_ds), batch_size):
             x, y = __import__("scripts.run_puc_rstattn_v2", fromlist=["_to_batch"])._to_batch(fit_ds, scaler, batch)
             optimizer.zero_grad(set_to_none=True)
             final, _, details = model(torch.from_numpy(x).to(device), return_details=True)
             target = torch.from_numpy(y).to(device)
             loss = masked_scaled_mae(final, target, mask) + ANCHOR_WEIGHT * masked_scaled_mae(details["y_gru"], target, mask)
             loss.backward(); optimizer.step()
-        calibration = _evaluate(model, grid, calibration_indices, scaler, device)
+        calibration = _evaluate(model, grid, calibration_indices, scaler, device, batch_size=batch_size)
         current = calibration["node_macro"]["mae"]
         if current < best_mae:
             best_mae = current; best_state = {key: value.detach().cpu().clone() for key, value in model.state_dict().items()}; stale = 0

@@ -108,11 +108,11 @@ def transfer_temporal_parameters(target: Any, donor: Any) -> tuple[str, ...]:
     return names
 
 
-def _evaluate(model: Any, grid: Any, indices: np.ndarray, scaler: Any, device: Any, history_start_index: int | None = None) -> dict[str, Any]:
+def _evaluate(model: Any, grid: Any, indices: np.ndarray, scaler: Any, device: Any, history_start_index: int | None = None, batch_size: int = BATCH_SIZE) -> dict[str, Any]:
     import torch
     dataset = IndexDataset(grid, indices, history_start_index); predictions, actual = [], []; model.eval()
     with torch.no_grad():
-        for batch in _batch_indices(len(dataset), BATCH_SIZE):
+        for batch in _batch_indices(len(dataset), batch_size):
             x, y = _to_batch(dataset, scaler, batch); predictions.append(scaler.inverse_transform_target(model(torch.from_numpy(x).to(device)).cpu().numpy())); actual.append(scaler.inverse_transform_target(y))
     return evaluate_validation(np.concatenate(actual), np.concatenate(predictions), grid.load_bus_mask)
 
@@ -123,16 +123,16 @@ def make_proxy(grid: Any, seed: int = SEED) -> Any:
     return PUCRSTAttnV2Ablation("temporal_residual_only", grid.num_nodes, np.empty((2, 0), dtype=np.int64), np.empty((0, 3), dtype=np.float32), grid.load_bus_mask, np.empty(0, dtype=np.float32))
 
 
-def train_proxy(grid: Any, fit_indices: np.ndarray, calibration_indices: np.ndarray, scaler: Any, initial_state: Mapping[str, Any] | None = None, device: str = "cpu", max_epochs: int = MAX_EPOCHS, patience: int = PATIENCE, history_start_index: int | None = None) -> tuple[Any, dict[str, Any]]:
+def train_proxy(grid: Any, fit_indices: np.ndarray, calibration_indices: np.ndarray, scaler: Any, initial_state: Mapping[str, Any] | None = None, device: str = "cpu", max_epochs: int = MAX_EPOCHS, patience: int = PATIENCE, history_start_index: int | None = None, batch_size: int = BATCH_SIZE) -> tuple[Any, dict[str, Any]]:
     import torch
     model = make_proxy(grid).to(device)
     if initial_state is not None: model.load_state_dict(copy.deepcopy(initial_state))
     fit_ds = IndexDataset(grid, fit_indices, history_start_index); optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE); load_mask = torch.as_tensor(grid.load_bus_mask, dtype=torch.bool, device=device); best_state, best_mae, stale = None, float("inf"), 0
     for epoch in range(1, max_epochs + 1):
         model.train()
-        for batch in _batch_indices(len(fit_ds), BATCH_SIZE):
+        for batch in _batch_indices(len(fit_ds), batch_size):
             x, y = _to_batch(fit_ds, scaler, batch); optimizer.zero_grad(set_to_none=True); final, _, details = model(torch.from_numpy(x).to(device), return_details=True); target = torch.from_numpy(y).to(device); loss = masked_scaled_mae(final, target, load_mask) + ANCHOR_WEIGHT * masked_scaled_mae(details["y_gru"], target, load_mask); loss.backward(); optimizer.step()
-        current = _evaluate(model, grid, calibration_indices, scaler, device, history_start_index)["node_macro"]["mae"]
+        current = _evaluate(model, grid, calibration_indices, scaler, device, history_start_index, batch_size)["node_macro"]["mae"]
         if current < best_mae: best_mae = current; best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}; stale = 0
         else:
             stale += 1
