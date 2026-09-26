@@ -1,0 +1,724 @@
+{
+  "experiment": "btd_full_backbone_bridge_25pct",
+  "client_grid_names": [
+    "39_bus_semi_urban_reference_grid",
+    "50_bus_rural_reference_grid",
+    "56_bus_semi_urban_reference_grid",
+    "80_bus_rural_reference_grid"
+  ],
+  "selected_donors": {
+    "39_bus_semi_urban_reference_grid": "56_bus_semi_urban_reference_grid",
+    "50_bus_rural_reference_grid": "39_bus_semi_urban_reference_grid",
+    "56_bus_semi_urban_reference_grid": "39_bus_semi_urban_reference_grid",
+    "80_bus_rural_reference_grid": "50_bus_rural_reference_grid"
+  },
+  "per_target": {
+    "39_bus_semi_urban_reference_grid": {
+      "selected_donor": "56_bus_semi_urban_reference_grid",
+      "graph_metadata": {
+        "graph_fit_target_count": 546,
+        "graph_selection_target_count": 273,
+        "graph_uses_target_fit_only": true,
+        "graph_uses_calibration": false,
+        "graph_uses_audit": false,
+        "graph_uses_validation": false,
+        "graph_uses_test": false,
+        "selected_edge_count": 84,
+        "targets_with_selected_neighbors": {
+          "0": 0,
+          "1": 0,
+          "2": 0,
+          "3": 28
+        },
+        "graph_fit_first_target_index": 4767,
+        "graph_fit_last_target_index": 5312,
+        "graph_selection_first_target_index": 5313,
+        "graph_selection_last_target_index": 5585,
+        "graph_top_k": 3,
+        "graph_positive_only": true
+      },
+      "local_proxy_training": {
+        "best_calibration_node_mae": 0.00038055610368603127,
+        "epochs_run": 50
+      },
+      "selected_transfer_proxy_training": {
+        "best_calibration_node_mae": 0.00035542076022964747,
+        "epochs_run": 32
+      },
+      "variants": {
+        "full_from_scratch": {
+          "audit": {
+            "node_macro": {
+              "mae": 0.0003742209150438334,
+              "rmse": 0.000553881483011224,
+              "wape_pct": 35.10493893235832,
+              "smape_pct": 35.107169279166534
+            },
+            "grid_aggregate": {
+              "mae": 0.004481939023073558,
+              "rmse": 0.005269612109153196,
+              "wape_pct": 14.165248233553763,
+              "smape_pct": 14.87136794947029
+            },
+            "node_count": 28,
+            "sample_count": 273
+          },
+          "validation": {
+            "node_macro": {
+              "mae": 0.0004202183401253333,
+              "rmse": 0.0006097018986364109,
+              "wape_pct": 30.513489558117076,
+              "smape_pct": 30.64765653515389
+            },
+            "grid_aggregate": {
+              "mae": 0.005457906090367168,
+              "rmse": 0.006511738712696245,
+              "wape_pct": 13.470858893528268,
+              "smape_pct": 14.060052366668849
+            },
+            "node_count": 28,
+            "sample_count": 1314
+          }
+        },
+        "local_proxy_warmstart_full": {
+          "audit": {
+            "node_macro": {
+              "mae": 0.00037218055329563035,
+              "rmse": 0.0005535416413230704,
+              "wape_pct": 34.96029817704562,
+              "smape_pct": 34.869407779176605
+            },
+            "grid_aggregate": {
+              "mae": 0.004376564433179493,
+              "rmse": 0.005158387163562791,
+              "wape_pct": 13.832209962467527,
+              "smape_pct": 14.69788132167944
+            },
+            "node_count": 28,
+            "sample_count": 273
+          },
+          "validation": {
+            "node_macro": {
+              "mae": 0.0004161434798587118,
+              "rmse": 0.0006027288829380232,
+              "wape_pct": 30.2700563003578,
+              "smape_pct": 30.390506252056475
+            },
+            "grid_aggregate": {
+              "mae": 0.005057220461334019,
+              "rmse": 0.006030850633960515,
+              "wape_pct": 12.481911945742464,
+              "smape_pct": 13.295364453845595
+            },
+            "node_count": 28,
+            "sample_count": 1314
+          }
+        },
+        "selected_transfer_proxy_warmstart_full": {
+          "audit": {
+            "node_macro": {
+              "mae": 0.0003500489717499141,
+              "rmse": 0.0005184778199607015,
+              "wape_pct": 32.75078556384186,
+              "smape_pct": 32.517426637664315
+            },
+            "grid_aggregate": {
+              "mae": 0.0036148764484528004,
+              "rmse": 0.004404994250049557,
+              "wape_pct": 11.424881499357415,
+              "smape_pct": 11.678172605890072
+            },
+            "node_count": 28,
+            "sample_count": 273
+          },
+          "validation": {
+            "node_macro": {
+              "mae": 0.0003900585192441732,
+              "rmse": 0.0005678359143751753,
+              "wape_pct": 28.020898861212086,
+              "smape_pct": 28.02847585566965
+            },
+            "grid_aggregate": {
+              "mae": 0.004019164012414558,
+              "rmse": 0.005033270725767946,
+              "wape_pct": 9.919846619702675,
+              "smape_pct": 10.202297654706992
+            },
+            "node_count": 28,
+            "sample_count": 1314
+          }
+        }
+      },
+      "transfer_vs_local_warmstart_relative_improvement": {
+        "audit": 0.059464636962566035,
+        "validation": 0.06268261264290936
+      }
+    },
+    "50_bus_rural_reference_grid": {
+      "selected_donor": "39_bus_semi_urban_reference_grid",
+      "graph_metadata": {
+        "graph_fit_target_count": 546,
+        "graph_selection_target_count": 273,
+        "graph_uses_target_fit_only": true,
+        "graph_uses_calibration": false,
+        "graph_uses_audit": false,
+        "graph_uses_validation": false,
+        "graph_uses_test": false,
+        "selected_edge_count": 60,
+        "targets_with_selected_neighbors": {
+          "0": 0,
+          "1": 0,
+          "2": 3,
+          "3": 18
+        },
+        "graph_fit_first_target_index": 4767,
+        "graph_fit_last_target_index": 5312,
+        "graph_selection_first_target_index": 5313,
+        "graph_selection_last_target_index": 5585,
+        "graph_top_k": 3,
+        "graph_positive_only": true
+      },
+      "local_proxy_training": {
+        "best_calibration_node_mae": 0.00028117936967794586,
+        "epochs_run": 50
+      },
+      "selected_transfer_proxy_training": {
+        "best_calibration_node_mae": 0.0002657743783674232,
+        "epochs_run": 19
+      },
+      "variants": {
+        "full_from_scratch": {
+          "audit": {
+            "node_macro": {
+              "mae": 0.00031751762781105343,
+              "rmse": 0.0004631866951039634,
+              "wape_pct": 41.635920177544094,
+              "smape_pct": 41.744624785930995
+            },
+            "grid_aggregate": {
+              "mae": 0.0026350467063555906,
+              "rmse": 0.0035155301720016367,
+              "wape_pct": 8.741272616896639,
+              "smape_pct": 8.830044109820115
+            },
+            "node_count": 21,
+            "sample_count": 273
+          },
+          "validation": {
+            "node_macro": {
+              "mae": 0.0004225137784707211,
+              "rmse": 0.00059865522855767,
+              "wape_pct": 34.43597324944844,
+              "smape_pct": 35.83325481287855
+            },
+            "grid_aggregate": {
+              "mae": 0.004233912220849515,
+              "rmse": 0.0050796861851317016,
+              "wape_pct": 10.980574454707538,
+              "smape_pct": 11.356374335237533
+            },
+            "node_count": 21,
+            "sample_count": 1314
+          }
+        },
+        "local_proxy_warmstart_full": {
+          "audit": {
+            "node_macro": {
+              "mae": 0.00030691820725780027,
+              "rmse": 0.0004542698603220168,
+              "wape_pct": 39.81527690103795,
+              "smape_pct": 39.06274067699839
+            },
+            "grid_aggregate": {
+              "mae": 0.002696488198604193,
+              "rmse": 0.0035818696960521687,
+              "wape_pct": 8.94509322942642,
+              "smape_pct": 9.063281963303819
+            },
+            "node_count": 21,
+            "sample_count": 273
+          },
+          "validation": {
+            "node_macro": {
+              "mae": 0.0003858818414416957,
+              "rmse": 0.0005711640852203378,
+              "wape_pct": 33.25667428493717,
+              "smape_pct": 34.58977570188262
+            },
+            "grid_aggregate": {
+              "mae": 0.004169170294336784,
+              "rmse": 0.00506854965388769,
+              "wape_pct": 10.812667444044095,
+              "smape_pct": 11.122902146944783
+            },
+            "node_count": 21,
+            "sample_count": 1314
+          }
+        },
+        "selected_transfer_proxy_warmstart_full": {
+          "audit": {
+            "node_macro": {
+              "mae": 0.00029251919518283196,
+              "rmse": 0.0004363156416364088,
+              "wape_pct": 38.70359337732636,
+              "smape_pct": 38.4580695099432
+            },
+            "grid_aggregate": {
+              "mae": 0.002445879536683625,
+              "rmse": 0.003273464001539774,
+              "wape_pct": 8.113746054926752,
+              "smape_pct": 8.174629392081268
+            },
+            "node_count": 21,
+            "sample_count": 273
+          },
+          "validation": {
+            "node_macro": {
+              "mae": 0.0003362939684515695,
+              "rmse": 0.0005184771701823063,
+              "wape_pct": 30.093782037859725,
+              "smape_pct": 31.591870135936286
+            },
+            "grid_aggregate": {
+              "mae": 0.0030639161013656375,
+              "rmse": 0.003924579524586568,
+              "wape_pct": 7.946210766569035,
+              "smape_pct": 8.055883458716043
+            },
+            "node_count": 21,
+            "sample_count": 1314
+          }
+        }
+      },
+      "transfer_vs_local_warmstart_relative_improvement": {
+        "audit": 0.04691481863100693,
+        "validation": 0.12850532866836975
+      }
+    },
+    "56_bus_semi_urban_reference_grid": {
+      "selected_donor": "39_bus_semi_urban_reference_grid",
+      "graph_metadata": {
+        "graph_fit_target_count": 546,
+        "graph_selection_target_count": 273,
+        "graph_uses_target_fit_only": true,
+        "graph_uses_calibration": false,
+        "graph_uses_audit": false,
+        "graph_uses_validation": false,
+        "graph_uses_test": false,
+        "selected_edge_count": 132,
+        "targets_with_selected_neighbors": {
+          "0": 0,
+          "1": 0,
+          "2": 0,
+          "3": 44
+        },
+        "graph_fit_first_target_index": 4767,
+        "graph_fit_last_target_index": 5312,
+        "graph_selection_first_target_index": 5313,
+        "graph_selection_last_target_index": 5585,
+        "graph_top_k": 3,
+        "graph_positive_only": true
+      },
+      "local_proxy_training": {
+        "best_calibration_node_mae": 0.0004221832067851416,
+        "epochs_run": 50
+      },
+      "selected_transfer_proxy_training": {
+        "best_calibration_node_mae": 0.0004009307387912768,
+        "epochs_run": 42
+      },
+      "variants": {
+        "full_from_scratch": {
+          "audit": {
+            "node_macro": {
+              "mae": 0.00042252315925646826,
+              "rmse": 0.0006049915986313098,
+              "wape_pct": 34.626877237734206,
+              "smape_pct": 35.39344129780339
+            },
+            "grid_aggregate": {
+              "mae": 0.007181108048916261,
+              "rmse": 0.008417236345382018,
+              "wape_pct": 12.19457006483489,
+              "smape_pct": 12.797678295058256
+            },
+            "node_count": 44,
+            "sample_count": 273
+          },
+          "validation": {
+            "node_macro": {
+              "mae": 0.0004689259425593359,
+              "rmse": 0.000656740560108303,
+              "wape_pct": 27.218843551116912,
+              "smape_pct": 28.62115413327401
+            },
+            "grid_aggregate": {
+              "mae": 0.008171100235157013,
+              "rmse": 0.009654951538409846,
+              "wape_pct": 10.256544352944056,
+              "smape_pct": 10.80484577374238
+            },
+            "node_count": 44,
+            "sample_count": 1314
+          }
+        },
+        "local_proxy_warmstart_full": {
+          "audit": {
+            "node_macro": {
+              "mae": 0.0004177118929162801,
+              "rmse": 0.0005978120832824725,
+              "wape_pct": 34.25820196350591,
+              "smape_pct": 34.95446359516858
+            },
+            "grid_aggregate": {
+              "mae": 0.0067210559418999435,
+              "rmse": 0.007838555866091673,
+              "wape_pct": 11.413334409519543,
+              "smape_pct": 12.049818803172904
+            },
+            "node_count": 44,
+            "sample_count": 273
+          },
+          "validation": {
+            "node_macro": {
+              "mae": 0.0004704523234823898,
+              "rmse": 0.0006511525058828072,
+              "wape_pct": 27.113859720132517,
+              "smape_pct": 28.497905303483186
+            },
+            "grid_aggregate": {
+              "mae": 0.007196732014113125,
+              "rmse": 0.008622669487691808,
+              "wape_pct": 9.033495976638855,
+              "smape_pct": 9.758374801984411
+            },
+            "node_count": 44,
+            "sample_count": 1314
+          }
+        },
+        "selected_transfer_proxy_warmstart_full": {
+          "audit": {
+            "node_macro": {
+              "mae": 0.0004048651947032033,
+              "rmse": 0.0005848883408267091,
+              "wape_pct": 33.10251532559619,
+              "smape_pct": 33.48676044394108
+            },
+            "grid_aggregate": {
+              "mae": 0.006421088207407434,
+              "rmse": 0.007659053637776716,
+              "wape_pct": 10.90394539454563,
+              "smape_pct": 11.262171723463986
+            },
+            "node_count": 44,
+            "sample_count": 273
+          },
+          "validation": {
+            "node_macro": {
+              "mae": 0.00044675060907962744,
+              "rmse": 0.0006350091135359162,
+              "wape_pct": 25.890036517723562,
+              "smape_pct": 27.078016231725915
+            },
+            "grid_aggregate": {
+              "mae": 0.007665610055938351,
+              "rmse": 0.00903741375652706,
+              "wape_pct": 9.622041985585174,
+              "smape_pct": 10.06126573384404
+            },
+            "node_count": 44,
+            "sample_count": 1314
+          }
+        }
+      },
+      "transfer_vs_local_warmstart_relative_improvement": {
+        "audit": 0.030754925584311046,
+        "validation": 0.05038069357790915
+      }
+    },
+    "80_bus_rural_reference_grid": {
+      "selected_donor": "50_bus_rural_reference_grid",
+      "graph_metadata": {
+        "graph_fit_target_count": 546,
+        "graph_selection_target_count": 273,
+        "graph_uses_target_fit_only": true,
+        "graph_uses_calibration": false,
+        "graph_uses_audit": false,
+        "graph_uses_validation": false,
+        "graph_uses_test": false,
+        "selected_edge_count": 95,
+        "targets_with_selected_neighbors": {
+          "0": 0,
+          "1": 0,
+          "2": 1,
+          "3": 31
+        },
+        "graph_fit_first_target_index": 4767,
+        "graph_fit_last_target_index": 5312,
+        "graph_selection_first_target_index": 5313,
+        "graph_selection_last_target_index": 5585,
+        "graph_top_k": 3,
+        "graph_positive_only": true
+      },
+      "local_proxy_training": {
+        "best_calibration_node_mae": 0.00023322808421866284,
+        "epochs_run": 50
+      },
+      "selected_transfer_proxy_training": {
+        "best_calibration_node_mae": 0.00021835821788874008,
+        "epochs_run": 43
+      },
+      "variants": {
+        "full_from_scratch": {
+          "audit": {
+            "node_macro": {
+              "mae": 0.00022470227806483322,
+              "rmse": 0.00037660636659961084,
+              "wape_pct": 49.02043555945677,
+              "smape_pct": 50.24415572365755
+            },
+            "grid_aggregate": {
+              "mae": 0.0030365660196260296,
+              "rmse": 0.003832411065287406,
+              "wape_pct": 15.850111080482776,
+              "smape_pct": 17.24298821649797
+            },
+            "node_count": 32,
+            "sample_count": 273
+          },
+          "validation": {
+            "node_macro": {
+              "mae": 0.0002191621223730084,
+              "rmse": 0.0003727529765964351,
+              "wape_pct": 65.05879748052124,
+              "smape_pct": 57.91590944283684
+            },
+            "grid_aggregate": {
+              "mae": 0.0027408782886745205,
+              "rmse": 0.0035243367857591373,
+              "wape_pct": 11.342812655856124,
+              "smape_pct": 11.986811808938509
+            },
+            "node_count": 32,
+            "sample_count": 1314
+          }
+        },
+        "local_proxy_warmstart_full": {
+          "audit": {
+            "node_macro": {
+              "mae": 0.0002113730772615241,
+              "rmse": 0.0003702722454640298,
+              "wape_pct": 44.00125838621476,
+              "smape_pct": 41.1071290411453
+            },
+            "grid_aggregate": {
+              "mae": 0.0030137242395657012,
+              "rmse": 0.0038664263535563848,
+              "wape_pct": 15.730882732114196,
+              "smape_pct": 17.076367074785008
+            },
+            "node_count": 32,
+            "sample_count": 273
+          },
+          "validation": {
+            "node_macro": {
+              "mae": 0.00021170619912512883,
+              "rmse": 0.00037213355776349877,
+              "wape_pct": 61.61483534519374,
+              "smape_pct": 52.502793649348206
+            },
+            "grid_aggregate": {
+              "mae": 0.0028725537738799865,
+              "rmse": 0.003614028163922419,
+              "wape_pct": 11.887736655665265,
+              "smape_pct": 12.525455296718738
+            },
+            "node_count": 32,
+            "sample_count": 1314
+          }
+        },
+        "selected_transfer_proxy_warmstart_full": {
+          "audit": {
+            "node_macro": {
+              "mae": 0.00020613526251413823,
+              "rmse": 0.00036099880330073774,
+              "wape_pct": 39.66703740240963,
+              "smape_pct": 37.65381870300679
+            },
+            "grid_aggregate": {
+              "mae": 0.0029719122968931352,
+              "rmse": 0.0037236206479505218,
+              "wape_pct": 15.512634904941129,
+              "smape_pct": 16.788513992893435
+            },
+            "node_count": 32,
+            "sample_count": 273
+          },
+          "validation": {
+            "node_macro": {
+              "mae": 0.00020617450601818026,
+              "rmse": 0.00036539012184813753,
+              "wape_pct": 40.88963027509736,
+              "smape_pct": 46.38455487639418
+            },
+            "grid_aggregate": {
+              "mae": 0.003004009187145785,
+              "rmse": 0.00370668069145881,
+              "wape_pct": 12.431749912814738,
+              "smape_pct": 13.23151067070378
+            },
+            "node_count": 32,
+            "sample_count": 1314
+          }
+        }
+      },
+      "transfer_vs_local_warmstart_relative_improvement": {
+        "audit": 0.024779952066106198,
+        "validation": 0.026129102991216437
+      }
+    }
+  },
+  "donor_proxy_metadata_by_grid": {
+    "39_bus_semi_urban_reference_grid": {
+      "donor_fit_target_count": 4771,
+      "donor_calibration_target_count": 1193,
+      "scaler_fit_start_index": 0,
+      "scaler_fit_end_index": 4939,
+      "scaler_fit_timestamp_end": "2021-07-25 18:00:00",
+      "best_calibration_node_mae": 0.000352376147300724,
+      "epochs_run": 50
+    },
+    "50_bus_rural_reference_grid": {
+      "donor_fit_target_count": 4771,
+      "donor_calibration_target_count": 1193,
+      "scaler_fit_start_index": 0,
+      "scaler_fit_end_index": 4939,
+      "scaler_fit_timestamp_end": "2021-07-25 18:00:00",
+      "best_calibration_node_mae": 0.0002918288797579991,
+      "epochs_run": 50
+    },
+    "56_bus_semi_urban_reference_grid": {
+      "donor_fit_target_count": 4771,
+      "donor_calibration_target_count": 1193,
+      "scaler_fit_start_index": 0,
+      "scaler_fit_end_index": 4939,
+      "scaler_fit_timestamp_end": "2021-07-25 18:00:00",
+      "best_calibration_node_mae": 0.0003941802250528741,
+      "epochs_run": 50
+    }
+  },
+  "four_grid_macro": {
+    "audit": {
+      "full_from_scratch": {
+        "node_macro": {
+          "mae": 0.0003347409950440471,
+          "rmse": 0.000499666535836527,
+          "wape_pct": 40.09704297677335,
+          "smape_pct": 40.62234777163962
+        },
+        "grid_aggregate": {
+          "mae": 0.00433366494949286,
+          "rmse": 0.005258697422956064,
+          "wape_pct": 12.737800498942017,
+          "smape_pct": 13.435519642711657
+        }
+      },
+      "local_proxy_warmstart_full": {
+        "node_macro": {
+          "mae": 0.00032704593268280874,
+          "rmse": 0.0004939739575978973,
+          "wape_pct": 38.25875885695106,
+          "smape_pct": 37.49843527312222
+        },
+        "grid_aggregate": {
+          "mae": 0.004201958203312333,
+          "rmse": 0.005111309769815754,
+          "wape_pct": 12.48038008338192,
+          "smape_pct": 13.221837290735294
+        }
+      },
+      "selected_transfer_proxy_warmstart_full": {
+        "node_macro": {
+          "mae": 0.0003133921560375219,
+          "rmse": 0.0004751701514311393,
+          "wape_pct": 36.055982917293505,
+          "smape_pct": 35.52901882363885
+        },
+        "grid_aggregate": {
+          "mae": 0.0038634391223592484,
+          "rmse": 0.004765283134329142,
+          "wape_pct": 11.488801963442732,
+          "smape_pct": 11.97587192858219
+        }
+      },
+      "transfer_vs_local_relative_improvement": 0.041748804186414995
+    },
+    "validation": {
+      "full_from_scratch": {
+        "node_macro": {
+          "mae": 0.00038270504588209966,
+          "rmse": 0.0005594626659747048,
+          "wape_pct": 39.306775959800916,
+          "smape_pct": 38.25449373103582
+        },
+        "grid_aggregate": {
+          "mae": 0.005150949208762054,
+          "rmse": 0.006192678305499233,
+          "wape_pct": 11.512697589258996,
+          "smape_pct": 12.052021071146818
+        }
+      },
+      "local_proxy_warmstart_full": {
+        "node_macro": {
+          "mae": 0.00037104596097698155,
+          "rmse": 0.0005492947579511668,
+          "wape_pct": 38.063856412655305,
+          "smape_pct": 36.495245226692624
+        },
+        "grid_aggregate": {
+          "mae": 0.004823919135915979,
+          "rmse": 0.005834024484865609,
+          "wape_pct": 11.05395300552267,
+          "smape_pct": 11.675524174873383
+        }
+      },
+      "selected_transfer_proxy_warmstart_full": {
+        "node_macro": {
+          "mae": 0.0003448194006983876,
+          "rmse": 0.0005216780799853839,
+          "wape_pct": 31.223586922973183,
+          "smape_pct": 33.27072927493151
+        },
+        "grid_aggregate": {
+          "mae": 0.004438174839216083,
+          "rmse": 0.005425486174585097,
+          "wape_pct": 9.979962321167905,
+          "smape_pct": 10.387739379492714
+        }
+      },
+      "transfer_vs_local_relative_improvement": 0.0706827804804973
+    }
+  },
+  "targets_improved_on_audit": 4,
+  "targets_improved_on_validation": 4,
+  "audit_improved_targets": [
+    "39_bus_semi_urban_reference_grid",
+    "50_bus_rural_reference_grid",
+    "56_bus_semi_urban_reference_grid",
+    "80_bus_rural_reference_grid"
+  ],
+  "validation_improved_targets": [
+    "39_bus_semi_urban_reference_grid",
+    "50_bus_rural_reference_grid",
+    "56_bus_semi_urban_reference_grid",
+    "80_bus_rural_reference_grid"
+  ],
+  "validation_used_for_selection": false,
+  "audit_used_for_selection": false,
+  "test_evaluated": false,
+  "supportive_criteria": {
+    "audit_macro_transfer_beats_local": true,
+    "validation_macro_transfer_beats_local": true,
+    "at_least_three_audit_targets_improved": true
+  }
+}
