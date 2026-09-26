@@ -90,9 +90,9 @@ def run_audit(data_root, mapping_json, device='cpu', synthetic=False, max_epochs
     # Stage B: reconstruct frozen CPU states only after every target's donor selection.
     for target in names:
         grid = grids[target]; split = scarce_split(grid); scaler = fit_fit_only_scaler(grid, split.fit_indices, split.available_start); val_idx = np.arange(grid.splits["validation"].start_index, grid.splits["validation"].end_index, dtype=np.int64)
-        local_eval = make_proxy(grid); local_eval.load_state_dict(local[target]["state_dict"]); local[target]["validation"] = _evaluate(local_eval, grid, val_idx, scaler, device); del local_eval
+        local_eval = make_proxy(grid).to(device); local_eval.load_state_dict(local[target]["state_dict"]); local[target]["validation"] = _evaluate(local_eval, grid, val_idx, scaler, device); del local_eval
         for donor in transfers[target]:
-            model = make_proxy(grid); model.load_state_dict(transfers[target][donor]["state_dict"]); transfers[target][donor]["validation"] = _evaluate(model, grid, val_idx, scaler, device); vb[target][donor] = benefit(local[target]["validation"]["node_macro"]["mae"], transfers[target][donor]["validation"]["node_macro"]["mae"]); del model
+            model = make_proxy(grid).to(device); model.load_state_dict(transfers[target][donor]["state_dict"]); transfers[target][donor]["validation"] = _evaluate(model, grid, val_idx, scaler, device); vb[target][donor] = benefit(local[target]["validation"]["node_macro"]["mae"], transfers[target][donor]["validation"]["node_macro"]["mae"]); del model
         donor = selected[target]["selected_donor"]; selected[target]["selected_validation_benefit"] = 0.0 if donor is None else vb[target][donor]; selected[target]["local_audit_metrics"] = local[target]["audit"]; selected[target]["selected_audit_metrics"] = local[target]["audit"] if donor is None else transfers[target][donor]["audit"]; selected[target]["local_validation_metrics"] = local[target]["validation"]; selected[target]["selected_validation_metrics"] = local[target]["validation"] if donor is None else transfers[target][donor]["validation"]
         selected[target]["audit_relative_improvement"] = _relative(selected[target]["local_audit_metrics"], selected[target]["selected_audit_metrics"]); selected[target]["validation_relative_improvement"] = _relative(selected[target]["local_validation_metrics"], selected[target]["selected_validation_metrics"])
         if donor is None: selected[target]["selected_audit_benefit"] = selected[target]["selected_validation_benefit"] = 0.0
@@ -119,6 +119,11 @@ def render_markdown(report):
     for name in names:
         item = report["selected_policy"][name]
         lines.append(f"| {name} | {item['selected_donor'] or 'none'} | {item['selected_calibration_benefit']:.6g} | {item['selected_audit_benefit']:.6g} | {item['selected_validation_benefit']:.6g} | {item['zero_transfer_fallback']} |")
+    for title, local_key, selected_key, relative_key in (("Train Audit", "local_audit_metrics", "selected_audit_metrics", "audit_relative_improvement"), ("Canonical Validation", "local_validation_metrics", "selected_validation_metrics", "validation_relative_improvement")):
+        lines.extend(["", f"## Per-Target {title} Comparison", "", "| Target | Local node MAE | Selected-policy node MAE | Relative improvement |", "|---|---:|---:|---:|"])
+        for name in names:
+            item = report["selected_policy"][name]
+            lines.append(f"| {name} | {item[local_key]['node_macro']['mae']:.6g} | {item[selected_key]['node_macro']['mae']:.6g} | {item[relative_key]:.6g} |")
     for title, key in (("Train Audit", "train_audit"), ("Canonical Validation", "canonical_validation")):
         macro = report["four_grid_macro"][key]
         lines.extend(["", f"## {title} Macro Summary", "", "| Policy | Node MAE | Node RMSE | Node WAPE (%) | Node sMAPE (%) | Grid MAE | Grid RMSE | Grid WAPE (%) | Grid sMAPE (%) |", "|---|---:|---:|---:|---:|---:|---:|---:|---:|"])
