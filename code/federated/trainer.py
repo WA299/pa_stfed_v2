@@ -141,6 +141,7 @@ class FederatedTrainer:
         seed: int = 42,
         device: str = "cpu",
         algorithm: str = "standard",
+        evaluate_validation_during_training: bool = True,
     ) -> None:
         if mode not in SHARING_MODES:
             raise ValueError(f"unknown sharing mode: {mode}")
@@ -161,6 +162,7 @@ class FederatedTrainer:
         self.learning_rate = float(learning_rate)
         self.seed = int(seed)
         self.device = device
+        self.evaluate_validation_during_training = bool(evaluate_validation_during_training)
         self.client_order = tuple(client.grid_name for client in clients)
         self.groups = {
             client.grid_name: (
@@ -308,23 +310,25 @@ class FederatedTrainer:
                     self.weights,
                 )
 
-            client_validation = {
-                client.grid_name: _evaluate_client(client, self.batch_size, self.device)
-                for client in self.clients
+            round_record = {
+                "round": round_index,
+                "local_training": local_training,
+                "aggregation_weights": dict(self.weights),
+                "aggregated_parameter_names": aggregated_parameter_names,
+                "update_cosines": update_cosines,
             }
-            macro = _unweighted_macro(client_validation)
-            round_history.append(
-                {
-                    "round": round_index,
-                    "local_training": local_training,
-                    "aggregation_weights": dict(self.weights),
-                    "aggregated_parameter_names": aggregated_parameter_names,
+            if self.evaluate_validation_during_training:
+                client_validation = {
+                    client.grid_name: _evaluate_client(client, self.batch_size, self.device)
+                    for client in self.clients
+                }
+                macro = _unweighted_macro(client_validation)
+                round_record.update({
                     "validation": client_validation,
                     "four_grid_unweighted_macro": macro,
                     "primary_selection_metric": macro["node_macro"]["mae"],
-                    "update_cosines": update_cosines,
-                }
-            )
+                })
+            round_history.append(round_record)
 
         return {
             "experiment": "topology_heterogeneous_puc_rstattn_v2_conditional_utility_federated",
@@ -363,7 +367,12 @@ class FederatedTrainer:
             **({"fedprox_mu": FEDPROX_MU, "fedprox_mu_selection": "fixed_not_validation_optimized"}
                if self.algorithm == "fedprox" else {}),
             "local_sample_counts": dict(self.local_sample_counts),
-            "validation_used": True,
+            "validation_used": self.evaluate_validation_during_training,
+            "canonical_validation_evaluated_during_training": self.evaluate_validation_during_training,
+            "communication_round_selection": (
+                "validation_primary_metric" if self.evaluate_validation_during_training else "fixed_final_round"
+            ),
+            "validation_used_for_selection": False if not self.evaluate_validation_during_training else True,
             "test_evaluated": False,
             "graph_metadata_by_client": {
                 client.grid_name: {
@@ -380,8 +389,9 @@ class FederatedTrainer:
 def train_federated(
     clients: list[FederatedClient], mode: str, rounds: int = 2, local_epochs: int = 1,
     batch_size: int = 32, learning_rate: float = 1e-3, seed: int = 42, device: str = "cpu",
-    algorithm: str = "standard",
+    algorithm: str = "standard", evaluate_validation_during_training: bool = True,
 ) -> dict[str, Any]:
     return FederatedTrainer(
-        clients, mode, rounds, local_epochs, batch_size, learning_rate, seed, device, algorithm
+        clients, mode, rounds, local_epochs, batch_size, learning_rate, seed, device, algorithm,
+        evaluate_validation_during_training
     ).run()

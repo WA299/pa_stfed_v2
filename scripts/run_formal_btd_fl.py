@@ -71,6 +71,15 @@ def render_markdown(report: dict[str, Any]) -> str:
     for name in names:
         item = report["scenarios"][name]["metadata"]; graph = item["target_graph_metadata"]
         lines.append(f"| {name} | {', '.join(item['candidate_donors'])} | {item['selected_donor'] or 'none'} | {graph['graph_fit_target_count']} | {graph['graph_selection_target_count']} | {graph['selected_edge_count']} |")
+    lines += ["", "## Current-Run Calibration Benefits", "", "| Target \\ Donor | " + " | ".join(names) + " |", "|---|" + "---:|" * len(names)]
+    for target in names:
+        benefits = report["scenarios"][target]["metadata"].get("calibration_benefit_by_donor", {})
+        lines.append("| " + target + " | " + " | ".join("-" if donor == target else f"{benefits.get(donor, float('nan')):.6g}" for donor in names) + " |")
+    lines += ["", "## Scarce-Target Audit Node-MAE", "", "| Target | scarce_local | BTD-FL | Relative improvement |", "|---|---:|---:|---:|"]
+    for name in names:
+        methods = report["scenarios"][name]["methods"]
+        local = methods["scarce_local"]["audit"]["node_macro"]["mae"]; btd = methods["btd_fl"]["audit"]["node_macro"]["mae"]
+        lines.append(f"| {name} | {local:.6g} | {btd:.6g} | {(local-btd)/(local+1e-12):.6g} |")
     lines += ["", "## Guardrails", "", "validation_used_for_selection: false", "audit_used_for_selection: false", "test_evaluated: false"]
     return "\n".join(lines)
 
@@ -90,11 +99,13 @@ def main() -> None:
     args = parser.parse_args()
     grids = ({client.grid_name: _formal_grid_from_client(client) for client in build_synthetic_clients(42)}
              if args.synthetic_smoke else {name: LVGridLoader(args.data_root, args.mapping_json).load(name) for name in CLIENT_NAMES})
-    donors = load_selected_donors(args.audit_json)
-    selection_metadata = load_selection_metadata(args.audit_json)
+    # The historical audit is an optional reproducibility reference only. The
+    # formal runner trains/adapts/selects donors from current-run calibration.
+    donors = load_selected_donors(args.audit_json) if args.audit_json.exists() else None
     smoke_batch_size = 256 if args.synthetic_smoke else 32
-    report = run_formal_benchmark(grids, donors, args.device, args.rounds, args.local_epochs, args.max_epochs, args.btd_variant, smoke_batch_size, selection_metadata)
-    output = args.output_dir / "btd_fl_25pct_seed42.json"; markdown = args.output_dir / "btd_fl_25pct_seed42.md"; output.parent.mkdir(parents=True, exist_ok=True)
+    report = run_formal_benchmark(grids, donors, args.device, args.rounds, args.local_epochs, args.max_epochs, args.btd_variant, smoke_batch_size)
+    stem = "btd_fl_25pct_seed42" if args.btd_variant == "btd_fl" else f"{args.btd_variant}_25pct_seed42"
+    output = args.output_dir / f"{stem}.json"; markdown = args.output_dir / f"{stem}.md"; output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, indent=2, default=lambda value: value.tolist() if isinstance(value, np.ndarray) else value) + "\n", encoding="utf-8")
     markdown.write_text(render_markdown(report) + "\n", encoding="utf-8")
     print(f"wrote {output} and {markdown}")
