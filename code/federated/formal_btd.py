@@ -9,7 +9,7 @@ from typing import Any, Mapping
 import numpy as np
 
 from code.audits.btd_full_backbone_bridge import build_scarce_target_graph, full_model, inject_temporal_state, train_full_model
-from code.audits.federated_transfer_benefit import IndexDataset, _evaluate, donor_split, fit_fit_only_scaler, make_proxy, scarce_split, select_donor, train_proxy, benefit
+from code.audits.federated_transfer_benefit import IndexDataset, _evaluate, donor_split, fit_fit_only_scaler, make_proxy, scarce_split, train_proxy, benefit
 from code.data.forecast_dataset import ForecastFeatureScaler
 from code.federated.trainer import FederatedClient, FederatedTrainer
 from code.federated.parameter_groups import parameter_groups
@@ -17,6 +17,30 @@ from code.models.puc_rstattn_v2_conditional_utility import PUCRSTAttnV2Condition
 
 CLIENT_NAMES = ("39_bus_semi_urban_reference_grid", "50_bus_rural_reference_grid", "56_bus_semi_urban_reference_grid", "80_bus_rural_reference_grid")
 METHODS = ("scarce_local", "fedavg", "fedprox", "fedper", "btd_fl")
+
+
+def select_formal_donor(
+    calibration_benefits: Mapping[str, float], variant: str = "btd_fl"
+) -> tuple[str | None, float, bool, str]:
+    """Select a donor from current-run calibration benefits only.
+
+    This small pure helper is shared by the runner and focused contract tests,
+    making the zero-transfer and ablation semantics explicit.
+    """
+    if not calibration_benefits:
+        return None, 0.0, variant == "btd_fl", "maximum_current_calibration_benefit_with_zero_transfer"
+    maximum_donor, maximum_benefit = max(
+        calibration_benefits.items(), key=lambda item: (float(item[1]), item[0])
+    )
+    maximum_benefit = float(maximum_benefit)
+    if variant == "btd_no_benefit_selection":
+        donor = sorted(calibration_benefits)[0]
+        return donor, float(calibration_benefits[donor]), False, "fixed_deterministic_no_benefit"
+    if variant == "btd_no_zero_transfer":
+        return maximum_donor, maximum_benefit, False, "maximum_current_calibration_benefit_no_zero_fallback"
+    if maximum_benefit <= 0.0:
+        return None, 0.0, True, "maximum_current_calibration_benefit_with_zero_transfer"
+    return maximum_donor, maximum_benefit, False, "maximum_current_calibration_benefit_with_zero_transfer"
 
 
 def _indices(grid: Any) -> np.ndarray:
@@ -181,13 +205,7 @@ def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str |
             adapted_proxy = make_proxy(grid); adapted_proxy.load_state_dict(adapted_state); adapted_mae = float(adaptation_training["best_calibration_node_mae"]); del adapted_proxy
             calibration_benefits[donor] = benefit(local_calibration_mae, adapted_mae)
             adapted_by_donor[donor] = {"state": adapted_state, "calibration_node_mae": adapted_mae, "training": {"donor": donor, "source": "current_formal_run_donor_proxy", **adaptation_training}}
-        max_donor, max_benefit = max(calibration_benefits.items(), key=lambda item: (item[1], item[0]))
-        if btd_variant == "btd_no_benefit_selection":
-            selected_donor = sorted(calibration_benefits)[0]; selected_benefit = float(calibration_benefits[selected_donor]); fallback = False; selection_rule = "fixed_deterministic_no_benefit"
-        elif btd_variant == "btd_no_zero_transfer":
-            selected_donor, selected_benefit, fallback, selection_rule = max_donor, float(max_benefit), False, "maximum_current_calibration_benefit_no_zero_fallback"
-        else:
-            selected_donor, selected_benefit = select_donor(calibration_benefits); fallback = selected_donor is None; selection_rule = "maximum_current_calibration_benefit_with_zero_transfer"
+        selected_donor, selected_benefit, fallback, selection_rule = select_formal_donor(calibration_benefits, btd_variant)
 
         local_model = full_model(grid, graph, device); local_spatial = _spatial_buffer_snapshot(local_model); inject_temporal_state(local_model, {name: value for name, value in local_proxy_state.items() if name in parameter_groups(local_model)["temporal"]})
         local_state, local_full_training = train_full_model(local_model, grid, split.fit_indices, split.calibration_indices, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size); local_model.load_state_dict(local_state); local_metrics = _method_metrics(local_model, grid, split, scaler, device, batch_size)
@@ -235,7 +253,8 @@ def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str |
             "local_proxy_training": local_proxy_training,
             "selected_donor_proxy_training": donor_metadata.get(selected_donor),
             "selected_donor_target_adaptation_training": selected_adaptation["training"] if selected_adaptation else None,
-            "target_full_model_training": local_full_training,
+            "scarce_local_full_model_training": local_full_training,
+            "btd_target_full_model_training": btd_training["full"],
             "btd_training": btd_training,
             "federated": federated,
             "validation_used_for_selection": False,
@@ -252,4 +271,4 @@ def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str |
     return {"experiment": "formal_btd_fl_25pct_benchmark", "method_name": "BTD-FL", "btd_variant": btd_variant, "methods": list(METHODS), "client_grid_names": list(CLIENT_NAMES), "rounds": rounds, "local_epochs": local_epochs, "max_epochs": max_epochs, "batch_size": batch_size, "learning_rate": 1e-3, "seed": 42, "history_fraction": 0.25, "validation_used_for_selection": False, "audit_used_for_selection": False, "test_evaluated": False, "communication_round_selection": "fixed_final_round", "canonical_validation_evaluated_during_training": False, "donor_proxy_metadata_by_grid": donor_metadata, "donor_full_model_metadata_by_grid": donor_full_metadata, "scenarios": scenarios, "four_scenario_macro": macros, "relative_btd_fl_improvement_vs": relative, "btd_fl_win_counts": wins}
 
 
-__all__ = ["CLIENT_NAMES", "METHODS", "load_selected_donors", "load_selection_metadata", "prepare_scenario_clients", "run_formal_benchmark"]
+__all__ = ["CLIENT_NAMES", "METHODS", "load_selected_donors", "load_selection_metadata", "prepare_scenario_clients", "select_formal_donor", "run_formal_benchmark"]
