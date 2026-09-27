@@ -1,5 +1,6 @@
 import json
 import inspect
+import copy
 from pathlib import Path
 
 import pytest
@@ -12,6 +13,9 @@ from code.federated.formal_btd_ablations import (
 )
 import code.federated.formal_btd_ablations as ablations_module
 from scripts.run_formal_btd_ablations import render_markdown
+from scripts.run_formal_btd_ablations import _formal_grid_from_client
+from scripts.run_federated import build_synthetic_clients
+from code.federated.parameter_groups import TOPOLOGY_BUFFER_NAMES
 
 
 REFERENCE = Path("results/federated/formal_25pct/btd_fl_25pct_seed42.json")
@@ -78,3 +82,86 @@ def test_no_target_adaptation_contract_is_explicit():
     target_proxy_adaptation = {"performed": False, "steps": 0}
     assert target_proxy_adaptation["performed"] is False
     assert target_proxy_adaptation["steps"] == 0
+
+
+def test_variant_output_names_are_isolated_from_main_result():
+    stems = {
+        f"{variant}_25pct_seed42" for variant in ABLATIONS
+    }
+    assert "btd_fl_25pct_seed42" not in stems
+    assert len(stems) == 3
+
+
+@pytest.fixture(scope="module")
+def synthetic_ablation_grids():
+    return {
+        client.grid_name: _formal_grid_from_client(client)
+        for client in build_synthetic_clients(42)
+    }
+
+
+@pytest.fixture(scope="module")
+def synthetic_trainable_names():
+    client = build_synthetic_clients(42)[0]
+    return {
+        name for name, parameter in client.model.named_parameters()
+        if parameter.requires_grad
+    }
+
+
+def test_no_benefit_selection_real_runner(synthetic_ablation_grids):
+    from code.federated.formal_btd_ablations import run_ablation
+
+    reference = load_frozen_reference(REFERENCE)
+    altered = copy.deepcopy(reference)
+    for target in CLIENT_NAMES:
+        benefits = altered["scenarios"][target]["metadata"]["calibration_benefit_by_donor"]
+        altered_values = list(reversed(list(benefits.values())))
+        for donor, value in zip(benefits, altered_values):
+            benefits[donor] = value
+    report = run_ablation(
+        synthetic_ablation_grids, altered, "btd_no_benefit_selection",
+        device="cpu", max_epochs=1, batch_size=256,
+    )
+    for target in CLIENT_NAMES:
+        expected = sorted(name for name in CLIENT_NAMES if name != target)[0]
+        item = report["scenarios"][target]
+        assert item["donor_used"] == expected
+        assert item["selection_rule"] == "fixed_deterministic_no_benefit"
+
+
+def test_full_model_transfer_real_runner_uses_frozen_donors(synthetic_ablation_grids, synthetic_trainable_names):
+    from code.federated.formal_btd_ablations import run_ablation
+
+    reference = load_frozen_reference(REFERENCE)
+    frozen = _frozen_selected_donors(reference)
+    report = run_ablation(
+        synthetic_ablation_grids, reference, "btd_full_model_transfer",
+        device="cpu", max_epochs=1, batch_size=256,
+    )
+    assert report["donor_proxy_metadata_by_grid"] == {}
+    topology = set(TOPOLOGY_BUFFER_NAMES)
+    for target in CLIENT_NAMES:
+        item = report["scenarios"][target]
+        assert item["donor_used"] == frozen[target]
+        assert item["selected_donor_full_model_training"] is not None
+        assert item["transferred_parameter_names"]
+        assert not topology.intersection(item["transferred_parameter_names"])
+        assert set(item["transferred_parameter_names"]) == synthetic_trainable_names
+        assert item["target_graph_metadata"]["graph_uses_target_fit_only"] is True
+
+
+def test_no_target_adaptation_real_runner_has_zero_adaptation(synthetic_ablation_grids):
+    from code.federated.formal_btd_ablations import run_ablation
+
+    reference = load_frozen_reference(REFERENCE)
+    frozen = _frozen_selected_donors(reference)
+    report = run_ablation(
+        synthetic_ablation_grids, reference, "btd_no_target_adaptation",
+        device="cpu", max_epochs=1, batch_size=256,
+    )
+    for target in CLIENT_NAMES:
+        item = report["scenarios"][target]
+        assert item["donor_used"] == frozen[target]
+        assert item["target_proxy_adaptation"]["performed"] is False
+        assert item["target_proxy_adaptation"]["steps"] == 0

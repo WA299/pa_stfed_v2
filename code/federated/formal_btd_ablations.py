@@ -181,15 +181,20 @@ def run_ablation(
         raise ValueError(f"unknown ablation: {variant}")
     frozen = load_frozen_reference(reference)
     selected = _frozen_selected_donors(frozen)
-    if variant == "btd_no_benefit_selection":
+    if variant == "btd_full_model_transfer":
+        needed_temporal_donors = []
+    elif variant == "btd_no_benefit_selection":
         needed_temporal_donors = sorted(
             {sorted(name for name in CLIENT_NAMES if name != target)[0] for target in CLIENT_NAMES}
         )
     else:
         needed_temporal_donors = sorted(set(selected.values()))
-    temporal_states, donor_proxy_metadata = _train_donor_temporal_states(
-        grids, device, max_epochs, batch_size, needed_temporal_donors
-    )
+    if needed_temporal_donors:
+        temporal_states, donor_proxy_metadata = _train_donor_temporal_states(
+            grids, device, max_epochs, batch_size, needed_temporal_donors
+        )
+    else:
+        temporal_states, donor_proxy_metadata = {}, {}
     full_donor_states, full_donor_metadata = ({}, {})
     if variant == "btd_full_model_transfer":
         full_donor_states, full_donor_metadata = _train_selected_full_donor_states(
@@ -281,7 +286,7 @@ def run_ablation(
                 "fit_timestamp_end": scaler.fit_timestamp_end,
                 "fit_split": scaler.fit_split,
             },
-            "selected_donor_proxy_training": donor_proxy_metadata[donor],
+            "selected_donor_proxy_training": donor_proxy_metadata.get(donor),
             "selected_donor_full_model_training": full_donor_metadata.get(donor),
             "target_proxy_adaptation": target_proxy_adaptation,
             "target_full_model_training": full_training,
