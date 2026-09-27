@@ -20,7 +20,7 @@ SCOPES = ("node_macro", "grid_aggregate")
 SPLITS = ("audit", "validation")
 
 
-def _read(path: Path, seed: int) -> dict[str, Any]:
+def _read(path: Path, seed: int, *, artifact_type: str, methods: tuple[str, ...]) -> dict[str, Any]:
     if not path.exists():
         raise FileNotFoundError(f"required seed result is missing: {path}")
     report = json.loads(path.read_text(encoding="utf-8"))
@@ -28,6 +28,10 @@ def _read(path: Path, seed: int) -> dict[str, Any]:
         raise ValueError(f"seed metadata does not match filename: {path}")
     if report.get("test_evaluated") is not False:
         raise ValueError(f"test guardrail violated: {path}")
+    historical = seed == 42
+    if not historical:
+        if report.get("run_mode") != "real" or report.get("artifact_type") != artifact_type:
+            raise ValueError(f"non-historical artifact lacks the required real-run schema: {path}")
     for key in ("validation_used_for_selection", "audit_used_for_selection", "canonical_validation_evaluated_during_training"):
         if key in report and report[key] is not False:
             raise ValueError(f"selection/evaluation guardrail violated ({key}): {path}")
@@ -35,6 +39,8 @@ def _read(path: Path, seed: int) -> dict[str, Any]:
         raise ValueError(f"scenario set mismatch: {path}")
     if len(report.get("scenarios", {})) != 4 or set(report["scenarios"]) != set(TARGETS):
         raise ValueError(f"all four scarce scenarios are required: {path}")
+    if not historical and set(report.get("methods", ())) != set(methods):
+        raise ValueError(f"artifact {path} has an unexpected method set")
     return report
 
 
@@ -68,12 +74,15 @@ def _result_paths(root: Path, seed: int) -> dict[str, Path]:
 
 def _load_seed(root: Path, seed: int) -> dict[str, Any]:
     paths = _result_paths(root, seed)
-    baseline = _read(paths["baseline"], seed)
-    direct = _read(paths["btd_fl_direct_transfer"], seed)
-    fomo = _read(paths["fedfomo_style"], seed)
-    if baseline.get("btd_variant") != "btd_fl":
+    baseline_methods = ("scarce_local", "fedavg", "fedprox", "fedper") if seed != 42 else ("scarce_local", "fedavg", "fedprox", "fedper", "btd_fl")
+    baseline = _read(paths["baseline"], seed, artifact_type="formal_baselines", methods=baseline_methods)
+    direct = _read(paths["btd_fl_direct_transfer"], seed, artifact_type="btd_fl_direct_transfer", methods=("btd_fl_direct_transfer",))
+    fomo = _read(paths["fedfomo_style"], seed, artifact_type="fedfomo_style", methods=("fedfomo_style",))
+    if seed == 42 and baseline.get("btd_variant") != "btd_fl":
         raise ValueError(f"baseline artifact is not the accepted formal baseline: {paths['baseline']}")
-    if not set(("scarce_local", "fedavg", "fedprox", "fedper", "btd_fl")).issubset(set(baseline.get("methods", ()))):
+    if seed != 42 and baseline.get("artifact_type") != "formal_baselines":
+        raise ValueError(f"new-seed baseline artifact is not baseline-only: {paths['baseline']}")
+    if not set(("scarce_local", "fedavg", "fedprox", "fedper") + (("btd_fl",) if seed == 42 else ())).issubset(set(baseline.get("methods", ()) )):
         raise ValueError(f"formal baseline is missing an accepted method: {paths['baseline']}")
     if direct.get("btd_variant") != "btd_fl_direct_transfer":
         raise ValueError(f"direct-transfer artifact has wrong variant: {paths['btd_fl_direct_transfer']}")

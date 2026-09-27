@@ -49,8 +49,11 @@ def main() -> None:
             if not args.skip_btd:
                 _run([sys.executable, "scripts/run_btd_fl_direct_transfer.py", *common, "--max-epochs", str(args.max_epochs), "--batch-size", str(args.batch_size)])
             if not args.skip_fedfomo:
-                _run([sys.executable, "scripts/run_fedfomo_style.py", *common, "--rounds", str(args.rounds), "--local-epochs", str(args.local_epochs), "--batch-size", str(args.batch_size)])
-    if args.summarize or args.summarize_only:
+                baseline_name = f"formal_baselines_25pct_seed{seed}" + ("_synthetic_smoke" if args.synthetic_smoke else "") + ".json"
+                direct_name = f"btd_fl_direct_transfer_25pct_seed{seed}" + ("_synthetic_smoke" if args.synthetic_smoke else "") + ".json"
+                reference_dir = args.output_dir / "smoke" if args.synthetic_smoke else args.output_dir
+                _run([sys.executable, "scripts/run_fedfomo_style.py", *common, "--direct-transfer-json", str(reference_dir / direct_name), "--baseline-json", str(reference_dir / baseline_name), "--rounds", str(args.rounds), "--local-epochs", str(args.local_epochs), "--batch-size", str(args.batch_size)])
+    if (args.summarize or args.summarize_only) and not args.synthetic_smoke:
         _run([sys.executable, "scripts/summarize_multiseed_25pct.py", "--input-dir", str(args.output_dir)])
 
 

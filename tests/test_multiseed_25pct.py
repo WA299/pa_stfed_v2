@@ -1,5 +1,6 @@
 import json
 import shutil
+import inspect
 from pathlib import Path
 
 import numpy as np
@@ -12,6 +13,8 @@ from scripts.run_federated import build_synthetic_clients
 from scripts.run_fedfomo_style import _formal_grid_from_client
 from scripts.run_multiseed_25pct import DEFAULT_SEEDS
 from scripts.summarize_multiseed_25pct import METHODS, TARGETS, summarize
+from code.federated.result_validation import resumable_result
+from code.federated.formal_btd import run_formal_baselines
 
 
 def _metric(value: float) -> dict:
@@ -20,17 +23,17 @@ def _metric(value: float) -> dict:
 
 def _write_mock_results(root, seed: int, offset: float) -> None:
     baseline = {
-        "seed": seed, "btd_variant": "btd_fl", "methods": ["scarce_local", "fedavg", "fedprox", "fedper", "btd_fl"], "test_evaluated": False,
+        "seed": seed, "run_mode": "real", "artifact_type": "formal_baselines", "btd_variant": "btd_fl", "methods": ["scarce_local", "fedavg", "fedprox", "fedper"] if seed != 42 else ["scarce_local", "fedavg", "fedprox", "fedper", "btd_fl"], "test_evaluated": False,
         "client_grid_names": list(TARGETS),
         "scenarios": {target: {"methods": {name: _metric(offset + index + 1) for index, name in enumerate(("scarce_local", "fedavg", "fedprox", "fedper", "btd_fl"))}} for target in TARGETS},
     }
     direct = {
-        "seed": seed, "btd_variant": "btd_fl_direct_transfer", "test_evaluated": False,
+        "seed": seed, "run_mode": "real", "artifact_type": "btd_fl_direct_transfer", "methods": ["btd_fl_direct_transfer"], "btd_variant": "btd_fl_direct_transfer", "test_evaluated": False,
         "client_grid_names": list(TARGETS),
         "scenarios": {target: {"metrics": _metric(offset), "metadata": {"selected_donor": TARGETS[(index + 1) % len(TARGETS)], "selected_calibration_benefit": 0.1, "zero_transfer_fallback": False, "calibration_benefit_by_donor": {donor: 0.1 for donor in TARGETS if donor != target}}} for index, target in enumerate(TARGETS)},
     }
     fomo = {
-        "seed": seed, "method_name": "FedFomo-style", "test_evaluated": False,
+        "seed": seed, "run_mode": "real", "artifact_type": "fedfomo_style", "methods": ["fedfomo_style"], "method_name": "FedFomo-style", "test_evaluated": False,
         "client_grid_names": list(TARGETS),
         "scenarios": {target: {"scarce_target_metrics": _metric(offset + 2)} for target in TARGETS},
     }
@@ -90,3 +93,32 @@ def test_summary_requires_all_methods_and_scenarios():
     with pytest.raises(ValueError):
         summarize(root)
     shutil.rmtree(root, ignore_errors=True)
+
+
+def test_synthetic_and_protocol_mismatch_never_resume():
+    root = Path("tmp_resume_validation_fixture")
+    shutil.rmtree(root, ignore_errors=True)
+    root.mkdir(parents=True)
+    payload = {
+        "run_mode": "synthetic_smoke", "artifact_type": "formal_baselines", "seed": 123,
+        "history_fraction": 0.25, "rounds": 1, "local_epochs": 1,
+        "batch_size": 256, "learning_rate": 1e-3, "max_epochs": 1,
+        "patience": 8, "test_evaluated": False, "client_grid_names": list(TARGETS),
+        "methods": ["scarce_local", "fedavg", "fedprox", "fedper"],
+        "scenarios": {target: {} for target in TARGETS},
+    }
+    path = root / "formal_baselines_25pct_seed123.json"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    contract = dict(seed=123, artifact_type="formal_baselines", run_mode="real", methods=("scarce_local", "fedavg", "fedprox", "fedper"), rounds=10, local_epochs=5, batch_size=32, learning_rate=1e-3, max_epochs=50, patience=8)
+    assert resumable_result(path, **contract) is False
+    payload["run_mode"] = "real"; payload["rounds"] = 10; payload["local_epochs"] = 5; payload["batch_size"] = 32; payload["max_epochs"] = 50
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    assert resumable_result(path, **contract) is True
+    shutil.rmtree(root, ignore_errors=True)
+
+
+def test_baseline_only_entry_point_has_no_btd_training_calls():
+    source = inspect.getsource(run_formal_baselines)
+    assert "_train_full_donor_states" not in source
+    assert "select_formal_donor" not in source
+    assert "donor_split" not in source

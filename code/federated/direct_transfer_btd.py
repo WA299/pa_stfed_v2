@@ -203,6 +203,7 @@ def run_direct_transfer(
                 "zero_transfer_fallback": bool(fallback),
                 "selection_rule": selection_rule,
                 "selection_matches_previous_formal_run": selected == old_selected[target],
+                "matches_historical_seed42_selection": selected == old_selected[target],
                 "previous_formal_selected_donor": old_selected[target],
                 "raw_donor_temporal_source": (
                     donor_metadata[selected]["source"] if selected is not None else None

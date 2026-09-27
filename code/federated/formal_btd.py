@@ -18,6 +18,7 @@ from code.models.puc_rstattn_v2_conditional_utility import PUCRSTAttnV2Condition
 
 CLIENT_NAMES = ("39_bus_semi_urban_reference_grid", "50_bus_rural_reference_grid", "56_bus_semi_urban_reference_grid", "80_bus_rural_reference_grid")
 METHODS = ("scarce_local", "fedavg", "fedprox", "fedper", "btd_fl")
+BASELINE_METHODS = ("scarce_local", "fedavg", "fedprox", "fedper")
 
 
 def select_formal_donor(
@@ -273,4 +274,87 @@ def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str |
     return {"experiment": "formal_btd_fl_25pct_benchmark", "method_name": "BTD-FL", "btd_variant": btd_variant, "methods": list(METHODS), "client_grid_names": list(CLIENT_NAMES), "rounds": rounds, "local_epochs": local_epochs, "max_epochs": max_epochs, "batch_size": batch_size, "learning_rate": 1e-3, "seed": int(seed), "history_fraction": 0.25, "train_calibration_audit_split": "60/20/20 for scarce target; donor train-internal fit/calibration", "validation_used_for_selection": False, "audit_used_for_selection": False, "test_evaluated": False, "communication_round_selection": "fixed_final_round", "canonical_validation_evaluated_during_training": False, "donor_proxy_metadata_by_grid": donor_metadata, "donor_full_model_metadata_by_grid": donor_full_metadata, "scenarios": scenarios, "four_scenario_macro": macros, "relative_btd_fl_improvement_vs": relative, "btd_fl_win_counts": wins, "reproducibility": reproducibility_metadata(seed, device)}
 
 
-__all__ = ["CLIENT_NAMES", "METHODS", "load_selected_donors", "load_selection_metadata", "prepare_scenario_clients", "select_formal_donor", "run_formal_benchmark"]
+def run_formal_baselines(grids: dict[str, Any], device: str = "cpu", rounds: int = 10,
+                         local_epochs: int = 5, max_epochs: int = 50,
+                         batch_size: int = 32, seed: int = 42) -> dict[str, Any]:
+    """Run only scarce-local and the three accepted fixed-round FL baselines."""
+    set_global_seed(seed)
+    scenarios: dict[str, Any] = {}
+    for target in CLIENT_NAMES:
+        grid = grids[target]
+        split = scarce_split(grid)
+        scaler = fit_fit_only_scaler(grid, split.fit_indices, split.available_start)
+        graph = build_scarce_target_graph(grid, split)
+        local_proxy_state, local_proxy_training = _train_proxy_once(
+            grid, split.fit_indices, split.calibration_indices, scaler, device,
+            max_epochs, batch_size, seed=seed,
+        )
+        local_model = full_model(grid, graph, device, seed=seed)
+        inject_temporal_state(local_model, {
+            name: value for name, value in local_proxy_state.items()
+            if name in parameter_groups(local_model)["temporal"]
+        })
+        local_state, local_training = train_full_model(
+            local_model, grid, split.fit_indices, split.calibration_indices, scaler,
+            device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed,
+        )
+        local_model.load_state_dict(local_state)
+        methods = {"scarce_local": _method_metrics(local_model, grid, split, scaler, device, batch_size)}
+        federated: dict[str, Any] = {}
+        for method in ("fedavg", "fedprox", "fedper"):
+            methods[method], federated[method] = _run_federated(
+                grids, target, method, device, rounds, local_epochs, batch_size, seed,
+            )
+        scenarios[target] = {
+            "methods": methods,
+            "metadata": {
+                "history_fraction": 0.25,
+                "fit_target_count": int(len(split.fit_indices)),
+                "calibration_target_count": int(len(split.calibration_indices)),
+                "audit_target_count": int(len(split.audit_indices)),
+                "target_graph_metadata": graph.diagnostics,
+                "local_proxy_training": local_proxy_training,
+                "scarce_local_full_model_training": local_training,
+                "federated": federated,
+                "validation_used_for_selection": False,
+                "audit_used_for_selection": False,
+                "test_evaluated": False,
+            },
+        }
+        del local_model
+    macros = {
+        split_name: {
+            method: {
+                scope: {
+                    metric: float(np.mean([
+                        scenarios[name]["methods"][method][split_name][scope][metric]
+                        for name in CLIENT_NAMES
+                    ]))
+                    for metric in ("mae", "rmse", "wape_pct", "smape_pct")
+                }
+                for scope in ("node_macro", "grid_aggregate")
+            }
+            for method in BASELINE_METHODS
+        }
+        for split_name in ("audit", "validation")
+    }
+    return {
+        "experiment": "formal_baselines_25pct",
+        "artifact_type": "formal_baselines",
+        "methods": list(BASELINE_METHODS),
+        "client_grid_names": list(CLIENT_NAMES),
+        "rounds": rounds, "local_epochs": local_epochs, "max_epochs": max_epochs,
+        "patience": 8, "batch_size": batch_size, "learning_rate": 1e-3,
+        "seed": int(seed), "history_fraction": 0.25,
+        "train_calibration_audit_split": "60/20/20 for scarce target; donor train-internal fit/calibration",
+        "validation_used_for_selection": False,
+        "audit_used_for_selection": False,
+        "test_evaluated": False,
+        "communication_round_selection": "fixed_final_round",
+        "canonical_validation_evaluated_during_training": False,
+        "scenarios": scenarios, "four_scenario_macro": macros,
+        "reproducibility": reproducibility_metadata(seed, device),
+    }
+
+
+__all__ = ["CLIENT_NAMES", "METHODS", "BASELINE_METHODS", "load_selected_donors", "load_selection_metadata", "prepare_scenario_clients", "select_formal_donor", "run_formal_benchmark", "run_formal_baselines"]

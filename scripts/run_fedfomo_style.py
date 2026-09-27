@@ -18,6 +18,7 @@ from code.data.lv_grid_loader import LVGridLoader  # noqa: E402
 from code.federated.fedfomo_style import run_fedfomo  # noqa: E402
 from code.federated.formal_btd import CLIENT_NAMES  # noqa: E402
 from code.federated.formal_btd_ablations import load_frozen_reference  # noqa: E402
+from code.federated.result_validation import resumable_result  # noqa: E402
 from scripts.run_federated import build_synthetic_clients  # noqa: E402
 from code.federated.seeding import set_global_seed  # noqa: E402
 
@@ -54,8 +55,10 @@ def render_markdown(report: dict[str, Any]) -> str:
         f"| FedFomo-style | {report['four_scenario_unweighted_macro']['audit']['node_macro']['mae']:.6g} | {report['four_scenario_unweighted_macro']['validation']['node_macro']['mae']:.6g} |",
     ]
     lines += ["", "## Frozen comparator improvements", "", "| Comparator | Audit relative improvement | Validation relative improvement | Validation wins |", "|---|---:|---:|---:|"]
-    for name, values in report["relative_improvement_vs_frozen_comparators"].items():
-        lines.append(f"| {name} | {values['audit']:.6g} | {values['validation']:.6g} | {report['win_counts_vs_frozen_comparators'][name]} |")
+    comparison_key = "relative_improvement_vs_same_seed_comparators" if "relative_improvement_vs_same_seed_comparators" in report else "relative_improvement_vs_frozen_comparators"
+    wins_key = "win_counts_vs_same_seed_comparators" if "win_counts_vs_same_seed_comparators" in report else "win_counts_vs_frozen_comparators"
+    for name, values in report.get(comparison_key, {}).items():
+        lines.append(f"| {name} | {values['audit']:.6g} | {values['validation']:.6g} | {report.get(wins_key, {}).get(name, 0)} |")
     if "relative_improvement_vs_final_btd_fl_direct_transfer" in report:
         values = report["relative_improvement_vs_final_btd_fl_direct_transfer"]
         lines.append(f"| BTD-FL Direct Temporal Transfer (final) | {values['audit']:.6g} | {values['validation']:.6g} | {report['win_counts_vs_final_btd_fl_direct_transfer']['validation']} |")
@@ -76,6 +79,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--reference-json", type=Path, default=ROOT / "results" / "federated" / "formal_25pct" / "btd_fl_25pct_seed42.json")
     parser.add_argument("--direct-transfer-json", type=Path, default=ROOT / "results" / "federated" / "formal_25pct" / "btd_fl_direct_transfer_25pct_seed42.json")
+    parser.add_argument("--baseline-json", type=Path, default=None)
     parser.add_argument("--data-root", type=Path, default=ROOT.parent / "pa_stfed_data_v2" / "raw")
     parser.add_argument("--mapping-json", type=Path, default=ROOT / "results" / "audits" / "v2_schema_mapping.json")
     parser.add_argument("--rounds", type=int, default=10)
@@ -87,15 +91,18 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
-    stem = f"fedfomo_style_25pct_seed{args.seed}"
-    json_path, md_path = args.output_dir / f"{stem}.json", args.output_dir / f"{stem}.md"
+    run_mode = "synthetic_smoke" if args.synthetic_smoke else "real"
+    output_dir = args.output_dir / "smoke" if args.synthetic_smoke else args.output_dir
+    stem = f"fedfomo_style_25pct_seed{args.seed}" + ("_synthetic_smoke" if args.synthetic_smoke else "")
+    json_path, md_path = output_dir / f"{stem}.json", output_dir / f"{stem}.md"
+    if args.seed == 42 and run_mode == "real" and json_path.exists():
+        print(f"historical seed-42 result is frozen: {json_path}"); return
     if json_path.exists():
-        existing = json.loads(json_path.read_text(encoding="utf-8"))
-        if int(existing.get("seed", -1)) != args.seed:
-            raise ValueError(f"refusing to overwrite result with mismatched seed: {json_path}")
-        if args.seed == 42 or not args.force:
-            if existing.get("test_evaluated") is False:
+        if resumable_result(json_path, seed=args.seed, artifact_type="fedfomo_style", run_mode=run_mode, methods=("fedfomo_style",), rounds=args.rounds, local_epochs=args.local_epochs, batch_size=256 if args.synthetic_smoke else 32, learning_rate=1e-3, max_epochs=50, patience=8):
+            if args.seed == 42 or not args.force:
                 print(f"resume: keeping frozen/completed result {json_path}"); return
+        elif not args.force:
+            raise ValueError(f"existing result is incomplete or incompatible; use --force to rerun: {json_path}")
     reference = load_frozen_reference(args.reference_json)
     direct = json.loads(args.direct_transfer_json.read_text(encoding="utf-8"))
     if direct.get("test_evaluated") is not False or direct.get("btd_variant") != "btd_fl_direct_transfer":
@@ -107,15 +114,16 @@ def main() -> None:
         grids = {name: LVGridLoader(args.data_root, args.mapping_json).load(name) for name in CLIENT_NAMES}
         batch_size = args.batch_size
     set_global_seed(args.seed)
-    report = run_fedfomo(grids, reference, args.rounds, args.local_epochs, batch_size, args.device, direct_transfer_reference=direct, seed=args.seed)
+    baseline_reference = json.loads(args.baseline_json.read_text(encoding="utf-8")) if args.baseline_json is not None else None
+    report = run_fedfomo(grids, reference, args.rounds, args.local_epochs, batch_size, args.device, direct_transfer_reference=direct, baseline_reference=baseline_reference, seed=args.seed)
     report["frozen_direct_transfer_metrics"] = {target: direct["scenarios"][target]["metrics"] for target in CLIENT_NAMES}
+    report["run_mode"] = run_mode
+    report["artifact_type"] = "fedfomo_style"
+    report["methods"] = ["fedfomo_style"]
+    if args.seed != 42 and baseline_reference is not None:
+        report["relative_improvement_vs_same_seed_comparators"] = report.pop("relative_improvement_vs_frozen_comparators", {})
+        report["win_counts_vs_same_seed_comparators"] = report.pop("win_counts_vs_frozen_comparators", {})
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    if json_path.exists() and not args.force:
-        existing = json.loads(json_path.read_text(encoding="utf-8"))
-        if int(existing.get("seed", -1)) == args.seed and existing.get("test_evaluated") is False:
-            print(f"resume: keeping {json_path}"); return
-        if int(existing.get("seed", -1)) != args.seed:
-            raise ValueError(f"refusing to overwrite result with mismatched seed: {json_path}")
     json_path.write_text(json.dumps(report, indent=2, default=lambda value: value.tolist() if isinstance(value, np.ndarray) else value) + "\n", encoding="utf-8")
     md_path.write_text(render_markdown(report) + "\n", encoding="utf-8")
 

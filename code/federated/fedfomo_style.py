@@ -147,16 +147,18 @@ def _macro_from_metrics(metrics_by_target: Mapping[str, Any]) -> dict[str, Any]:
     return {split: {scope: {metric: float(np.mean([metrics_by_target[target][split][scope][metric] for target in CLIENT_NAMES])) for metric in ("mae", "rmse", "wape_pct", "smape_pct")} for scope in ("node_macro", "grid_aggregate")} for split in ("audit", "validation")}
 
 
-def run_fedfomo(grids: Mapping[str, Any], reference: Path | str | Mapping[str, Any], rounds: int = 10, local_epochs: int = 5, batch_size: int = 32, device: str = "cpu", epsilon: float = EPSILON, direct_transfer_reference: Path | str | Mapping[str, Any] | None = None, seed: int = 42) -> dict[str, Any]:
+def run_fedfomo(grids: Mapping[str, Any], reference: Path | str | Mapping[str, Any], rounds: int = 10, local_epochs: int = 5, batch_size: int = 32, device: str = "cpu", epsilon: float = EPSILON, direct_transfer_reference: Path | str | Mapping[str, Any] | None = None, seed: int = 42, baseline_reference: Path | str | Mapping[str, Any] | None = None) -> dict[str, Any]:
     set_global_seed(seed)
     frozen = load_frozen_reference(reference)
     scenarios = {target: run_fedfomo_scenario(grids, target, rounds, local_epochs, batch_size, device, epsilon, seed) for target in CLIENT_NAMES}
     primary = {target: scenarios[target]["scarce_target_metrics"] for target in CLIENT_NAMES}
     macro = _macro_from_metrics(primary)
     comparisons, wins = {}, {}
+    comparator_report = dict(baseline_reference) if baseline_reference is not None else frozen
     for comparator in ("scarce_local", "fedavg", "fedprox", "fedper"):
-        comparisons[comparator] = {split: float((frozen["four_scenario_macro"][split][comparator]["node_macro"]["mae"] - macro[split]["node_macro"]["mae"]) / (frozen["four_scenario_macro"][split][comparator]["node_macro"]["mae"] + 1e-12)) for split in ("audit", "validation")}
-        wins[comparator] = sum(primary[target]["validation"]["node_macro"]["mae"] < frozen["scenarios"][target]["methods"][comparator]["validation"]["node_macro"]["mae"] for target in CLIENT_NAMES)
+        if comparator not in comparator_report.get("methods", ()): continue
+        comparisons[comparator] = {split: float((comparator_report["four_scenario_macro"][split][comparator]["node_macro"]["mae"] - macro[split]["node_macro"]["mae"]) / (comparator_report["four_scenario_macro"][split][comparator]["node_macro"]["mae"] + 1e-12)) for split in ("audit", "validation")}
+        wins[comparator] = sum(primary[target]["validation"]["node_macro"]["mae"] < comparator_report["scenarios"][target]["methods"][comparator]["validation"]["node_macro"]["mae"] for target in CLIENT_NAMES)
     result = {"experiment": "formal_fedfomo_style_25pct", "method_name": "FedFomo-style", "client_grid_names": list(CLIENT_NAMES), "rounds": rounds, "local_epochs": local_epochs, "max_epochs": 50, "patience": 8, "batch_size": batch_size, "learning_rate": 1e-3, "seed": int(seed), "history_fraction": 0.25, "train_calibration_audit_split": "60/20/20 for scarce target; donor train-internal fit/calibration", "fedfomo_epsilon": epsilon, "heterogeneous_grid_adaptation": "peer trainable parameters are evaluated using each target client's local topology buffers and scaler; topology buffers are never exchanged", "validation_used_for_peer_weighting": False, "audit_used_for_peer_weighting": False, "test_evaluated": False, "communication_round_selection": "fixed_final_round", "canonical_validation_evaluated_during_training": False, "scenarios": scenarios, "four_scenario_unweighted_macro": macro, "relative_improvement_vs_frozen_comparators": comparisons, "win_counts_vs_frozen_comparators": wins, "frozen_reference": {"path": "results/federated/formal_25pct/btd_fl_25pct_seed42.json", "test_evaluated": frozen["test_evaluated"]}, "reproducibility": reproducibility_metadata(seed, device)}
     if direct_transfer_reference is not None:
         direct = json.loads(Path(direct_transfer_reference).read_text(encoding="utf-8")) if not isinstance(direct_transfer_reference, Mapping) else dict(direct_transfer_reference)
@@ -168,7 +170,7 @@ def run_fedfomo(grids: Mapping[str, Any], reference: Path | str | Mapping[str, A
         result["relative_improvement_vs_final_btd_fl_direct_transfer"] = direct_comp
         result["win_counts_vs_final_btd_fl_direct_transfer"] = {split: sum(primary[target][split]["node_macro"]["mae"] < direct_metrics[target][split]["node_macro"]["mae"] for target in CLIENT_NAMES) for split in ("audit", "validation")}
         result["per_target_comparison_vs_final_btd_fl_direct_transfer"] = {target: {split: float((direct_metrics[target][split]["node_macro"]["mae"] - primary[target][split]["node_macro"]["mae"]) / (direct_metrics[target][split]["node_macro"]["mae"] + 1e-12)) for split in ("audit", "validation")} for target in CLIENT_NAMES}
-        result["frozen_reference"]["direct_transfer_path"] = "results/federated/formal_25pct/btd_fl_direct_transfer_25pct_seed42.json"
+        result["frozen_reference"]["direct_transfer_path"] = str(direct_transfer_reference) if not isinstance(direct_transfer_reference, Mapping) else "in_memory_reference"
     return result
 
 

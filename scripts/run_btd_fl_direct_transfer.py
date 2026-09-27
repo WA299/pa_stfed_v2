@@ -18,6 +18,7 @@ from code.data.lv_grid_loader import LVGridLoader  # noqa: E402
 from code.federated.direct_transfer_btd import run_direct_transfer  # noqa: E402
 from code.federated.formal_btd_ablations import load_frozen_reference  # noqa: E402
 from code.federated.formal_btd import CLIENT_NAMES  # noqa: E402
+from code.federated.result_validation import resumable_result  # noqa: E402
 from scripts.run_federated import build_synthetic_clients  # noqa: E402
 from code.federated.seeding import set_global_seed  # noqa: E402
 
@@ -76,8 +77,8 @@ def render_markdown(report: dict[str, Any]) -> str:
         vals = [macro[scope][key] for scope in ("node_macro", "grid_aggregate") for key in ("mae", "rmse", "wape_pct", "smape_pct")]
         lines.append("| Four-target macro | " + " | ".join(f"{value:.6g}" for value in vals) + " |")
     lines += ["", "## Relative improvement vs frozen comparators", "", "| Comparator | Audit | Validation | Validation wins |", "|---|---:|---:|---:|"]
-    for comparator, values in report["relative_improvement_vs_frozen_comparators"].items():
-        lines.append(f"| {comparator} | {values['audit']:.6g} | {values['validation']:.6g} | {report['win_counts_vs_frozen_comparators'][comparator]} |")
+    for comparator, values in report.get("relative_improvement_vs_frozen_comparators", {}).items():
+        lines.append(f"| {comparator} | {values['audit']:.6g} | {values['validation']:.6g} | {report.get('win_counts_vs_frozen_comparators', {}).get(comparator, 0)} |")
     lines += ["", "## Guardrails", "", "validation_used_for_selection: false", "audit_used_for_selection: false", "test_evaluated: false", "adapted_probe_states_used_for_final_initialization: false"]
     return "\n".join(lines)
 
@@ -95,15 +96,18 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
-    stem = f"btd_fl_direct_transfer_25pct_seed{args.seed}"
-    json_path, md_path = args.output_dir / f"{stem}.json", args.output_dir / f"{stem}.md"
+    run_mode = "synthetic_smoke" if args.synthetic_smoke else "real"
+    output_dir = args.output_dir / "smoke" if args.synthetic_smoke else args.output_dir
+    stem = f"btd_fl_direct_transfer_25pct_seed{args.seed}" + ("_synthetic_smoke" if args.synthetic_smoke else "")
+    json_path, md_path = output_dir / f"{stem}.json", output_dir / f"{stem}.md"
+    if args.seed == 42 and run_mode == "real" and json_path.exists():
+        print(f"historical seed-42 result is frozen: {json_path}"); return
     if json_path.exists():
-        existing = json.loads(json_path.read_text(encoding="utf-8"))
-        if int(existing.get("seed", -1)) != args.seed:
-            raise ValueError(f"refusing to overwrite result with mismatched seed: {json_path}")
-        if args.seed == 42 or not args.force:
-            if existing.get("test_evaluated") is False:
+        if resumable_result(json_path, seed=args.seed, artifact_type="btd_fl_direct_transfer", run_mode=run_mode, methods=("btd_fl_direct_transfer",), batch_size=256 if args.synthetic_smoke else 32, learning_rate=1e-3, max_epochs=args.max_epochs, patience=8):
+            if args.seed == 42 or not args.force:
                 print(f"resume: keeping frozen/completed result {json_path}"); return
+        elif not args.force:
+            raise ValueError(f"existing result is incomplete or incompatible; use --force to rerun: {json_path}")
     frozen = load_frozen_reference(args.reference_json)
     if args.synthetic_smoke:
         grids = {client.grid_name: _formal_grid_from_client(client) for client in build_synthetic_clients(args.seed)}
@@ -113,15 +117,17 @@ def main() -> None:
         batch_size = args.batch_size
     set_global_seed(args.seed)
     report = run_direct_transfer(grids, frozen, args.device, args.max_epochs, batch_size, seed=args.seed)
+    report["run_mode"] = run_mode
+    report["artifact_type"] = "btd_fl_direct_transfer"
+    report["methods"] = ["btd_fl_direct_transfer"]
+    if args.seed != 42:
+        report.pop("relative_improvement_vs_frozen_comparators", None)
+        report.pop("win_counts_vs_frozen_comparators", None)
+        for item in report["scenarios"].values():
+            item.pop("frozen_comparator_metrics", None)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     if json_path.resolve() == args.reference_json.resolve() or md_path.resolve() == args.reference_json.with_suffix(".md").resolve():
         raise ValueError("direct-transfer output must not overwrite frozen main result")
-    if json_path.exists() and not args.force:
-        existing = json.loads(json_path.read_text(encoding="utf-8"))
-        if int(existing.get("seed", -1)) == args.seed and existing.get("test_evaluated") is False:
-            print(f"resume: keeping {json_path}"); return
-        if int(existing.get("seed", -1)) != args.seed:
-            raise ValueError(f"refusing to overwrite result with mismatched seed: {json_path}")
     json_path.write_text(json.dumps(report, indent=2, default=lambda value: value.tolist() if isinstance(value, np.ndarray) else value) + "\n", encoding="utf-8")
     md_path.write_text(render_markdown(report) + "\n", encoding="utf-8")
     print(f"wrote {json_path} and {md_path}")

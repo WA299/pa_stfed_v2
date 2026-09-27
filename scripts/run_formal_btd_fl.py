@@ -17,10 +17,13 @@ if str(ROOT) not in sys.path:
 from code.federated.formal_btd import (  # noqa: E402
     CLIENT_NAMES,
     METHODS,
+    BASELINE_METHODS,
     load_selected_donors,
     load_selection_metadata,
+    run_formal_baselines,
     run_formal_benchmark,
 )
+from code.federated.result_validation import load_valid_result, resumable_result  # noqa: E402
 from code.data.lv_grid_loader import LVGridLoader  # noqa: E402
 from scripts.run_btd_full_backbone_bridge import _grid_from_client  # noqa: E402
 from scripts.run_federated import build_synthetic_clients  # noqa: E402
@@ -45,6 +48,8 @@ def _formal_grid_from_client(client: Any) -> Any:
 
 def render_markdown(report: dict[str, Any]) -> str:
     names = report["client_grid_names"]
+    methods_order = tuple(report.get("methods", METHODS))
+    labels = {"scarce_local": "scarce_local", "fedavg": "FedAvg", "fedprox": "FedProx", "fedper": "FedPer", "btd_fl": "BTD-FL"}
     lines = [
         "# Formal BTD-FL Benchmark: 25% History",
         "",
@@ -54,15 +59,18 @@ def render_markdown(report: dict[str, Any]) -> str:
         "",
         "## Scarce-Target Validation Node-MAE",
         "",
-        "| Scarce target | scarce_local | FedAvg | FedProx | FedPer | BTD-FL |",
-        "|---|---:|---:|---:|---:|---:|",
+        "| Scarce target | " + " | ".join(labels.get(method, method) for method in methods_order) + " |",
+        "|---" + "|---:" * len(methods_order) + "|",
     ]
     for name in names:
         methods = report["scenarios"][name]["methods"]
-        lines.append("| " + name + " | " + " | ".join(f"{methods[m]['validation']['node_macro']['mae']:.6g}" for m in METHODS) + " |")
-    lines += ["", "## Four-Scenario Macro Node-MAE", "", "| Split | scarce_local | FedAvg | FedProx | FedPer | BTD-FL |", "|---|---:|---:|---:|---:|---:|"]
+        lines.append("| " + name + " | " + " | ".join(f"{methods[m]['validation']['node_macro']['mae']:.6g}" for m in methods_order) + " |")
+    lines += ["", "## Four-Scenario Macro Node-MAE", "", "| Split | " + " | ".join(labels.get(method, method) for method in methods_order) + " |", "|---" + "|---:" * len(methods_order) + "|"]
     for split in ("audit", "validation"):
-        lines.append("| " + split + " | " + " | ".join(f"{report['four_scenario_macro'][split][m]['node_macro']['mae']:.6g}" for m in METHODS) + " |")
+        lines.append("| " + split + " | " + " | ".join(f"{report['four_scenario_macro'][split][m]['node_macro']['mae']:.6g}" for m in methods_order) + " |")
+    if "btd_fl" not in methods_order:
+        lines += ["", "## Guardrails", "", "validation_used_for_selection: false", "audit_used_for_selection: false", "test_evaluated: false"]
+        return "\n".join(lines)
     lines += ["", "## BTD-FL Relative Improvements vs Comparators", "", "| Comparator | Audit macro improvement | Validation macro improvement | Validation wins |", "|---|---:|---:|---:|"]
     for method in ("scarce_local", "fedavg", "fedprox", "fedper"):
         audit_local = report["four_scenario_macro"]["audit"][method]["node_macro"]["mae"]; audit_btd = report["four_scenario_macro"]["audit"]["btd_fl"]["node_macro"]["mae"]
@@ -101,15 +109,22 @@ def main() -> None:
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--baseline-only", action="store_true", help="write the seed-specific formal baseline artifact")
     args = parser.parse_args()
+    run_mode = "synthetic_smoke" if args.synthetic_smoke else "real"
+    output_dir = args.output_dir / "smoke" if args.synthetic_smoke else args.output_dir
     stem = f"formal_baselines_25pct_seed{args.seed}" if args.baseline_only else (f"btd_fl_25pct_seed{args.seed}" if args.btd_variant == "btd_fl" else f"{args.btd_variant}_25pct_seed{args.seed}")
-    output = args.output_dir / f"{stem}.json"; markdown = args.output_dir / f"{stem}.md"; output.parent.mkdir(parents=True, exist_ok=True)
+    if args.synthetic_smoke:
+        stem += "_synthetic_smoke"
+    output = output_dir / f"{stem}.json"; markdown = output_dir / f"{stem}.md"; output.parent.mkdir(parents=True, exist_ok=True)
+    if args.seed == 42 and run_mode == "real" and output.exists():
+        print(f"historical seed-42 result is frozen: {output}"); return
     if output.exists():
-        existing = json.loads(output.read_text(encoding="utf-8"))
-        if int(existing.get("seed", -1)) != args.seed:
-            raise ValueError(f"refusing to overwrite result with mismatched seed: {output}")
-        if args.seed == 42 or not args.force:
-            if existing.get("test_evaluated") is False:
+        expected_methods = tuple(BASELINE_METHODS if args.baseline_only else METHODS)
+        expected_type = "formal_baselines" if args.baseline_only else "formal_btd"
+        if resumable_result(output, seed=args.seed, artifact_type=expected_type, run_mode=run_mode, methods=expected_methods, rounds=args.rounds, local_epochs=args.local_epochs, batch_size=256 if args.synthetic_smoke else 32, learning_rate=1e-3, max_epochs=args.max_epochs, patience=8):
+            if args.seed == 42 or not args.force:
                 print(f"resume: keeping frozen/completed result {output}"); return
+        elif not args.force:
+            raise ValueError(f"existing result is incomplete or incompatible; use --force to rerun: {output}")
     set_global_seed(args.seed)
     grids = ({client.grid_name: _formal_grid_from_client(client) for client in build_synthetic_clients(args.seed)}
              if args.synthetic_smoke else {name: LVGridLoader(args.data_root, args.mapping_json).load(name) for name in CLIENT_NAMES})
@@ -117,13 +132,12 @@ def main() -> None:
     # formal runner trains/adapts/selects donors from current-run calibration.
     donors = load_selected_donors(args.audit_json) if args.audit_json.exists() else None
     smoke_batch_size = 256 if args.synthetic_smoke else 32
-    report = run_formal_benchmark(grids, donors, args.device, args.rounds, args.local_epochs, args.max_epochs, args.btd_variant, smoke_batch_size, seed=args.seed)
-    if output.exists() and not args.force:
-        existing = json.loads(output.read_text(encoding="utf-8"))
-        if int(existing.get("seed", -1)) == args.seed and existing.get("test_evaluated") is False:
-            print(f"resume: keeping {output}"); return
-        if int(existing.get("seed", -1)) != args.seed:
-            raise ValueError(f"refusing to overwrite result with mismatched seed: {output}")
+    if args.baseline_only:
+        report = run_formal_baselines(grids, args.device, args.rounds, args.local_epochs, args.max_epochs, smoke_batch_size, seed=args.seed)
+    else:
+        report = run_formal_benchmark(grids, donors, args.device, args.rounds, args.local_epochs, args.max_epochs, args.btd_variant, smoke_batch_size, seed=args.seed)
+    report["run_mode"] = run_mode
+    report["artifact_type"] = "formal_baselines" if args.baseline_only else "formal_btd"
     output.write_text(json.dumps(report, indent=2, default=lambda value: value.tolist() if isinstance(value, np.ndarray) else value) + "\n", encoding="utf-8")
     markdown.write_text(render_markdown(report) + "\n", encoding="utf-8")
     print(f"wrote {output} and {markdown}")
