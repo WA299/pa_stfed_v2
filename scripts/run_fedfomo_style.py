@@ -55,16 +55,18 @@ def render_markdown(report: dict[str, Any]) -> str:
     lines += ["", "## Frozen comparator improvements", "", "| Comparator | Audit relative improvement | Validation relative improvement | Validation wins |", "|---|---:|---:|---:|"]
     for name, values in report["relative_improvement_vs_frozen_comparators"].items():
         lines.append(f"| {name} | {values['audit']:.6g} | {values['validation']:.6g} | {report['win_counts_vs_frozen_comparators'][name]} |")
+    if "relative_improvement_vs_final_btd_fl_direct_transfer" in report:
+        values = report["relative_improvement_vs_final_btd_fl_direct_transfer"]
+        lines.append(f"| BTD-FL Direct Temporal Transfer (final) | {values['audit']:.6g} | {values['validation']:.6g} | {report['win_counts_vs_final_btd_fl_direct_transfer']['validation']} |")
     lines += ["", "## Scenario metrics", "", "| Scarce target | Audit node MAE | Audit grid MAE | Validation node MAE | Validation grid MAE |", "|---|---:|---:|---:|---:|"]
     for target in report["client_grid_names"]:
-        item = report["scenarios"][target]
+        item = report["scenarios"][target]["scarce_target_metrics"]
         lines.append(f"| {target} | {item['audit']['node_macro']['mae']:.6g} | {item['audit']['grid_aggregate']['mae']:.6g} | {item['validation']['node_macro']['mae']:.6g} | {item['validation']['grid_aggregate']['mae']:.6g} |")
     lines += ["", "## Scarce-target round peer weights", "", "| Round | Baseline self calibration loss | Positive peers | Fallback | Peer normalized weights |", "|---:|---:|---:|---|---|"]
-    for round_item in report["round_history"]:
-        for target in report["client_grid_names"]:
-            diag = round_item["diagnostics"][target]
-            if diag.get("is_scarce_target"):
-                lines.append(f"| {round_item['round']} | {diag['baseline_self_calibration_loss']:.6g} | {diag['positive_peer_count']} | {diag['no_positive_peer_fallback']} | {json.dumps(diag['normalized_weight_by_donor'], sort_keys=True)} |")
+    target = report["client_grid_names"][0]
+    for round_item in report["scenarios"][target]["round_history"]:
+        diag = round_item["diagnostics"][target]
+        lines.append(f"| {round_item['round']} | {diag['baseline_self_calibration_loss']:.6g} | {diag['positive_candidate_count']} | {diag['no_positive_candidate_fallback']} | {json.dumps(diag['normalized_weight_by_client'], sort_keys=True)} |")
     lines += ["", "validation_used_for_peer_weighting: false", "audit_used_for_peer_weighting: false", "test_evaluated: false", 'communication_round_selection: "fixed_final_round"']
     return "\n".join(lines)
 
@@ -75,7 +77,6 @@ def main() -> None:
     parser.add_argument("--direct-transfer-json", type=Path, default=ROOT / "results" / "federated" / "formal_25pct" / "btd_fl_direct_transfer_25pct_seed42.json")
     parser.add_argument("--data-root", type=Path, default=ROOT.parent / "pa_stfed_data_v2" / "raw")
     parser.add_argument("--mapping-json", type=Path, default=ROOT / "results" / "audits" / "v2_schema_mapping.json")
-    parser.add_argument("--scarce-target", choices=CLIENT_NAMES, required=True)
     parser.add_argument("--rounds", type=int, default=10)
     parser.add_argument("--local-epochs", type=int, default=5)
     parser.add_argument("--batch-size", type=int, default=32)
@@ -93,13 +94,10 @@ def main() -> None:
     else:
         grids = {name: LVGridLoader(args.data_root, args.mapping_json).load(name) for name in CLIENT_NAMES}
         batch_size = args.batch_size
-    report = run_fedfomo(grids, reference, args.scarce_target, args.rounds, args.local_epochs, batch_size, args.device)
-    # Direct-transfer metrics are added as a frozen comparator without training.
-    report["frozen_direct_transfer_metrics"] = {
-        target: direct["scenarios"][target]["metrics"] for target in CLIENT_NAMES
-    }
+    report = run_fedfomo(grids, reference, args.rounds, args.local_epochs, batch_size, args.device, direct_transfer_reference=direct)
+    report["frozen_direct_transfer_metrics"] = {target: direct["scenarios"][target]["metrics"] for target in CLIENT_NAMES}
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    stem = f"fedfomo_style_{args.scarce_target}_25pct_seed42"
+    stem = "fedfomo_style_25pct_seed42"
     (args.output_dir / f"{stem}.json").write_text(json.dumps(report, indent=2, default=lambda value: value.tolist() if isinstance(value, np.ndarray) else value) + "\n", encoding="utf-8")
     (args.output_dir / f"{stem}.md").write_text(render_markdown(report) + "\n", encoding="utf-8")
 

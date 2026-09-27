@@ -20,7 +20,7 @@ def test_fedfomo_raw_weight_exact():
 def test_fedfomo_clips_and_normalizes_positive_weights():
     normalized, fallback = normalize_positive_weights({"a": 2.0, "b": -1.0, "c": 1.0})
     assert fallback is False
-    assert normalized == {"a": pytest.approx(2 / 3), "b": pytest.approx(0.0), "c": pytest.approx(1 / 3)}
+    assert normalized == {"a": pytest.approx(2 / 3), "c": pytest.approx(1 / 3)}
     assert sum(normalized.values()) == pytest.approx(1.0)
 
 
@@ -47,9 +47,9 @@ def test_synthetic_fedfomo_scenario_has_scarce_peer_diagnostics():
     grids = {client.grid_name: _formal_grid_from_client(client) for client in clients}
     report = run_fedfomo(
         grids, load_frozen_reference(Path("results/federated/formal_25pct/btd_fl_25pct_seed42.json")),
-        CLIENT_NAMES[0], rounds=1, local_epochs=1, batch_size=256, device="cpu",
+        rounds=1, local_epochs=1, batch_size=256, device="cpu",
     )
-    diagnostics = report["round_history"][0]["diagnostics"][CLIENT_NAMES[0]]
+    diagnostics = report["scenarios"][CLIENT_NAMES[0]]["round_history"][0]["diagnostics"][CLIENT_NAMES[0]]
     assert len(diagnostics["peer_calibration_loss_by_donor"]) == 3
     assert len(diagnostics["raw_weight_by_donor"]) == 3
     assert len(diagnostics["normalized_weight_by_donor"]) <= 3
