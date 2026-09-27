@@ -12,6 +12,7 @@ from code.audits.btd_full_backbone_bridge import build_scarce_target_graph, full
 from code.audits.federated_transfer_benefit import _evaluate, donor_split, fit_fit_only_scaler, scarce_split
 from code.federated.formal_btd import CLIENT_NAMES, _validation_indices, _make_client
 from code.federated.formal_btd_ablations import load_frozen_reference
+from code.federated.seeding import reproducibility_metadata, set_global_seed
 from code.models.centralized_gru import masked_scaled_mae
 from scripts.run_puc_rstattn_v2 import _batch_indices, _to_batch
 
@@ -74,13 +75,13 @@ def _local_train(model: Any, client: Any, epochs: int, batch_size: int, device: 
             loss.backward(); optimizer.step()
 
 
-def _evaluate_candidate(client: Any, state: Mapping[str, torch.Tensor], batch_size: int, device: str) -> float:
-    model = full_model(client.grid, client.graph, device)
+def _evaluate_candidate(client: Any, state: Mapping[str, torch.Tensor], batch_size: int, device: str, seed: int = 42) -> float:
+    model = full_model(client.grid, client.graph, device, seed=seed)
     _load_trainable_state(model, state)
     return float(_evaluate(model, client.grid, client.calibration_indices, client.scaler, device, client.history_start, batch_size)["node_macro"]["mae"])
 
 
-def run_fedfomo_scenario(grids: Mapping[str, Any], scarce_target: str, rounds: int, local_epochs: int, batch_size: int, device: str, epsilon: float) -> dict[str, Any]:
+def run_fedfomo_scenario(grids: Mapping[str, Any], scarce_target: str, rounds: int, local_epochs: int, batch_size: int, device: str, epsilon: float, seed: int = 42) -> dict[str, Any]:
     clients = []
     for name in CLIENT_NAMES:
         grid = grids[name]
@@ -90,25 +91,27 @@ def run_fedfomo_scenario(grids: Mapping[str, Any], scarce_target: str, rounds: i
             train_indices, calibration = donor_split(grid); scaler = fit_fit_only_scaler(grid, train_indices)
             from code.models.puc_rstattn_v2_conditional_utility import build_conditional_utility_graph
             graph = build_conditional_utility_graph(grid); history_start = None
-        client = _make_client(grid, graph, train_indices, _validation_indices(grid), scaler, history_start, device)
+        client = _make_client(grid, graph, train_indices, _validation_indices(grid), scaler, history_start, device, seed)
         client.grid = grid; client.graph = graph; client.calibration_indices = calibration; client.history_start = history_start
         clients.append(client)
+    set_global_seed(seed)
     states = {client.grid_name: _trainable_state(client.model) for client in clients}
     history = []
     for round_index in range(1, rounds + 1):
         previous = {name: {key: value.clone() for key, value in state.items()} for name, state in states.items()}
         for client in clients:
             _load_trainable_state(client.model, previous[client.grid_name])
+            set_global_seed(seed)
             _local_train(client.model, client, local_epochs, batch_size, device)
             states[client.grid_name] = _trainable_state(client.model)
         round_weights, diagnostics = {}, {}
         for target in clients:
             anchor = previous[target.grid_name]
-            self_loss = _evaluate_candidate(target, anchor, batch_size, device)
+            self_loss = _evaluate_candidate(target, anchor, batch_size, device, seed)
             losses, distances, raw = {}, {}, {}
             for candidate in clients:
                 distances[candidate.grid_name] = parameter_l2_distance(states[candidate.grid_name], anchor)
-                losses[candidate.grid_name] = _evaluate_candidate(target, states[candidate.grid_name], batch_size, device)
+                losses[candidate.grid_name] = _evaluate_candidate(target, states[candidate.grid_name], batch_size, device, seed)
                 raw[candidate.grid_name] = fedfomo_raw_weight(self_loss, losses[candidate.grid_name], distances[candidate.grid_name], epsilon)
             normalized, fallback = normalize_positive_weights(raw)
             round_weights[target.grid_name] = normalized
@@ -144,16 +147,17 @@ def _macro_from_metrics(metrics_by_target: Mapping[str, Any]) -> dict[str, Any]:
     return {split: {scope: {metric: float(np.mean([metrics_by_target[target][split][scope][metric] for target in CLIENT_NAMES])) for metric in ("mae", "rmse", "wape_pct", "smape_pct")} for scope in ("node_macro", "grid_aggregate")} for split in ("audit", "validation")}
 
 
-def run_fedfomo(grids: Mapping[str, Any], reference: Path | str | Mapping[str, Any], rounds: int = 10, local_epochs: int = 5, batch_size: int = 32, device: str = "cpu", epsilon: float = EPSILON, direct_transfer_reference: Path | str | Mapping[str, Any] | None = None) -> dict[str, Any]:
+def run_fedfomo(grids: Mapping[str, Any], reference: Path | str | Mapping[str, Any], rounds: int = 10, local_epochs: int = 5, batch_size: int = 32, device: str = "cpu", epsilon: float = EPSILON, direct_transfer_reference: Path | str | Mapping[str, Any] | None = None, seed: int = 42) -> dict[str, Any]:
+    set_global_seed(seed)
     frozen = load_frozen_reference(reference)
-    scenarios = {target: run_fedfomo_scenario(grids, target, rounds, local_epochs, batch_size, device, epsilon) for target in CLIENT_NAMES}
+    scenarios = {target: run_fedfomo_scenario(grids, target, rounds, local_epochs, batch_size, device, epsilon, seed) for target in CLIENT_NAMES}
     primary = {target: scenarios[target]["scarce_target_metrics"] for target in CLIENT_NAMES}
     macro = _macro_from_metrics(primary)
     comparisons, wins = {}, {}
     for comparator in ("scarce_local", "fedavg", "fedprox", "fedper"):
         comparisons[comparator] = {split: float((frozen["four_scenario_macro"][split][comparator]["node_macro"]["mae"] - macro[split]["node_macro"]["mae"]) / (frozen["four_scenario_macro"][split][comparator]["node_macro"]["mae"] + 1e-12)) for split in ("audit", "validation")}
         wins[comparator] = sum(primary[target]["validation"]["node_macro"]["mae"] < frozen["scenarios"][target]["methods"][comparator]["validation"]["node_macro"]["mae"] for target in CLIENT_NAMES)
-    result = {"experiment": "formal_fedfomo_style_25pct", "method_name": "FedFomo-style", "client_grid_names": list(CLIENT_NAMES), "rounds": rounds, "local_epochs": local_epochs, "batch_size": batch_size, "learning_rate": 1e-3, "seed": 42, "fedfomo_epsilon": epsilon, "heterogeneous_grid_adaptation": "peer trainable parameters are evaluated using each target client's local topology buffers and scaler; topology buffers are never exchanged", "validation_used_for_peer_weighting": False, "audit_used_for_peer_weighting": False, "test_evaluated": False, "communication_round_selection": "fixed_final_round", "scenarios": scenarios, "four_scenario_unweighted_macro": macro, "relative_improvement_vs_frozen_comparators": comparisons, "win_counts_vs_frozen_comparators": wins, "frozen_reference": {"path": "results/federated/formal_25pct/btd_fl_25pct_seed42.json", "test_evaluated": frozen["test_evaluated"]}}
+    result = {"experiment": "formal_fedfomo_style_25pct", "method_name": "FedFomo-style", "client_grid_names": list(CLIENT_NAMES), "rounds": rounds, "local_epochs": local_epochs, "max_epochs": 50, "patience": 8, "batch_size": batch_size, "learning_rate": 1e-3, "seed": int(seed), "history_fraction": 0.25, "train_calibration_audit_split": "60/20/20 for scarce target; donor train-internal fit/calibration", "fedfomo_epsilon": epsilon, "heterogeneous_grid_adaptation": "peer trainable parameters are evaluated using each target client's local topology buffers and scaler; topology buffers are never exchanged", "validation_used_for_peer_weighting": False, "audit_used_for_peer_weighting": False, "test_evaluated": False, "communication_round_selection": "fixed_final_round", "canonical_validation_evaluated_during_training": False, "scenarios": scenarios, "four_scenario_unweighted_macro": macro, "relative_improvement_vs_frozen_comparators": comparisons, "win_counts_vs_frozen_comparators": wins, "frozen_reference": {"path": "results/federated/formal_25pct/btd_fl_25pct_seed42.json", "test_evaluated": frozen["test_evaluated"]}, "reproducibility": reproducibility_metadata(seed, device)}
     if direct_transfer_reference is not None:
         direct = json.loads(Path(direct_transfer_reference).read_text(encoding="utf-8")) if not isinstance(direct_transfer_reference, Mapping) else dict(direct_transfer_reference)
         if direct.get("btd_variant") != "btd_fl_direct_transfer" or direct.get("test_evaluated") is not False:

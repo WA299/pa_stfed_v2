@@ -31,15 +31,16 @@ def test_direct_transfer_synthetic_four_target_smoke():
     assert len(report["scenarios"]) == 4
     assert report["adapted_probe_states_used_for_final_initialization"] is False
     assert report["test_evaluated"] is False
-    frozen = _frozen_selected_donors(reference)
     for target in CLIENT_NAMES:
         item = report["scenarios"][target]
         metadata = item["metadata"]
         assert len(metadata["calibration_benefit_by_donor"]) == 3
         assert len(metadata["benefit_probe_training_by_donor"]) == 3
-        assert metadata["selected_donor"] == frozen[target]
-        assert metadata["raw_donor_temporal_source"]
-        assert metadata["transferred_parameter_names"]
+        positive = {name: value for name, value in metadata["calibration_benefit_by_donor"].items() if value > 0}
+        expected = max(positive, key=lambda name: (positive[name], name)) if positive else None
+        assert metadata["selected_donor"] == expected
+        assert bool(metadata["raw_donor_temporal_source"]) is (metadata["selected_donor"] is not None)
+        assert bool(metadata["transferred_parameter_names"]) is (not metadata["zero_transfer_fallback"])
         assert metadata["target_graph_metadata"]["graph_uses_target_fit_only"] is True
         assert metadata["validation_used_for_selection"] is False
         assert metadata["audit_used_for_selection"] is False

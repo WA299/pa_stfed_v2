@@ -24,6 +24,7 @@ from code.federated.formal_btd import (  # noqa: E402
 from code.data.lv_grid_loader import LVGridLoader  # noqa: E402
 from scripts.run_btd_full_backbone_bridge import _grid_from_client  # noqa: E402
 from scripts.run_federated import build_synthetic_clients  # noqa: E402
+from code.federated.seeding import set_global_seed  # noqa: E402
 
 
 def _formal_grid_from_client(client: Any) -> Any:
@@ -96,16 +97,33 @@ def main() -> None:
     parser.add_argument("--btd-variant", choices=("btd_fl", "btd_no_benefit_selection", "btd_no_zero_transfer", "btd_full_model_transfer"), default="btd_fl")
     parser.add_argument("--synthetic-smoke", action="store_true")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "results" / "federated" / "formal_25pct")
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--force", action="store_true")
+    parser.add_argument("--baseline-only", action="store_true", help="write the seed-specific formal baseline artifact")
     args = parser.parse_args()
-    grids = ({client.grid_name: _formal_grid_from_client(client) for client in build_synthetic_clients(42)}
+    stem = f"formal_baselines_25pct_seed{args.seed}" if args.baseline_only else (f"btd_fl_25pct_seed{args.seed}" if args.btd_variant == "btd_fl" else f"{args.btd_variant}_25pct_seed{args.seed}")
+    output = args.output_dir / f"{stem}.json"; markdown = args.output_dir / f"{stem}.md"; output.parent.mkdir(parents=True, exist_ok=True)
+    if output.exists():
+        existing = json.loads(output.read_text(encoding="utf-8"))
+        if int(existing.get("seed", -1)) != args.seed:
+            raise ValueError(f"refusing to overwrite result with mismatched seed: {output}")
+        if args.seed == 42 or not args.force:
+            if existing.get("test_evaluated") is False:
+                print(f"resume: keeping frozen/completed result {output}"); return
+    set_global_seed(args.seed)
+    grids = ({client.grid_name: _formal_grid_from_client(client) for client in build_synthetic_clients(args.seed)}
              if args.synthetic_smoke else {name: LVGridLoader(args.data_root, args.mapping_json).load(name) for name in CLIENT_NAMES})
     # The historical audit is an optional reproducibility reference only. The
     # formal runner trains/adapts/selects donors from current-run calibration.
     donors = load_selected_donors(args.audit_json) if args.audit_json.exists() else None
     smoke_batch_size = 256 if args.synthetic_smoke else 32
-    report = run_formal_benchmark(grids, donors, args.device, args.rounds, args.local_epochs, args.max_epochs, args.btd_variant, smoke_batch_size)
-    stem = "btd_fl_25pct_seed42" if args.btd_variant == "btd_fl" else f"{args.btd_variant}_25pct_seed42"
-    output = args.output_dir / f"{stem}.json"; markdown = args.output_dir / f"{stem}.md"; output.parent.mkdir(parents=True, exist_ok=True)
+    report = run_formal_benchmark(grids, donors, args.device, args.rounds, args.local_epochs, args.max_epochs, args.btd_variant, smoke_batch_size, seed=args.seed)
+    if output.exists() and not args.force:
+        existing = json.loads(output.read_text(encoding="utf-8"))
+        if int(existing.get("seed", -1)) == args.seed and existing.get("test_evaluated") is False:
+            print(f"resume: keeping {output}"); return
+        if int(existing.get("seed", -1)) != args.seed:
+            raise ValueError(f"refusing to overwrite result with mismatched seed: {output}")
     output.write_text(json.dumps(report, indent=2, default=lambda value: value.tolist() if isinstance(value, np.ndarray) else value) + "\n", encoding="utf-8")
     markdown.write_text(render_markdown(report) + "\n", encoding="utf-8")
     print(f"wrote {output} and {markdown}")

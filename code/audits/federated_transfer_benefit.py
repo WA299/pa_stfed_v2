@@ -123,9 +123,9 @@ def make_proxy(grid: Any, seed: int = SEED) -> Any:
     return PUCRSTAttnV2Ablation("temporal_residual_only", grid.num_nodes, np.empty((2, 0), dtype=np.int64), np.empty((0, 3), dtype=np.float32), grid.load_bus_mask, np.empty(0, dtype=np.float32))
 
 
-def train_proxy(grid: Any, fit_indices: np.ndarray, calibration_indices: np.ndarray, scaler: Any, initial_state: Mapping[str, Any] | None = None, device: str = "cpu", max_epochs: int = MAX_EPOCHS, patience: int = PATIENCE, history_start_index: int | None = None, batch_size: int = BATCH_SIZE) -> tuple[Any, dict[str, Any]]:
+def train_proxy(grid: Any, fit_indices: np.ndarray, calibration_indices: np.ndarray, scaler: Any, initial_state: Mapping[str, Any] | None = None, device: str = "cpu", max_epochs: int = MAX_EPOCHS, patience: int = PATIENCE, history_start_index: int | None = None, batch_size: int = BATCH_SIZE, seed: int = SEED) -> tuple[Any, dict[str, Any]]:
     import torch
-    model = make_proxy(grid).to(device)
+    model = make_proxy(grid, seed=seed).to(device)
     if initial_state is not None: model.load_state_dict(copy.deepcopy(initial_state))
     fit_ds = IndexDataset(grid, fit_indices, history_start_index); optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE); load_mask = torch.as_tensor(grid.load_bus_mask, dtype=torch.bool, device=device); best_state, best_mae, stale = None, float("inf"), 0
     for epoch in range(1, max_epochs + 1):

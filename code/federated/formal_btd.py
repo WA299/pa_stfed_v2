@@ -13,6 +13,7 @@ from code.audits.federated_transfer_benefit import IndexDataset, _evaluate, dono
 from code.data.forecast_dataset import ForecastFeatureScaler
 from code.federated.trainer import FederatedClient, FederatedTrainer
 from code.federated.parameter_groups import parameter_groups
+from code.federated.seeding import reproducibility_metadata, set_global_seed
 from code.models.puc_rstattn_v2_conditional_utility import PUCRSTAttnV2ConditionalUtility, build_conditional_utility_graph
 
 CLIENT_NAMES = ("39_bus_semi_urban_reference_grid", "50_bus_rural_reference_grid", "56_bus_semi_urban_reference_grid", "80_bus_rural_reference_grid")
@@ -53,14 +54,14 @@ def _validation_indices(grid: Any) -> np.ndarray:
     return np.arange(split.start_index, split.end_index, dtype=np.int64)
 
 
-def _model_from_graph(grid: Any, graph: Any, device: str) -> Any:
+def _model_from_graph(grid: Any, graph: Any, device: str, seed: int = 42) -> Any:
     import torch
-    torch.manual_seed(42)
+    torch.manual_seed(int(seed))
     return PUCRSTAttnV2ConditionalUtility(grid.num_nodes, graph.edge_index, graph.relation_features[:, 1:], grid.load_bus_mask, graph.relation_features[:, 0]).to(device)
 
 
-def _make_client(grid: Any, graph: Any, train_indices: np.ndarray, validation_indices: np.ndarray, scaler: ForecastFeatureScaler, history_start: int | None, device: str) -> FederatedClient:
-    return FederatedClient(grid_name=grid.grid_name, model=_model_from_graph(grid, graph, device), train_dataset=IndexDataset(grid, train_indices, history_start), validation_dataset=IndexDataset(grid, validation_indices), scaler=scaler, load_bus_mask=np.asarray(grid.load_bus_mask, dtype=bool), graph_metadata=dict(graph.diagnostics))
+def _make_client(grid: Any, graph: Any, train_indices: np.ndarray, validation_indices: np.ndarray, scaler: ForecastFeatureScaler, history_start: int | None, device: str, seed: int = 42) -> FederatedClient:
+    return FederatedClient(grid_name=grid.grid_name, model=_model_from_graph(grid, graph, device, seed), train_dataset=IndexDataset(grid, train_indices, history_start), validation_dataset=IndexDataset(grid, validation_indices), scaler=scaler, load_bus_mask=np.asarray(grid.load_bus_mask, dtype=bool), graph_metadata=dict(graph.diagnostics))
 
 
 def load_selected_donors(audit_json: Path) -> dict[str, str | None]:
@@ -91,7 +92,7 @@ def load_selection_metadata(audit_json: Path) -> dict[str, Any]:
     }
 
 
-def prepare_scenario_clients(grids: dict[str, Any], target: str, device: str = "cpu") -> tuple[list[FederatedClient], Any, Any, dict[str, Any]]:
+def prepare_scenario_clients(grids: dict[str, Any], target: str, device: str = "cpu", seed: int = 42) -> tuple[list[FederatedClient], Any, Any, dict[str, Any]]:
     target_grid = grids[target]
     split = scarce_split(target_grid)
     target_scaler = fit_fit_only_scaler(target_grid, split.fit_indices, split.available_start)
@@ -105,7 +106,7 @@ def prepare_scenario_clients(grids: dict[str, Any], target: str, device: str = "
         else:
             train_indices, scaler, graph, history_start = _indices(grid), fit_fit_only_scaler(grid, _indices(grid)), build_conditional_utility_graph(grid), None
         metadata[name] = dict(graph.diagnostics)
-        clients.append(_make_client(grid, graph, train_indices, _validation_indices(grid), scaler, history_start, device))
+        clients.append(_make_client(grid, graph, train_indices, _validation_indices(grid), scaler, history_start, device, seed))
     return clients, split, target_graph, metadata
 
 
@@ -118,8 +119,8 @@ def _cpu_state(model: Any) -> dict[str, Any]:
     return {key: value.detach().cpu().clone() for key, value in model.state_dict().items()}
 
 
-def _train_proxy_once(grid: Any, fit_indices: np.ndarray, calibration_indices: np.ndarray, scaler: Any, device: str, max_epochs: int, batch_size: int, initial_state: Mapping[str, Any] | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
-    model, training = train_proxy(grid, fit_indices, calibration_indices, scaler, initial_state=initial_state, device=device, max_epochs=max_epochs, history_start_index=getattr(scaler, "fit_start_index", None), batch_size=batch_size)
+def _train_proxy_once(grid: Any, fit_indices: np.ndarray, calibration_indices: np.ndarray, scaler: Any, device: str, max_epochs: int, batch_size: int, initial_state: Mapping[str, Any] | None = None, seed: int = 42) -> tuple[dict[str, Any], dict[str, Any]]:
+    model, training = train_proxy(grid, fit_indices, calibration_indices, scaler, initial_state=initial_state, device=device, max_epochs=max_epochs, history_start_index=getattr(scaler, "fit_start_index", None), batch_size=batch_size, seed=seed)
     state = _cpu_state(model)
     del model
     return state, dict(training)
@@ -138,11 +139,11 @@ def _same_snapshot(left: Mapping[str, Any], right: Mapping[str, Any]) -> bool:
     return all(bool(np.array_equal(left[name].numpy(), right[name].numpy())) for name in left)
 
 
-def _train_full_donor_states(grids: dict[str, Any], device: str, max_epochs: int, batch_size: int) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
+def _train_full_donor_states(grids: dict[str, Any], device: str, max_epochs: int, batch_size: int, seed: int = 42) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
     states, metadata = {}, {}
     for name in CLIENT_NAMES:
-        grid = grids[name]; fit, calibration = donor_split(grid); scaler = fit_fit_only_scaler(grid, fit); graph = build_conditional_utility_graph(grid); model = full_model(grid, graph, device)
-        state, training = train_full_model(model, grid, fit, calibration, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size)
+        grid = grids[name]; fit, calibration = donor_split(grid); scaler = fit_fit_only_scaler(grid, fit); graph = build_conditional_utility_graph(grid); model = full_model(grid, graph, device, seed=seed)
+        state, training = train_full_model(model, grid, fit, calibration, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed)
         params = dict(model.named_parameters())
         states[name] = {key: value.detach().cpu().clone() for key, value in state.items() if key in params}
         metadata[name] = {"source": "donor_full_history_model", **training}
@@ -160,10 +161,10 @@ def _copy_compatible_trainables(model: Any, donor_state: Mapping[str, Any]) -> t
     return tuple(sorted(copied))
 
 
-def _run_federated(grids: dict[str, Any], target: str, method: str, device: str, rounds: int, local_epochs: int, batch_size: int) -> tuple[dict[str, Any], dict[str, Any]]:
-    clients, split, _graph, graph_metadata = prepare_scenario_clients(grids, target, device)
+def _run_federated(grids: dict[str, Any], target: str, method: str, device: str, rounds: int, local_epochs: int, batch_size: int, seed: int = 42) -> tuple[dict[str, Any], dict[str, Any]]:
+    clients, split, _graph, graph_metadata = prepare_scenario_clients(grids, target, device, seed)
     algorithm = {"fedavg": "standard", "fedprox": "fedprox", "fedper": "fedper"}[method]
-    report = FederatedTrainer(clients, "fedavg_all", rounds=rounds, local_epochs=local_epochs, batch_size=batch_size, learning_rate=1e-3, seed=42, device=device, algorithm=algorithm, evaluate_validation_during_training=False).run()
+    report = FederatedTrainer(clients, "fedavg_all", rounds=rounds, local_epochs=local_epochs, batch_size=batch_size, learning_rate=1e-3, seed=seed, device=device, algorithm=algorithm, evaluate_validation_during_training=False).run()
     target_client = next(client for client in clients if client.grid_name == target)
     metrics = _method_metrics(target_client.model, grids[target], split, target_client.scaler, device, batch_size)
     counts, weights = report["local_sample_counts"], report["round_history"][-1]["aggregation_weights"]
@@ -174,52 +175,53 @@ def _run_federated(grids: dict[str, Any], target: str, method: str, device: str,
     return metrics, {"federated_report": report, "local_sample_counts": counts, "aggregation_weights": weights, "graph_metadata": graph_metadata}
 
 
-def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str | None] | None = None, device: str = "cpu", rounds: int = 10, local_epochs: int = 5, max_epochs: int = 50, btd_variant: str = "btd_fl", batch_size: int = 32, selection_metadata: dict[str, Any] | None = None) -> dict[str, Any]:
+def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str | None] | None = None, device: str = "cpu", rounds: int = 10, local_epochs: int = 5, max_epochs: int = 50, btd_variant: str = "btd_fl", batch_size: int = 32, selection_metadata: dict[str, Any] | None = None, seed: int = 42) -> dict[str, Any]:
+    set_global_seed(seed)
     variants = {"btd_fl", "btd_no_benefit_selection", "btd_no_zero_transfer", "btd_full_model_transfer"}
     if btd_variant not in variants:
         raise ValueError("unknown BTD variant")
     donor_states, donor_metadata = {}, {}
     for name in CLIENT_NAMES:
         grid = grids[name]; fit, calibration = donor_split(grid); scaler = fit_fit_only_scaler(grid, fit)
-        state, training = _train_proxy_once(grid, fit, calibration, scaler, device, max_epochs, batch_size)
-        proxy = make_proxy(grid); proxy.load_state_dict(state)
+        state, training = _train_proxy_once(grid, fit, calibration, scaler, device, max_epochs, batch_size, seed=seed)
+        proxy = make_proxy(grid, seed=seed); proxy.load_state_dict(state)
         from code.audits.btd_full_backbone_bridge import temporal_state_from_model
         donor_states[name] = temporal_state_from_model(proxy)
         donor_metadata[name] = {"donor_fit_target_count": int(len(fit)), "donor_calibration_target_count": int(len(calibration)), "scaler_fit_start_index": int(scaler.fit_start_index), "scaler_fit_end_index": int(scaler.fit_end_index), "scaler_fit_timestamp_end": scaler.fit_timestamp_end, **training, "source": "current_formal_run_full_history_proxy"}
         del proxy
     donor_full_states, donor_full_metadata = ({}, {})
     if btd_variant == "btd_full_model_transfer":
-        donor_full_states, donor_full_metadata = _train_full_donor_states(grids, device, max_epochs, batch_size)
+        donor_full_states, donor_full_metadata = _train_full_donor_states(grids, device, max_epochs, batch_size, seed)
 
     scenarios = {}
     for target in CLIENT_NAMES:
         grid = grids[target]; split = scarce_split(grid); scaler = fit_fit_only_scaler(grid, split.fit_indices, split.available_start); graph = build_scarce_target_graph(grid, split)
-        local_proxy_state, local_proxy_training = _train_proxy_once(grid, split.fit_indices, split.calibration_indices, scaler, device, max_epochs, batch_size)
-        local_proxy = make_proxy(grid); local_proxy.load_state_dict(local_proxy_state); local_calibration_mae = float(local_proxy_training["best_calibration_node_mae"])
+        local_proxy_state, local_proxy_training = _train_proxy_once(grid, split.fit_indices, split.calibration_indices, scaler, device, max_epochs, batch_size, seed=seed)
+        local_proxy = make_proxy(grid, seed=seed); local_proxy.load_state_dict(local_proxy_state); local_calibration_mae = float(local_proxy_training["best_calibration_node_mae"])
         adapted_by_donor, calibration_benefits = {}, {}
         for donor in CLIENT_NAMES:
             if donor == target: continue
             donor_temporal = {name: value for name, value in donor_states[donor].items() if name in parameter_groups(local_proxy)["temporal"]}
-            initial_proxy = make_proxy(grid); inject_temporal_state(initial_proxy, donor_temporal); initial_state = _cpu_state(initial_proxy); del initial_proxy
-            adapted_state, adaptation_training = _train_proxy_once(grid, split.fit_indices, split.calibration_indices, scaler, device, max_epochs, batch_size, initial_state)
-            adapted_proxy = make_proxy(grid); adapted_proxy.load_state_dict(adapted_state); adapted_mae = float(adaptation_training["best_calibration_node_mae"]); del adapted_proxy
+            initial_proxy = make_proxy(grid, seed=seed); inject_temporal_state(initial_proxy, donor_temporal); initial_state = _cpu_state(initial_proxy); del initial_proxy
+            adapted_state, adaptation_training = _train_proxy_once(grid, split.fit_indices, split.calibration_indices, scaler, device, max_epochs, batch_size, initial_state, seed=seed)
+            adapted_proxy = make_proxy(grid, seed=seed); adapted_proxy.load_state_dict(adapted_state); adapted_mae = float(adaptation_training["best_calibration_node_mae"]); del adapted_proxy
             calibration_benefits[donor] = benefit(local_calibration_mae, adapted_mae)
             adapted_by_donor[donor] = {"state": adapted_state, "calibration_node_mae": adapted_mae, "training": {"donor": donor, "source": "current_formal_run_donor_proxy", **adaptation_training}}
         selected_donor, selected_benefit, fallback, selection_rule = select_formal_donor(calibration_benefits, btd_variant)
 
-        local_model = full_model(grid, graph, device); local_spatial = _spatial_buffer_snapshot(local_model); inject_temporal_state(local_model, {name: value for name, value in local_proxy_state.items() if name in parameter_groups(local_model)["temporal"]})
-        local_state, local_full_training = train_full_model(local_model, grid, split.fit_indices, split.calibration_indices, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size); local_model.load_state_dict(local_state); local_metrics = _method_metrics(local_model, grid, split, scaler, device, batch_size)
+        local_model = full_model(grid, graph, device, seed=seed); local_spatial = _spatial_buffer_snapshot(local_model); inject_temporal_state(local_model, {name: value for name, value in local_proxy_state.items() if name in parameter_groups(local_model)["temporal"]})
+        local_state, local_full_training = train_full_model(local_model, grid, split.fit_indices, split.calibration_indices, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed); local_model.load_state_dict(local_state); local_metrics = _method_metrics(local_model, grid, split, scaler, device, batch_size)
         if fallback:
             btd_metrics, btd_training = copy.deepcopy(local_metrics), {"fallback_exact_local": True, "full": copy.deepcopy(local_full_training)}
         elif btd_variant == "btd_full_model_transfer":
-            btd_model = full_model(grid, graph, device); assert _same_snapshot(_spatial_buffer_snapshot(btd_model), local_spatial)
-            transferred = _copy_compatible_trainables(btd_model, donor_full_states[selected_donor]); state, training = train_full_model(btd_model, grid, split.fit_indices, split.calibration_indices, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size); btd_model.load_state_dict(state); btd_metrics = _method_metrics(btd_model, grid, split, scaler, device, batch_size); btd_training = {"full": training, "transferred_parameter_names": list(transferred)}; del btd_model
+            btd_model = full_model(grid, graph, device, seed=seed); assert _same_snapshot(_spatial_buffer_snapshot(btd_model), local_spatial)
+            transferred = _copy_compatible_trainables(btd_model, donor_full_states[selected_donor]); state, training = train_full_model(btd_model, grid, split.fit_indices, split.calibration_indices, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed); btd_model.load_state_dict(state); btd_metrics = _method_metrics(btd_model, grid, split, scaler, device, batch_size); btd_training = {"full": training, "transferred_parameter_names": list(transferred)}; del btd_model
         else:
-            btd_model = full_model(grid, graph, device); assert _same_snapshot(_spatial_buffer_snapshot(btd_model), local_spatial)
-            inject_temporal_state(btd_model, {name: value for name, value in adapted_by_donor[selected_donor]["state"].items() if name in parameter_groups(btd_model)["temporal"]}); state, training = train_full_model(btd_model, grid, split.fit_indices, split.calibration_indices, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size); btd_model.load_state_dict(state); btd_metrics = _method_metrics(btd_model, grid, split, scaler, device, batch_size); btd_training = {"adaptation": adapted_by_donor[selected_donor]["training"], "full": training, "transferred_parameter_names": list(parameter_groups(btd_model)["temporal"])}; del btd_model
+            btd_model = full_model(grid, graph, device, seed=seed); assert _same_snapshot(_spatial_buffer_snapshot(btd_model), local_spatial)
+            inject_temporal_state(btd_model, {name: value for name, value in adapted_by_donor[selected_donor]["state"].items() if name in parameter_groups(btd_model)["temporal"]}); state, training = train_full_model(btd_model, grid, split.fit_indices, split.calibration_indices, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed); btd_model.load_state_dict(state); btd_metrics = _method_metrics(btd_model, grid, split, scaler, device, batch_size); btd_training = {"adaptation": adapted_by_donor[selected_donor]["training"], "full": training, "transferred_parameter_names": list(parameter_groups(btd_model)["temporal"])}; del btd_model
         methods = {"scarce_local": local_metrics}; federated = {}
         for method in ("fedavg", "fedprox", "fedper"):
-            methods[method], federated[method] = _run_federated(grids, target, method, device, rounds, local_epochs, batch_size)
+            methods[method], federated[method] = _run_federated(grids, target, method, device, rounds, local_epochs, batch_size, seed)
         methods["btd_fl"] = btd_metrics
         selected_adaptation = adapted_by_donor.get(selected_donor)
         train = grid.splits["train"]
@@ -268,7 +270,7 @@ def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str |
         macros[split_name] = {method: {scope: {metric: float(np.mean([scenarios[name]["methods"][method][split_name][scope][metric] for name in CLIENT_NAMES])) for metric in ("mae", "rmse", "wape_pct", "smape_pct")} for scope in ("node_macro", "grid_aggregate")} for method in METHODS}
     wins = {method: sum(scenarios[name]["methods"]["btd_fl"]["validation"]["node_macro"]["mae"] < scenarios[name]["methods"][method]["validation"]["node_macro"]["mae"] for name in CLIENT_NAMES) for method in METHODS[:-1]}
     relative = {method: {split: float((macros[split][method]["node_macro"]["mae"] - macros[split]["btd_fl"]["node_macro"]["mae"]) / (macros[split][method]["node_macro"]["mae"] + 1e-12)) for split in ("audit", "validation")} for method in METHODS[:-1]}
-    return {"experiment": "formal_btd_fl_25pct_benchmark", "method_name": "BTD-FL", "btd_variant": btd_variant, "methods": list(METHODS), "client_grid_names": list(CLIENT_NAMES), "rounds": rounds, "local_epochs": local_epochs, "max_epochs": max_epochs, "batch_size": batch_size, "learning_rate": 1e-3, "seed": 42, "history_fraction": 0.25, "validation_used_for_selection": False, "audit_used_for_selection": False, "test_evaluated": False, "communication_round_selection": "fixed_final_round", "canonical_validation_evaluated_during_training": False, "donor_proxy_metadata_by_grid": donor_metadata, "donor_full_model_metadata_by_grid": donor_full_metadata, "scenarios": scenarios, "four_scenario_macro": macros, "relative_btd_fl_improvement_vs": relative, "btd_fl_win_counts": wins}
+    return {"experiment": "formal_btd_fl_25pct_benchmark", "method_name": "BTD-FL", "btd_variant": btd_variant, "methods": list(METHODS), "client_grid_names": list(CLIENT_NAMES), "rounds": rounds, "local_epochs": local_epochs, "max_epochs": max_epochs, "batch_size": batch_size, "learning_rate": 1e-3, "seed": int(seed), "history_fraction": 0.25, "train_calibration_audit_split": "60/20/20 for scarce target; donor train-internal fit/calibration", "validation_used_for_selection": False, "audit_used_for_selection": False, "test_evaluated": False, "communication_round_selection": "fixed_final_round", "canonical_validation_evaluated_during_training": False, "donor_proxy_metadata_by_grid": donor_metadata, "donor_full_model_metadata_by_grid": donor_full_metadata, "scenarios": scenarios, "four_scenario_macro": macros, "relative_btd_fl_improvement_vs": relative, "btd_fl_win_counts": wins, "reproducibility": reproducibility_metadata(seed, device)}
 
 
 __all__ = ["CLIENT_NAMES", "METHODS", "load_selected_donors", "load_selection_metadata", "prepare_scenario_clients", "select_formal_donor", "run_formal_benchmark"]

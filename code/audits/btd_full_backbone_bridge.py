@@ -75,9 +75,9 @@ def build_scarce_target_graph(grid: Any, split: Any | None = None) -> Any:
     return UtilityGraph(edge_index, relation, utilities, neighbors, loads, diagnostics)
 
 
-def full_model(grid: Any, graph: Any, device: str = "cpu") -> Any:
+def full_model(grid: Any, graph: Any, device: str = "cpu", seed: int = SEED) -> Any:
     import torch
-    torch.manual_seed(SEED)
+    torch.manual_seed(int(seed))
     model = PUCRSTAttnV2ConditionalUtility(
         grid.num_nodes, graph.edge_index, graph.relation_features[:, 1:],
         grid.load_bus_mask, graph.relation_features[:, 0],
@@ -102,8 +102,9 @@ def inject_temporal_state(model: Any, state: Mapping[str, Any]) -> tuple[str, ..
 
 def train_full_model(model: Any, grid: Any, fit_indices: np.ndarray, calibration_indices: np.ndarray,
                      scaler: Any, device: str = "cpu", max_epochs: int = 50,
-                     patience: int = PATIENCE, batch_size: int = BATCH_SIZE) -> tuple[dict[str, Any], dict[str, Any]]:
+                     patience: int = PATIENCE, batch_size: int = BATCH_SIZE, seed: int = SEED) -> tuple[dict[str, Any], dict[str, Any]]:
     import torch
+    torch.manual_seed(int(seed))
     model = model.to(device)
     fit_ds = IndexDataset(grid, fit_indices)
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)

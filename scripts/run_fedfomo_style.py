@@ -19,6 +19,7 @@ from code.federated.fedfomo_style import run_fedfomo  # noqa: E402
 from code.federated.formal_btd import CLIENT_NAMES  # noqa: E402
 from code.federated.formal_btd_ablations import load_frozen_reference  # noqa: E402
 from scripts.run_federated import build_synthetic_clients  # noqa: E402
+from code.federated.seeding import set_global_seed  # noqa: E402
 
 
 def _formal_grid_from_client(client: Any) -> Any:
@@ -83,23 +84,40 @@ def main() -> None:
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--synthetic-smoke", action="store_true")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "results" / "federated" / "formal_25pct")
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
+    stem = f"fedfomo_style_25pct_seed{args.seed}"
+    json_path, md_path = args.output_dir / f"{stem}.json", args.output_dir / f"{stem}.md"
+    if json_path.exists():
+        existing = json.loads(json_path.read_text(encoding="utf-8"))
+        if int(existing.get("seed", -1)) != args.seed:
+            raise ValueError(f"refusing to overwrite result with mismatched seed: {json_path}")
+        if args.seed == 42 or not args.force:
+            if existing.get("test_evaluated") is False:
+                print(f"resume: keeping frozen/completed result {json_path}"); return
     reference = load_frozen_reference(args.reference_json)
     direct = json.loads(args.direct_transfer_json.read_text(encoding="utf-8"))
     if direct.get("test_evaluated") is not False or direct.get("btd_variant") != "btd_fl_direct_transfer":
         raise ValueError("direct-transfer frozen result violates guardrails")
     if args.synthetic_smoke:
-        grids = {client.grid_name: _formal_grid_from_client(client) for client in build_synthetic_clients(42)}
+        grids = {client.grid_name: _formal_grid_from_client(client) for client in build_synthetic_clients(args.seed)}
         batch_size = 256
     else:
         grids = {name: LVGridLoader(args.data_root, args.mapping_json).load(name) for name in CLIENT_NAMES}
         batch_size = args.batch_size
-    report = run_fedfomo(grids, reference, args.rounds, args.local_epochs, batch_size, args.device, direct_transfer_reference=direct)
+    set_global_seed(args.seed)
+    report = run_fedfomo(grids, reference, args.rounds, args.local_epochs, batch_size, args.device, direct_transfer_reference=direct, seed=args.seed)
     report["frozen_direct_transfer_metrics"] = {target: direct["scenarios"][target]["metrics"] for target in CLIENT_NAMES}
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    stem = "fedfomo_style_25pct_seed42"
-    (args.output_dir / f"{stem}.json").write_text(json.dumps(report, indent=2, default=lambda value: value.tolist() if isinstance(value, np.ndarray) else value) + "\n", encoding="utf-8")
-    (args.output_dir / f"{stem}.md").write_text(render_markdown(report) + "\n", encoding="utf-8")
+    if json_path.exists() and not args.force:
+        existing = json.loads(json_path.read_text(encoding="utf-8"))
+        if int(existing.get("seed", -1)) == args.seed and existing.get("test_evaluated") is False:
+            print(f"resume: keeping {json_path}"); return
+        if int(existing.get("seed", -1)) != args.seed:
+            raise ValueError(f"refusing to overwrite result with mismatched seed: {json_path}")
+    json_path.write_text(json.dumps(report, indent=2, default=lambda value: value.tolist() if isinstance(value, np.ndarray) else value) + "\n", encoding="utf-8")
+    md_path.write_text(render_markdown(report) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":
