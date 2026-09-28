@@ -125,7 +125,7 @@ def main() -> None:
         report.pop("win_counts_vs_frozen_comparators", None)
         for item in report["scenarios"].values():
             item.pop("frozen_comparator_metrics", None)
-    args.output_dir.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
     if json_path.resolve() == args.reference_json.resolve() or md_path.resolve() == args.reference_json.with_suffix(".md").resolve():
         raise ValueError("direct-transfer output must not overwrite frozen main result")
     json_path.write_text(json.dumps(report, indent=2, default=lambda value: value.tolist() if isinstance(value, np.ndarray) else value) + "\n", encoding="utf-8")

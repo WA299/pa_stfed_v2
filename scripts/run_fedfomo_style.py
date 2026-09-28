@@ -18,7 +18,7 @@ from code.data.lv_grid_loader import LVGridLoader  # noqa: E402
 from code.federated.fedfomo_style import run_fedfomo  # noqa: E402
 from code.federated.formal_btd import CLIENT_NAMES  # noqa: E402
 from code.federated.formal_btd_ablations import load_frozen_reference  # noqa: E402
-from code.federated.result_validation import resumable_result  # noqa: E402
+from code.federated.result_validation import load_valid_result, resumable_result  # noqa: E402
 from scripts.run_federated import build_synthetic_clients  # noqa: E402
 from code.federated.seeding import set_global_seed  # noqa: E402
 
@@ -105,7 +105,26 @@ def main() -> None:
             raise ValueError(f"existing result is incomplete or incompatible; use --force to rerun: {json_path}")
     reference = load_frozen_reference(args.reference_json)
     direct = json.loads(args.direct_transfer_json.read_text(encoding="utf-8"))
-    if direct.get("test_evaluated") is not False or direct.get("btd_variant") != "btd_fl_direct_transfer":
+    baseline_reference = None
+    if args.seed != 42:
+        if args.baseline_json is None:
+            raise ValueError("new-seed FedFomo requires a same-seed baseline reference")
+        baseline_reference = load_valid_result(
+            args.baseline_json, seed=args.seed, artifact_type="formal_baselines",
+            run_mode=run_mode, methods=("scarce_local", "fedavg", "fedprox", "fedper"),
+            rounds=args.rounds, local_epochs=args.local_epochs,
+            batch_size=256 if args.synthetic_smoke else args.batch_size,
+            learning_rate=1e-3, max_epochs=1 if args.synthetic_smoke else 50, patience=8,
+        )
+        direct = load_valid_result(
+            args.direct_transfer_json, seed=args.seed, artifact_type="btd_fl_direct_transfer",
+            run_mode=run_mode, methods=("btd_fl_direct_transfer",),
+            batch_size=256 if args.synthetic_smoke else args.batch_size,
+            learning_rate=1e-3, max_epochs=1 if args.synthetic_smoke else 50, patience=8,
+        )
+        if direct.get("btd_variant") != "btd_fl_direct_transfer":
+            raise ValueError("same-seed direct-transfer reference has the wrong variant")
+    elif direct.get("test_evaluated") is not False or direct.get("btd_variant") != "btd_fl_direct_transfer":
         raise ValueError("direct-transfer frozen result violates guardrails")
     if args.synthetic_smoke:
         grids = {client.grid_name: _formal_grid_from_client(client) for client in build_synthetic_clients(args.seed)}
@@ -114,7 +133,8 @@ def main() -> None:
         grids = {name: LVGridLoader(args.data_root, args.mapping_json).load(name) for name in CLIENT_NAMES}
         batch_size = args.batch_size
     set_global_seed(args.seed)
-    baseline_reference = json.loads(args.baseline_json.read_text(encoding="utf-8")) if args.baseline_json is not None else None
+    if args.seed == 42 and args.baseline_json is not None:
+        baseline_reference = json.loads(args.baseline_json.read_text(encoding="utf-8"))
     report = run_fedfomo(grids, reference, args.rounds, args.local_epochs, batch_size, args.device, direct_transfer_reference=direct, baseline_reference=baseline_reference, seed=args.seed)
     report["frozen_direct_transfer_metrics"] = {target: direct["scenarios"][target]["metrics"] for target in CLIENT_NAMES}
     report["run_mode"] = run_mode
@@ -123,7 +143,7 @@ def main() -> None:
     if args.seed != 42 and baseline_reference is not None:
         report["relative_improvement_vs_same_seed_comparators"] = report.pop("relative_improvement_vs_frozen_comparators", {})
         report["win_counts_vs_same_seed_comparators"] = report.pop("win_counts_vs_frozen_comparators", {})
-    args.output_dir.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
     json_path.write_text(json.dumps(report, indent=2, default=lambda value: value.tolist() if isinstance(value, np.ndarray) else value) + "\n", encoding="utf-8")
     md_path.write_text(render_markdown(report) + "\n", encoding="utf-8")
 

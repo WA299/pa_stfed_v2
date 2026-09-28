@@ -112,6 +112,14 @@ def test_synthetic_and_protocol_mismatch_never_resume():
     contract = dict(seed=123, artifact_type="formal_baselines", run_mode="real", methods=("scarce_local", "fedavg", "fedprox", "fedper"), rounds=10, local_epochs=5, batch_size=32, learning_rate=1e-3, max_epochs=50, patience=8)
     assert resumable_result(path, **contract) is False
     payload["run_mode"] = "real"; payload["rounds"] = 10; payload["local_epochs"] = 5; payload["batch_size"] = 32; payload["max_epochs"] = 50
+    payload["scenarios"] = {
+        target: {"methods": {name: _metric(1.0) for name in ("scarce_local", "fedavg", "fedprox", "fedper")}}
+        for target in TARGETS
+    }
+    payload["four_scenario_macro"] = {
+        split: {name: {scope: {metric: 1.0 for metric in ("mae", "rmse", "wape_pct", "smape_pct")} for scope in ("node_macro", "grid_aggregate")} for name in ("scarce_local", "fedavg", "fedprox", "fedper")}
+        for split in ("audit", "validation")
+    }
     path.write_text(json.dumps(payload), encoding="utf-8")
     assert resumable_result(path, **contract) is True
     shutil.rmtree(root, ignore_errors=True)
