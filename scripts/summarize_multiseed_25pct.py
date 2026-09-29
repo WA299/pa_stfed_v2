@@ -7,6 +7,8 @@ from pathlib import Path
 from statistics import mean, pstdev
 from typing import Any, Mapping
 
+from code.federated.result_validation import is_historical_25pct
+
 METHODS = ("scarce_local", "fedavg", "fedprox", "fedper", "fedfomo_style", "btd_fl_direct_transfer")
 SEEDS = (42, 123, 2026)
 TARGETS = (
@@ -28,7 +30,7 @@ def _read(path: Path, seed: int, *, artifact_type: str, methods: tuple[str, ...]
         raise ValueError(f"seed metadata does not match filename: {path}")
     if report.get("test_evaluated") is not False:
         raise ValueError(f"test guardrail violated: {path}")
-    historical = seed == 42
+    historical = is_historical_25pct(seed, history_fraction)
     if not (seed == 42 and history_fraction == 0.25 and "history_fraction" not in report) and float(report.get("history_fraction", -1)) != float(history_fraction):
         raise ValueError(f"history fraction mismatch: {path}")
     if not historical:
@@ -77,7 +79,7 @@ def _result_paths(root: Path, seed: int, history_fraction: float = 0.25) -> dict
 
 def _load_seed(root: Path, seed: int, history_fraction: float = 0.25) -> dict[str, Any]:
     paths = _result_paths(root, seed, history_fraction)
-    historical = seed == 42 and history_fraction == 0.25
+    historical = is_historical_25pct(seed, history_fraction)
     baseline_methods = ("scarce_local", "fedavg", "fedprox", "fedper") if not historical else ("scarce_local", "fedavg", "fedprox", "fedper", "btd_fl")
     baseline = _read(paths["baseline"], seed, artifact_type="formal_baselines", methods=baseline_methods, history_fraction=history_fraction)
     direct = _read(paths["btd_fl_direct_transfer"], seed, artifact_type="btd_fl_direct_transfer", methods=("btd_fl_direct_transfer",), history_fraction=history_fraction)
@@ -86,7 +88,7 @@ def _load_seed(root: Path, seed: int, history_fraction: float = 0.25) -> dict[st
         raise ValueError(f"baseline artifact is not the accepted formal baseline: {paths['baseline']}")
     if not historical and baseline.get("artifact_type") != "formal_baselines":
         raise ValueError(f"new-seed baseline artifact is not baseline-only: {paths['baseline']}")
-    if not set(("scarce_local", "fedavg", "fedprox", "fedper") + (("btd_fl",) if seed == 42 else ())).issubset(set(baseline.get("methods", ()) )):
+    if not set(("scarce_local", "fedavg", "fedprox", "fedper") + (("btd_fl",) if historical else ())).issubset(set(baseline.get("methods", ()) )):
         raise ValueError(f"formal baseline is missing an accepted method: {paths['baseline']}")
     if direct.get("btd_variant") != "btd_fl_direct_transfer":
         raise ValueError(f"direct-transfer artifact has wrong variant: {paths['btd_fl_direct_transfer']}")
@@ -162,7 +164,7 @@ def summarize(root: Path, seeds: tuple[int, ...] = SEEDS, history_fraction: floa
         "per_seed_metrics": {method: {str(seed): _macro(normalized[method][seed]) for seed in seeds} for method in METHODS},
         "btd_vs_comparators": comparisons,
         "donor_selection_robustness": {"by_target": donor_robustness, "target_summary": target_summary, "positive_directed_benefit_count": positive, "non_positive_directed_benefit_count": non_positive, "fallback_occurrence_count": fallback_count, "directed_edge_observations": positive + non_positive},
-        "guardrails": {"validation_used_for_selection": False, "audit_used_for_selection": False, "test_evaluated": False, "seed42_retrained": False},
+        "guardrails": {"validation_used_for_selection": False, "audit_used_for_selection": False, "test_evaluated": False, "seed42_source": "historical_frozen" if history_fraction == 0.25 else "current_50pct_run"},
     }
 
 

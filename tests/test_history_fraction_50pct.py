@@ -6,6 +6,7 @@ import numpy as np
 
 from code.audits.federated_transfer_benefit import scarce_split
 from code.federated.result_validation import resumable_result
+from code.federated.result_validation import is_historical_25pct
 from scripts.run_federated import build_synthetic_clients
 from scripts.run_fedfomo_style import _formal_grid_from_client
 from scripts.summarize_history_fraction import summarize as summarize_history
@@ -13,6 +14,12 @@ from scripts.summarize_history_fraction import summarize as summarize_history
 
 def _grid():
     return _formal_grid_from_client(build_synthetic_clients(123)[0])
+
+
+def test_only_seed42_at_25pct_is_historical():
+    assert is_historical_25pct(42, 0.25)
+    assert not is_historical_25pct(42, 0.50)
+    assert not is_historical_25pct(123, 0.25)
 
 
 def test_50pct_uses_recent_train_history_and_chronological_60_20_20():
@@ -56,6 +63,20 @@ def test_history_fraction_is_part_of_resume_contract():
     path.write_text(json.dumps(report), encoding="utf-8")
     try:
         assert not resumable_result(path, seed=123, artifact_type="formal_baselines", run_mode="real", methods=("scarce_local", "fedavg", "fedprox", "fedper"), rounds=10, local_epochs=5, batch_size=32, learning_rate=1e-3, max_epochs=50, patience=8, history_fraction=0.25)
+    finally:
+        path.unlink(missing_ok=True)
+
+
+def test_50pct_reference_contract_rejects_25pct_artifacts():
+    report = {
+        "run_mode": "real", "seed": 42, "artifact_type": "formal_baselines",
+        "history_fraction": 0.25, "batch_size": 32, "learning_rate": 1e-3,
+        "test_evaluated": False, "client_grid_names": [], "methods": [], "scenarios": {},
+    }
+    path = Path("tmp_25pct_reference_for_50pct.json")
+    path.write_text(json.dumps(report), encoding="utf-8")
+    try:
+        assert not resumable_result(path, seed=42, artifact_type="formal_baselines", run_mode="real", methods=("scarce_local", "fedavg", "fedprox", "fedper"), history_fraction=0.50)
     finally:
         path.unlink(missing_ok=True)
 

@@ -229,7 +229,7 @@ def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str |
         scenarios[target] = {"methods": methods, "metadata": {
             "canonical_train_raw_hours": int(train.end_index - train.start_index),
             "available_raw_hours": int(split.available_end - split.available_start),
-            "history_fraction": 0.25,
+                "history_fraction": history_fraction,
             "available_raw_start_index": int(split.available_start),
             "available_raw_end_index": int(split.available_end),
             "eligible_target_count": int(len(split.eligible_indices)),
@@ -341,7 +341,7 @@ def run_formal_baselines(grids: dict[str, Any], device: str = "cpu", rounds: int
         for split_name in ("audit", "validation")
     }
     return {
-        "experiment": "formal_baselines_25pct",
+        "experiment": f"formal_baselines_{int(history_fraction * 100)}pct",
         "artifact_type": "formal_baselines",
         "methods": list(BASELINE_METHODS),
         "client_grid_names": list(CLIENT_NAMES),

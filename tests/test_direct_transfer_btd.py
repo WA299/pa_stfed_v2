@@ -46,6 +46,21 @@ def test_direct_transfer_synthetic_four_target_smoke():
         assert metadata["audit_used_for_selection"] is False
 
 
+def test_direct_transfer_50pct_omits_25pct_comparison_fields():
+    clients = build_synthetic_clients(42)
+    grids = {client.grid_name: _formal_grid_from_client(client) for client in clients}
+    reference = load_frozen_reference(REFERENCE)
+    report = run_direct_transfer(grids, reference, device="cpu", max_epochs=1, batch_size=256, seed=42, history_fraction=0.50)
+    assert report["history_fraction"] == 0.50
+    assert "relative_improvement_vs_frozen_comparators" not in report
+    assert "win_counts_vs_frozen_comparators" not in report
+    assert "previous_no_target_adaptation_regression_expectation" not in report
+    assert "difference_from_previous_no_target_adaptation_expectation" not in report
+    for item in report["scenarios"].values():
+        assert "frozen_comparator_metrics" not in item
+        assert "historical_25pct_seed42_donor" in item["metadata"]
+
+
 def test_direct_transfer_markdown_contains_probe_and_guardrails():
     report = {
         "client_grid_names": list(CLIENT_NAMES),

@@ -14,6 +14,11 @@ _SCOPES = ("node_macro", "grid_aggregate")
 _BASELINE_METHODS = ("scarce_local", "fedavg", "fedprox", "fedper")
 
 
+def is_historical_25pct(seed: int, history_fraction: float, tolerance: float = 1e-9) -> bool:
+    """The only frozen artifact is the accepted seed-42 25% result."""
+    return int(seed) == 42 and abs(float(history_fraction) - 0.25) < tolerance
+
+
 def _finite_number(value: Any) -> bool:
     """Return true for finite real-valued metrics, excluding booleans."""
     return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(float(value))
@@ -209,3 +214,6 @@ def resumable_result(path: Path, **contract: Any) -> bool:
     except (FileNotFoundError, ValueError, KeyError, TypeError, json.JSONDecodeError):
         return False
     return True
+
+
+__all__ = ["is_historical_25pct", "load_valid_result", "resumable_result"]

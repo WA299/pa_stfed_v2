@@ -18,7 +18,7 @@ from code.data.lv_grid_loader import LVGridLoader  # noqa: E402
 from code.federated.fedfomo_style import run_fedfomo  # noqa: E402
 from code.federated.formal_btd import CLIENT_NAMES  # noqa: E402
 from code.federated.formal_btd_ablations import load_frozen_reference  # noqa: E402
-from code.federated.result_validation import load_valid_result, resumable_result  # noqa: E402
+from code.federated.result_validation import is_historical_25pct, load_valid_result, resumable_result  # noqa: E402
 from scripts.run_federated import build_synthetic_clients  # noqa: E402
 from code.federated.seeding import set_global_seed  # noqa: E402
 
@@ -93,24 +93,25 @@ def main() -> None:
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
     run_mode = "synthetic_smoke" if args.synthetic_smoke else "real"
+    historical_25pct = is_historical_25pct(args.seed, args.history_fraction)
     output_dir = args.output_dir / "smoke" if args.synthetic_smoke else args.output_dir
     percent = int(round(args.history_fraction * 100))
     if percent not in (25, 50):
         raise ValueError("history_fraction must be 0.25 or 0.50")
     stem = f"fedfomo_style_{percent}pct_seed{args.seed}" + ("_synthetic_smoke" if args.synthetic_smoke else "")
     json_path, md_path = output_dir / f"{stem}.json", output_dir / f"{stem}.md"
-    if args.seed == 42 and run_mode == "real" and json_path.exists():
+    if historical_25pct and run_mode == "real" and json_path.exists():
         print(f"historical seed-42 result is frozen: {json_path}"); return
     if json_path.exists():
         if resumable_result(json_path, seed=args.seed, artifact_type="fedfomo_style", run_mode=run_mode, methods=("fedfomo_style",), rounds=args.rounds, local_epochs=args.local_epochs, batch_size=256 if args.synthetic_smoke else 32, learning_rate=1e-3, max_epochs=50, patience=8, history_fraction=args.history_fraction):
-            if args.seed == 42 or not args.force:
+            if historical_25pct or not args.force:
                 print(f"resume: keeping frozen/completed result {json_path}"); return
         elif not args.force:
             raise ValueError(f"existing result is incomplete or incompatible; use --force to rerun: {json_path}")
     reference = load_frozen_reference(args.reference_json)
     direct = json.loads(args.direct_transfer_json.read_text(encoding="utf-8"))
     baseline_reference = None
-    if args.seed != 42:
+    if not historical_25pct:
         if args.baseline_json is None:
             raise ValueError("new-seed FedFomo requires a same-seed baseline reference")
         baseline_reference = load_valid_result(
@@ -137,14 +138,14 @@ def main() -> None:
         grids = {name: LVGridLoader(args.data_root, args.mapping_json).load(name) for name in CLIENT_NAMES}
         batch_size = args.batch_size
     set_global_seed(args.seed)
-    if args.seed == 42 and args.baseline_json is not None:
+    if historical_25pct and args.baseline_json is not None:
         baseline_reference = json.loads(args.baseline_json.read_text(encoding="utf-8"))
     report = run_fedfomo(grids, reference, args.rounds, args.local_epochs, batch_size, args.device, direct_transfer_reference=direct, baseline_reference=baseline_reference, seed=args.seed, history_fraction=args.history_fraction)
     report["frozen_direct_transfer_metrics"] = {target: direct["scenarios"][target]["metrics"] for target in CLIENT_NAMES}
     report["run_mode"] = run_mode
     report["artifact_type"] = "fedfomo_style"
     report["methods"] = ["fedfomo_style"]
-    if args.seed != 42 and baseline_reference is not None:
+    if not historical_25pct and baseline_reference is not None:
         report["relative_improvement_vs_same_seed_comparators"] = report.pop("relative_improvement_vs_frozen_comparators", {})
         report["win_counts_vs_same_seed_comparators"] = report.pop("win_counts_vs_frozen_comparators", {})
     output_dir.mkdir(parents=True, exist_ok=True)

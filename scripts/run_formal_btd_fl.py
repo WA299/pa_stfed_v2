@@ -23,7 +23,7 @@ from code.federated.formal_btd import (  # noqa: E402
     run_formal_baselines,
     run_formal_benchmark,
 )
-from code.federated.result_validation import load_valid_result, resumable_result  # noqa: E402
+from code.federated.result_validation import is_historical_25pct, load_valid_result, resumable_result  # noqa: E402
 from code.data.lv_grid_loader import LVGridLoader  # noqa: E402
 from scripts.run_btd_full_backbone_bridge import _grid_from_client  # noqa: E402
 from scripts.run_federated import build_synthetic_clients  # noqa: E402
@@ -111,6 +111,7 @@ def main() -> None:
     parser.add_argument("--baseline-only", action="store_true", help="write the seed-specific formal baseline artifact")
     args = parser.parse_args()
     run_mode = "synthetic_smoke" if args.synthetic_smoke else "real"
+    historical_25pct = is_historical_25pct(args.seed, args.history_fraction)
     output_dir = args.output_dir / "smoke" if args.synthetic_smoke else args.output_dir
     percent = int(round(args.history_fraction * 100))
     if percent not in (25, 50):
@@ -119,13 +120,13 @@ def main() -> None:
     if args.synthetic_smoke:
         stem += "_synthetic_smoke"
     output = output_dir / f"{stem}.json"; markdown = output_dir / f"{stem}.md"; output.parent.mkdir(parents=True, exist_ok=True)
-    if args.seed == 42 and run_mode == "real" and output.exists():
+    if historical_25pct and run_mode == "real" and output.exists():
         print(f"historical seed-42 result is frozen: {output}"); return
     if output.exists():
         expected_methods = tuple(BASELINE_METHODS if args.baseline_only else METHODS)
         expected_type = "formal_baselines" if args.baseline_only else "formal_btd"
         if resumable_result(output, seed=args.seed, artifact_type=expected_type, run_mode=run_mode, methods=expected_methods, rounds=args.rounds, local_epochs=args.local_epochs, batch_size=256 if args.synthetic_smoke else 32, learning_rate=1e-3, max_epochs=args.max_epochs, patience=8, history_fraction=args.history_fraction):
-            if args.seed == 42 or not args.force:
+            if historical_25pct or not args.force:
                 print(f"resume: keeping frozen/completed result {output}"); return
         elif not args.force:
             raise ValueError(f"existing result is incomplete or incompatible; use --force to rerun: {output}")

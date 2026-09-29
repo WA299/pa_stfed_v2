@@ -188,12 +188,7 @@ def run_direct_transfer(
             training = {"full": full_training, "transferred_parameter_names": list(transferred_names)}
 
         main_target = frozen["scenarios"][target]["methods"]
-        scenarios[target] = {
-            "metrics": metrics,
-            "frozen_comparator_metrics": {
-                name: main_target[name] for name in ("scarce_local", "fedavg", "fedprox", "fedper", "btd_fl")
-            },
-            "metadata": {
+        scenario_metadata = {
                 "candidate_donors": [name for name in CLIENT_NAMES if name != target],
                 "local_proxy_training": local_training,
                 "local_proxy_calibration_node_mae": local_calibration_mae,
@@ -203,9 +198,8 @@ def run_direct_transfer(
                 "selected_calibration_benefit": float(selected_benefit),
                 "zero_transfer_fallback": bool(fallback),
                 "selection_rule": selection_rule,
-                "selection_matches_previous_formal_run": selected == old_selected[target],
                 "matches_historical_seed42_selection": selected == old_selected[target],
-                "previous_formal_selected_donor": old_selected[target],
+                "historical_25pct_seed42_donor": old_selected[target],
                 "raw_donor_temporal_source": (
                     donor_metadata[selected]["source"] if selected is not None else None
                 ),
@@ -222,8 +216,15 @@ def run_direct_transfer(
                 "validation_used_for_selection": False,
                 "audit_used_for_selection": False,
                 "test_evaluated": False,
-            },
         }
+        if abs(history_fraction - 0.25) < 1e-9:
+            scenario_metadata["selection_matches_previous_formal_run"] = selected == old_selected[target]
+        scenario_payload = {"metrics": metrics, "metadata": scenario_metadata}
+        if abs(history_fraction - 0.25) < 1e-9:
+            scenario_payload["frozen_comparator_metrics"] = {
+                name: main_target[name] for name in ("scarce_local", "fedavg", "fedprox", "fedper", "btd_fl")
+            }
+        scenarios[target] = scenario_payload
         del model
 
     metrics_by_target = {name: item["metrics"] for name, item in scenarios.items()}
@@ -242,20 +243,20 @@ def run_direct_transfer(
     }
     comparisons = {}
     win_counts = {}
-    for comparator in ("scarce_local", "fedavg", "fedprox", "fedper", "btd_fl"):
-        comparisons[comparator] = {}
-        for split_name in ("audit", "validation"):
-            base = frozen["four_scenario_macro"][split_name][comparator]["node_macro"]["mae"]
-            value = macro[split_name]["node_macro"]["mae"]
-            comparisons[comparator][split_name] = float((base - value) / (base + 1e-12))
-        win_counts[comparator] = sum(
-            scenarios[target]["metrics"]["validation"]["node_macro"]["mae"]
-            < frozen["scenarios"][target]["methods"][comparator]["validation"]["node_macro"]["mae"]
-            for target in CLIENT_NAMES
-        )
+    if abs(history_fraction - 0.25) < 1e-9:
+        for comparator in ("scarce_local", "fedavg", "fedprox", "fedper", "btd_fl"):
+            comparisons[comparator] = {}
+            for split_name in ("audit", "validation"):
+                base = frozen["four_scenario_macro"][split_name][comparator]["node_macro"]["mae"]
+                value = macro[split_name]["node_macro"]["mae"]
+                comparisons[comparator][split_name] = float((base - value) / (base + 1e-12))
+            win_counts[comparator] = sum(
+                scenarios[target]["metrics"]["validation"]["node_macro"]["mae"]
+                < frozen["scenarios"][target]["methods"][comparator]["validation"]["node_macro"]["mae"]
+                for target in CLIENT_NAMES
+            )
 
-    expected_regression = {"validation_node_mae": 0.000343768, "audit_node_mae": 0.000313559}
-    return {
+    result = {
         "experiment": f"formal_btd_fl_direct_temporal_transfer_{int(history_fraction * 100)}pct",
         "method_name": "BTD-FL Direct Temporal Transfer",
         "btd_variant": "btd_fl_direct_transfer",
@@ -278,19 +279,22 @@ def run_direct_transfer(
         "donor_proxy_metadata_by_grid": donor_metadata,
         "scenarios": scenarios,
         "four_target_unweighted_macro": macro,
-        "relative_improvement_vs_frozen_comparators": comparisons,
-        "win_counts_vs_frozen_comparators": win_counts,
-        "previous_no_target_adaptation_regression_expectation": expected_regression,
-        "difference_from_previous_no_target_adaptation_expectation": {
-            "validation_node_mae": float(macro["validation"]["node_macro"]["mae"] - expected_regression["validation_node_mae"]),
-            "audit_node_mae": float(macro["audit"]["node_macro"]["mae"] - expected_regression["audit_node_mae"]),
-        },
-        "selection_matches_previous_formal_run_by_target": {
-            target: scenarios[target]["metadata"]["selection_matches_previous_formal_run"]
-            for target in CLIENT_NAMES
-        },
         "reproducibility": reproducibility_metadata(seed, device),
     }
+    if abs(history_fraction - 0.25) < 1e-9:
+        result["selection_matches_previous_formal_run_by_target"] = {
+            target: scenarios[target]["metadata"]["selection_matches_previous_formal_run"]
+            for target in CLIENT_NAMES
+        }
+        result["relative_improvement_vs_frozen_comparators"] = comparisons
+        result["win_counts_vs_frozen_comparators"] = win_counts
+        expected_regression = {"validation_node_mae": 0.000343768, "audit_node_mae": 0.000313559}
+        result["previous_no_target_adaptation_regression_expectation"] = expected_regression
+        result["difference_from_previous_no_target_adaptation_expectation"] = {
+            "validation_node_mae": float(macro["validation"]["node_macro"]["mae"] - expected_regression["validation_node_mae"]),
+            "audit_node_mae": float(macro["audit"]["node_macro"]["mae"] - expected_regression["audit_node_mae"]),
+        }
+    return result
 
 
 __all__ = ["run_direct_transfer"]

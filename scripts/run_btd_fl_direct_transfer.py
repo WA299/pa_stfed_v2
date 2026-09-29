@@ -18,7 +18,7 @@ from code.data.lv_grid_loader import LVGridLoader  # noqa: E402
 from code.federated.direct_transfer_btd import run_direct_transfer  # noqa: E402
 from code.federated.formal_btd_ablations import load_frozen_reference  # noqa: E402
 from code.federated.formal_btd import CLIENT_NAMES  # noqa: E402
-from code.federated.result_validation import resumable_result  # noqa: E402
+from code.federated.result_validation import is_historical_25pct, resumable_result  # noqa: E402
 from scripts.run_federated import build_synthetic_clients  # noqa: E402
 from code.federated.seeding import set_global_seed  # noqa: E402
 
@@ -61,7 +61,8 @@ def render_markdown(report: dict[str, Any]) -> str:
     ]
     for target in names:
         meta = report["scenarios"][target]["metadata"]
-        lines.append(f"| {target} | {meta['selected_donor'] or 'none'} | {meta['selected_calibration_benefit']:.6g} | {meta['zero_transfer_fallback']} | {meta['selection_matches_previous_formal_run']} |")
+        historical_match = meta.get("selection_matches_previous_formal_run", meta.get("matches_historical_seed42_selection", False))
+        lines.append(f"| {target} | {meta['selected_donor'] or 'none'} | {meta['selected_calibration_benefit']:.6g} | {meta['zero_transfer_fallback']} | {historical_match} |")
     lines += ["", "## Current-run calibration benefit matrix", "", "| Target \\ Donor | " + " | ".join(names) + " |", "|---|" + "---:|" * len(names)]
     for target in names:
         benefits = report["scenarios"][target]["metadata"]["calibration_benefit_by_donor"]
@@ -98,17 +99,18 @@ def main() -> None:
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
     run_mode = "synthetic_smoke" if args.synthetic_smoke else "real"
+    historical_25pct = is_historical_25pct(args.seed, args.history_fraction)
     output_dir = args.output_dir / "smoke" if args.synthetic_smoke else args.output_dir
     percent = int(round(args.history_fraction * 100))
     if percent not in (25, 50):
         raise ValueError("history_fraction must be 0.25 or 0.50")
     stem = f"btd_fl_direct_transfer_{percent}pct_seed{args.seed}" + ("_synthetic_smoke" if args.synthetic_smoke else "")
     json_path, md_path = output_dir / f"{stem}.json", output_dir / f"{stem}.md"
-    if args.seed == 42 and run_mode == "real" and json_path.exists():
+    if historical_25pct and run_mode == "real" and json_path.exists():
         print(f"historical seed-42 result is frozen: {json_path}"); return
     if json_path.exists():
         if resumable_result(json_path, seed=args.seed, artifact_type="btd_fl_direct_transfer", run_mode=run_mode, methods=("btd_fl_direct_transfer",), batch_size=256 if args.synthetic_smoke else 32, learning_rate=1e-3, max_epochs=args.max_epochs, patience=8, history_fraction=args.history_fraction):
-            if args.seed == 42 or not args.force:
+            if historical_25pct or not args.force:
                 print(f"resume: keeping frozen/completed result {json_path}"); return
         elif not args.force:
             raise ValueError(f"existing result is incomplete or incompatible; use --force to rerun: {json_path}")
