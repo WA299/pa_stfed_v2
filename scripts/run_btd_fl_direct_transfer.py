@@ -94,16 +94,20 @@ def main() -> None:
     parser.add_argument("--synthetic-smoke", action="store_true")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "results" / "federated" / "formal_25pct")
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--history-fraction", type=float, default=0.25)
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
     run_mode = "synthetic_smoke" if args.synthetic_smoke else "real"
     output_dir = args.output_dir / "smoke" if args.synthetic_smoke else args.output_dir
-    stem = f"btd_fl_direct_transfer_25pct_seed{args.seed}" + ("_synthetic_smoke" if args.synthetic_smoke else "")
+    percent = int(round(args.history_fraction * 100))
+    if percent not in (25, 50):
+        raise ValueError("history_fraction must be 0.25 or 0.50")
+    stem = f"btd_fl_direct_transfer_{percent}pct_seed{args.seed}" + ("_synthetic_smoke" if args.synthetic_smoke else "")
     json_path, md_path = output_dir / f"{stem}.json", output_dir / f"{stem}.md"
     if args.seed == 42 and run_mode == "real" and json_path.exists():
         print(f"historical seed-42 result is frozen: {json_path}"); return
     if json_path.exists():
-        if resumable_result(json_path, seed=args.seed, artifact_type="btd_fl_direct_transfer", run_mode=run_mode, methods=("btd_fl_direct_transfer",), batch_size=256 if args.synthetic_smoke else 32, learning_rate=1e-3, max_epochs=args.max_epochs, patience=8):
+        if resumable_result(json_path, seed=args.seed, artifact_type="btd_fl_direct_transfer", run_mode=run_mode, methods=("btd_fl_direct_transfer",), batch_size=256 if args.synthetic_smoke else 32, learning_rate=1e-3, max_epochs=args.max_epochs, patience=8, history_fraction=args.history_fraction):
             if args.seed == 42 or not args.force:
                 print(f"resume: keeping frozen/completed result {json_path}"); return
         elif not args.force:
@@ -116,7 +120,7 @@ def main() -> None:
         grids = {name: LVGridLoader(args.data_root, args.mapping_json).load(name) for name in CLIENT_NAMES}
         batch_size = args.batch_size
     set_global_seed(args.seed)
-    report = run_direct_transfer(grids, frozen, args.device, args.max_epochs, batch_size, seed=args.seed)
+    report = run_direct_transfer(grids, frozen, args.device, args.max_epochs, batch_size, seed=args.seed, history_fraction=args.history_fraction)
     report["run_mode"] = run_mode
     report["artifact_type"] = "btd_fl_direct_transfer"
     report["methods"] = ["btd_fl_direct_transfer"]

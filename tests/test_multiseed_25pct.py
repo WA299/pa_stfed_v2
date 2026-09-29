@@ -23,17 +23,17 @@ def _metric(value: float) -> dict:
 
 def _write_mock_results(root, seed: int, offset: float) -> None:
     baseline = {
-        "seed": seed, "run_mode": "real", "artifact_type": "formal_baselines", "btd_variant": "btd_fl", "methods": ["scarce_local", "fedavg", "fedprox", "fedper"] if seed != 42 else ["scarce_local", "fedavg", "fedprox", "fedper", "btd_fl"], "test_evaluated": False,
+        "seed": seed, "run_mode": "real", "artifact_type": "formal_baselines", "history_fraction": 0.25, "btd_variant": "btd_fl", "methods": ["scarce_local", "fedavg", "fedprox", "fedper"] if seed != 42 else ["scarce_local", "fedavg", "fedprox", "fedper", "btd_fl"], "test_evaluated": False,
         "client_grid_names": list(TARGETS),
         "scenarios": {target: {"methods": {name: _metric(offset + index + 1) for index, name in enumerate(("scarce_local", "fedavg", "fedprox", "fedper", "btd_fl"))}} for target in TARGETS},
     }
     direct = {
-        "seed": seed, "run_mode": "real", "artifact_type": "btd_fl_direct_transfer", "methods": ["btd_fl_direct_transfer"], "btd_variant": "btd_fl_direct_transfer", "test_evaluated": False,
+        "seed": seed, "run_mode": "real", "artifact_type": "btd_fl_direct_transfer", "history_fraction": 0.25, "methods": ["btd_fl_direct_transfer"], "btd_variant": "btd_fl_direct_transfer", "test_evaluated": False,
         "client_grid_names": list(TARGETS),
         "scenarios": {target: {"metrics": _metric(offset), "metadata": {"selected_donor": TARGETS[(index + 1) % len(TARGETS)], "selected_calibration_benefit": 0.1, "zero_transfer_fallback": False, "calibration_benefit_by_donor": {donor: 0.1 for donor in TARGETS if donor != target}}} for index, target in enumerate(TARGETS)},
     }
     fomo = {
-        "seed": seed, "run_mode": "real", "artifact_type": "fedfomo_style", "methods": ["fedfomo_style"], "method_name": "FedFomo-style", "test_evaluated": False,
+        "seed": seed, "run_mode": "real", "artifact_type": "fedfomo_style", "history_fraction": 0.25, "methods": ["fedfomo_style"], "method_name": "FedFomo-style", "test_evaluated": False,
         "client_grid_names": list(TARGETS),
         "scenarios": {target: {"scarce_target_metrics": _metric(offset + 2)} for target in TARGETS},
     }

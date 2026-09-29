@@ -89,16 +89,20 @@ def main() -> None:
     parser.add_argument("--synthetic-smoke", action="store_true")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "results" / "federated" / "formal_25pct")
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--history-fraction", type=float, default=0.25)
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
     run_mode = "synthetic_smoke" if args.synthetic_smoke else "real"
     output_dir = args.output_dir / "smoke" if args.synthetic_smoke else args.output_dir
-    stem = f"fedfomo_style_25pct_seed{args.seed}" + ("_synthetic_smoke" if args.synthetic_smoke else "")
+    percent = int(round(args.history_fraction * 100))
+    if percent not in (25, 50):
+        raise ValueError("history_fraction must be 0.25 or 0.50")
+    stem = f"fedfomo_style_{percent}pct_seed{args.seed}" + ("_synthetic_smoke" if args.synthetic_smoke else "")
     json_path, md_path = output_dir / f"{stem}.json", output_dir / f"{stem}.md"
     if args.seed == 42 and run_mode == "real" and json_path.exists():
         print(f"historical seed-42 result is frozen: {json_path}"); return
     if json_path.exists():
-        if resumable_result(json_path, seed=args.seed, artifact_type="fedfomo_style", run_mode=run_mode, methods=("fedfomo_style",), rounds=args.rounds, local_epochs=args.local_epochs, batch_size=256 if args.synthetic_smoke else 32, learning_rate=1e-3, max_epochs=50, patience=8):
+        if resumable_result(json_path, seed=args.seed, artifact_type="fedfomo_style", run_mode=run_mode, methods=("fedfomo_style",), rounds=args.rounds, local_epochs=args.local_epochs, batch_size=256 if args.synthetic_smoke else 32, learning_rate=1e-3, max_epochs=50, patience=8, history_fraction=args.history_fraction):
             if args.seed == 42 or not args.force:
                 print(f"resume: keeping frozen/completed result {json_path}"); return
         elif not args.force:
@@ -114,13 +118,13 @@ def main() -> None:
             run_mode=run_mode, methods=("scarce_local", "fedavg", "fedprox", "fedper"),
             rounds=args.rounds, local_epochs=args.local_epochs,
             batch_size=256 if args.synthetic_smoke else args.batch_size,
-            learning_rate=1e-3, max_epochs=1 if args.synthetic_smoke else 50, patience=8,
+            learning_rate=1e-3, max_epochs=1 if args.synthetic_smoke else 50, patience=8, history_fraction=args.history_fraction,
         )
         direct = load_valid_result(
             args.direct_transfer_json, seed=args.seed, artifact_type="btd_fl_direct_transfer",
             run_mode=run_mode, methods=("btd_fl_direct_transfer",),
             batch_size=256 if args.synthetic_smoke else args.batch_size,
-            learning_rate=1e-3, max_epochs=1 if args.synthetic_smoke else 50, patience=8,
+            learning_rate=1e-3, max_epochs=1 if args.synthetic_smoke else 50, patience=8, history_fraction=args.history_fraction,
         )
         if direct.get("btd_variant") != "btd_fl_direct_transfer":
             raise ValueError("same-seed direct-transfer reference has the wrong variant")
@@ -135,7 +139,7 @@ def main() -> None:
     set_global_seed(args.seed)
     if args.seed == 42 and args.baseline_json is not None:
         baseline_reference = json.loads(args.baseline_json.read_text(encoding="utf-8"))
-    report = run_fedfomo(grids, reference, args.rounds, args.local_epochs, batch_size, args.device, direct_transfer_reference=direct, baseline_reference=baseline_reference, seed=args.seed)
+    report = run_fedfomo(grids, reference, args.rounds, args.local_epochs, batch_size, args.device, direct_transfer_reference=direct, baseline_reference=baseline_reference, seed=args.seed, history_fraction=args.history_fraction)
     report["frozen_direct_transfer_metrics"] = {target: direct["scenarios"][target]["metrics"] for target in CLIENT_NAMES}
     report["run_mode"] = run_mode
     report["artifact_type"] = "fedfomo_style"

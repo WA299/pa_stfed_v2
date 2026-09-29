@@ -20,7 +20,7 @@ SCOPES = ("node_macro", "grid_aggregate")
 SPLITS = ("audit", "validation")
 
 
-def _read(path: Path, seed: int, *, artifact_type: str, methods: tuple[str, ...]) -> dict[str, Any]:
+def _read(path: Path, seed: int, *, artifact_type: str, methods: tuple[str, ...], history_fraction: float = 0.25) -> dict[str, Any]:
     if not path.exists():
         raise FileNotFoundError(f"required seed result is missing: {path}")
     report = json.loads(path.read_text(encoding="utf-8"))
@@ -29,6 +29,8 @@ def _read(path: Path, seed: int, *, artifact_type: str, methods: tuple[str, ...]
     if report.get("test_evaluated") is not False:
         raise ValueError(f"test guardrail violated: {path}")
     historical = seed == 42
+    if not (seed == 42 and history_fraction == 0.25 and "history_fraction" not in report) and float(report.get("history_fraction", -1)) != float(history_fraction):
+        raise ValueError(f"history fraction mismatch: {path}")
     if not historical:
         if report.get("run_mode") != "real" or report.get("artifact_type") != artifact_type:
             raise ValueError(f"non-historical artifact lacks the required real-run schema: {path}")
@@ -57,8 +59,9 @@ def _macro(target_metrics: Mapping[str, Mapping[str, Any]]) -> dict[str, Any]:
     return {split: {scope: {metric: mean(float(target_metrics[t][split][scope][metric]) for t in TARGETS) for metric in METRICS} for scope in SCOPES} for split in SPLITS}
 
 
-def _result_paths(root: Path, seed: int) -> dict[str, Path]:
-    if seed == 42:
+def _result_paths(root: Path, seed: int, history_fraction: float = 0.25) -> dict[str, Path]:
+    percent = int(round(history_fraction * 100))
+    if seed == 42 and percent == 25:
         base = root.parent
         return {
             "baseline": base / "btd_fl_25pct_seed42.json",
@@ -66,21 +69,22 @@ def _result_paths(root: Path, seed: int) -> dict[str, Path]:
             "fedfomo_style": base / "fedfomo_style_25pct_seed42.json",
         }
     return {
-        "baseline": root / f"formal_baselines_25pct_seed{seed}.json",
-        "btd_fl_direct_transfer": root / f"btd_fl_direct_transfer_25pct_seed{seed}.json",
-        "fedfomo_style": root / f"fedfomo_style_25pct_seed{seed}.json",
+        "baseline": root / f"formal_baselines_{percent}pct_seed{seed}.json",
+        "btd_fl_direct_transfer": root / f"btd_fl_direct_transfer_{percent}pct_seed{seed}.json",
+        "fedfomo_style": root / f"fedfomo_style_{percent}pct_seed{seed}.json",
     }
 
 
-def _load_seed(root: Path, seed: int) -> dict[str, Any]:
-    paths = _result_paths(root, seed)
-    baseline_methods = ("scarce_local", "fedavg", "fedprox", "fedper") if seed != 42 else ("scarce_local", "fedavg", "fedprox", "fedper", "btd_fl")
-    baseline = _read(paths["baseline"], seed, artifact_type="formal_baselines", methods=baseline_methods)
-    direct = _read(paths["btd_fl_direct_transfer"], seed, artifact_type="btd_fl_direct_transfer", methods=("btd_fl_direct_transfer",))
-    fomo = _read(paths["fedfomo_style"], seed, artifact_type="fedfomo_style", methods=("fedfomo_style",))
-    if seed == 42 and baseline.get("btd_variant") != "btd_fl":
+def _load_seed(root: Path, seed: int, history_fraction: float = 0.25) -> dict[str, Any]:
+    paths = _result_paths(root, seed, history_fraction)
+    historical = seed == 42 and history_fraction == 0.25
+    baseline_methods = ("scarce_local", "fedavg", "fedprox", "fedper") if not historical else ("scarce_local", "fedavg", "fedprox", "fedper", "btd_fl")
+    baseline = _read(paths["baseline"], seed, artifact_type="formal_baselines", methods=baseline_methods, history_fraction=history_fraction)
+    direct = _read(paths["btd_fl_direct_transfer"], seed, artifact_type="btd_fl_direct_transfer", methods=("btd_fl_direct_transfer",), history_fraction=history_fraction)
+    fomo = _read(paths["fedfomo_style"], seed, artifact_type="fedfomo_style", methods=("fedfomo_style",), history_fraction=history_fraction)
+    if historical and baseline.get("btd_variant") != "btd_fl":
         raise ValueError(f"baseline artifact is not the accepted formal baseline: {paths['baseline']}")
-    if seed != 42 and baseline.get("artifact_type") != "formal_baselines":
+    if not historical and baseline.get("artifact_type") != "formal_baselines":
         raise ValueError(f"new-seed baseline artifact is not baseline-only: {paths['baseline']}")
     if not set(("scarce_local", "fedavg", "fedprox", "fedper") + (("btd_fl",) if seed == 42 else ())).issubset(set(baseline.get("methods", ()) )):
         raise ValueError(f"formal baseline is missing an accepted method: {paths['baseline']}")
@@ -91,10 +95,10 @@ def _load_seed(root: Path, seed: int) -> dict[str, Any]:
     return {"baseline": baseline, "btd_fl_direct_transfer": direct, "fedfomo_style": fomo}
 
 
-def summarize(root: Path, seeds: tuple[int, ...] = SEEDS) -> dict[str, Any]:
+def summarize(root: Path, seeds: tuple[int, ...] = SEEDS, history_fraction: float = 0.25) -> dict[str, Any]:
     if 42 not in seeds:
-        raise ValueError("seed 42 is required as the frozen historical reference")
-    loaded = {seed: _load_seed(root, seed) for seed in seeds}
+        raise ValueError("seed 42 is required for the robustness summary")
+    loaded = {seed: _load_seed(root, seed, history_fraction) for seed in seeds}
     normalized: dict[str, dict[int, dict[str, Any]]] = {method: {} for method in METHODS}
     for seed, reports in loaded.items():
         for method in METHODS:
@@ -148,7 +152,8 @@ def summarize(root: Path, seeds: tuple[int, ...] = SEEDS) -> dict[str, Any]:
             "fallback_occurrence_count": sum(bool(donor_robustness[target][str(seed)]["zero_transfer_fallback"]) for seed in seeds),
         }
     return {
-        "experiment": "multiseed_formal_25pct_summary",
+        "experiment": f"multiseed_formal_{int(history_fraction * 100)}pct_summary",
+        "history_fraction": history_fraction,
         "seeds": list(seeds),
         "methods": list(METHODS),
         "client_grid_names": list(TARGETS),
@@ -162,7 +167,8 @@ def summarize(root: Path, seeds: tuple[int, ...] = SEEDS) -> dict[str, Any]:
 
 
 def render_markdown(summary: Mapping[str, Any]) -> str:
-    lines = ["# Frozen 25%-History Multi-Seed Robustness Summary", "", "Seeds 42, 123, and 2026 were fixed in advance. Seed 42 is historical and is read, not retrained. No hyperparameters or scientific definitions vary by seed.", "", "Canonical validation is robustness evaluation only; canonical test remains locked. Three seeds do not support significance claims.", "", "## Primary Metrics", "", "| Method | Validation node-MAE mean | std | Audit node-MAE mean | std |", "|---|---:|---:|---:|---:|"]
+    percent = int(round(summary.get("history_fraction", 0.25) * 100))
+    lines = [f"# Frozen {percent}%-History Multi-Seed Robustness Summary", "", "Seeds 42, 123, and 2026 were fixed in advance. No hyperparameters or scientific definitions vary by seed.", "", "Canonical validation is robustness evaluation only; canonical test remains locked. Three seeds do not support significance claims.", "", "## Primary Metrics", "", "| Method | Validation node-MAE mean | std | Audit node-MAE mean | std |", "|---|---:|---:|---:|---:|"]
     for method in summary["methods"]:
         val = summary["metrics"][method]["validation"]["node_macro"]["mae"]; audit = summary["metrics"][method]["audit"]["node_macro"]["mae"]
         lines.append(f"| {method} | {val['mean']:.8g} | {val['std']:.8g} | {audit['mean']:.8g} | {audit['std']:.8g} |")
@@ -186,13 +192,17 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input-dir", type=Path, default=Path(__file__).resolve().parents[1] / "results" / "federated" / "formal_25pct" / "multiseed")
     parser.add_argument("--output-dir", type=Path, default=None)
+    parser.add_argument("--history-fraction", type=float, default=0.25)
     args = parser.parse_args()
     output_dir = args.output_dir or args.input_dir
-    summary = summarize(args.input_dir)
+    summary = summarize(args.input_dir, history_fraction=args.history_fraction)
     output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir / "multiseed_25pct_summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
-    (output_dir / "multiseed_25pct_summary.md").write_text(render_markdown(summary), encoding="utf-8")
-    print(f"wrote {output_dir / 'multiseed_25pct_summary.json'} and {output_dir / 'multiseed_25pct_summary.md'}")
+    percent = int(round(args.history_fraction * 100))
+    json_out = output_dir / f"multiseed_{percent}pct_summary.json"
+    md_out = output_dir / f"multiseed_{percent}pct_summary.md"
+    json_out.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+    md_out.write_text(render_markdown(summary), encoding="utf-8")
+    print(f"wrote {json_out} and {md_out}")
 
 
 if __name__ == "__main__":

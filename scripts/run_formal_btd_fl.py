@@ -106,12 +106,16 @@ def main() -> None:
     parser.add_argument("--synthetic-smoke", action="store_true")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "results" / "federated" / "formal_25pct")
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--history-fraction", type=float, default=0.25)
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--baseline-only", action="store_true", help="write the seed-specific formal baseline artifact")
     args = parser.parse_args()
     run_mode = "synthetic_smoke" if args.synthetic_smoke else "real"
     output_dir = args.output_dir / "smoke" if args.synthetic_smoke else args.output_dir
-    stem = f"formal_baselines_25pct_seed{args.seed}" if args.baseline_only else (f"btd_fl_25pct_seed{args.seed}" if args.btd_variant == "btd_fl" else f"{args.btd_variant}_25pct_seed{args.seed}")
+    percent = int(round(args.history_fraction * 100))
+    if percent not in (25, 50):
+        raise ValueError("history_fraction must be 0.25 or 0.50")
+    stem = f"formal_baselines_{percent}pct_seed{args.seed}" if args.baseline_only else (f"btd_fl_{percent}pct_seed{args.seed}" if args.btd_variant == "btd_fl" else f"{args.btd_variant}_{percent}pct_seed{args.seed}")
     if args.synthetic_smoke:
         stem += "_synthetic_smoke"
     output = output_dir / f"{stem}.json"; markdown = output_dir / f"{stem}.md"; output.parent.mkdir(parents=True, exist_ok=True)
@@ -120,7 +124,7 @@ def main() -> None:
     if output.exists():
         expected_methods = tuple(BASELINE_METHODS if args.baseline_only else METHODS)
         expected_type = "formal_baselines" if args.baseline_only else "formal_btd"
-        if resumable_result(output, seed=args.seed, artifact_type=expected_type, run_mode=run_mode, methods=expected_methods, rounds=args.rounds, local_epochs=args.local_epochs, batch_size=256 if args.synthetic_smoke else 32, learning_rate=1e-3, max_epochs=args.max_epochs, patience=8):
+        if resumable_result(output, seed=args.seed, artifact_type=expected_type, run_mode=run_mode, methods=expected_methods, rounds=args.rounds, local_epochs=args.local_epochs, batch_size=256 if args.synthetic_smoke else 32, learning_rate=1e-3, max_epochs=args.max_epochs, patience=8, history_fraction=args.history_fraction):
             if args.seed == 42 or not args.force:
                 print(f"resume: keeping frozen/completed result {output}"); return
         elif not args.force:
@@ -133,9 +137,9 @@ def main() -> None:
     donors = load_selected_donors(args.audit_json) if args.audit_json.exists() else None
     smoke_batch_size = 256 if args.synthetic_smoke else 32
     if args.baseline_only:
-        report = run_formal_baselines(grids, args.device, args.rounds, args.local_epochs, args.max_epochs, smoke_batch_size, seed=args.seed)
+        report = run_formal_baselines(grids, args.device, args.rounds, args.local_epochs, args.max_epochs, smoke_batch_size, seed=args.seed, history_fraction=args.history_fraction)
     else:
-        report = run_formal_benchmark(grids, donors, args.device, args.rounds, args.local_epochs, args.max_epochs, args.btd_variant, smoke_batch_size, seed=args.seed)
+        report = run_formal_benchmark(grids, donors, args.device, args.rounds, args.local_epochs, args.max_epochs, args.btd_variant, smoke_batch_size, seed=args.seed, history_fraction=args.history_fraction)
     report["run_mode"] = run_mode
     report["artifact_type"] = "formal_baselines" if args.baseline_only else "formal_btd"
     output.write_text(json.dumps(report, indent=2, default=lambda value: value.tolist() if isinstance(value, np.ndarray) else value) + "\n", encoding="utf-8")

@@ -152,14 +152,14 @@ def load_valid_result(path: Path, *, seed: int, artifact_type: str, run_mode: st
                       methods: tuple[str, ...], rounds: int | None = None,
                       local_epochs: int | None = None, batch_size: int = 32,
                       learning_rate: float = 1e-3, max_epochs: int | None = None,
-                      patience: int | None = None) -> dict[str, Any]:
+                      patience: int | None = None, history_fraction: float = 0.25) -> dict[str, Any]:
     """Load only a complete result matching the requested execution contract."""
     if not path.exists():
         raise FileNotFoundError(path)
     report = json.loads(path.read_text(encoding="utf-8"))
     expected = {
         "run_mode": run_mode, "seed": int(seed), "artifact_type": artifact_type,
-        "history_fraction": 0.25, "batch_size": int(batch_size),
+        "history_fraction": float(history_fraction), "batch_size": int(batch_size),
         "learning_rate": float(learning_rate), "test_evaluated": False,
     }
     for key, value in expected.items():

@@ -103,6 +103,7 @@ def _snapshot_non_temporal(model: Any) -> dict[str, Any]:
 def run_direct_transfer(
     grids: Mapping[str, Any], reference: Path | str | Mapping[str, Any],
     device: str = "cpu", max_epochs: int = 50, batch_size: int = 32, seed: int = 42,
+    history_fraction: float = 0.25,
 ) -> dict[str, Any]:
     """Recompute benefit probes and train only revised BTD target models."""
     # Historical seed-42 synthetic callers relied on the pre-existing process
@@ -119,7 +120,7 @@ def run_direct_transfer(
 
     for target in CLIENT_NAMES:
         grid = grids[target]
-        split = scarce_split(grid)
+        split = scarce_split(grid, history_fraction)
         scaler = fit_fit_only_scaler(grid, split.fit_indices, split.available_start)
         graph = build_scarce_target_graph(grid, split)
 
@@ -255,14 +256,14 @@ def run_direct_transfer(
 
     expected_regression = {"validation_node_mae": 0.000343768, "audit_node_mae": 0.000313559}
     return {
-        "experiment": "formal_btd_fl_direct_temporal_transfer_25pct",
+        "experiment": f"formal_btd_fl_direct_temporal_transfer_{int(history_fraction * 100)}pct",
         "method_name": "BTD-FL Direct Temporal Transfer",
         "btd_variant": "btd_fl_direct_transfer",
         "client_grid_names": list(CLIENT_NAMES),
         "seed": int(seed),
         "rounds": 0,
         "local_epochs": 0,
-        "history_fraction": 0.25,
+        "history_fraction": history_fraction,
         "train_calibration_audit_split": "60/20/20 for scarce target; donor train-internal fit/calibration",
         "max_epochs": max_epochs,
         "patience": 8,

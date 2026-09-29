@@ -93,9 +93,9 @@ def load_selection_metadata(audit_json: Path) -> dict[str, Any]:
     }
 
 
-def prepare_scenario_clients(grids: dict[str, Any], target: str, device: str = "cpu", seed: int = 42) -> tuple[list[FederatedClient], Any, Any, dict[str, Any]]:
+def prepare_scenario_clients(grids: dict[str, Any], target: str, device: str = "cpu", seed: int = 42, history_fraction: float = 0.25) -> tuple[list[FederatedClient], Any, Any, dict[str, Any]]:
     target_grid = grids[target]
-    split = scarce_split(target_grid)
+    split = scarce_split(target_grid, history_fraction)
     target_scaler = fit_fit_only_scaler(target_grid, split.fit_indices, split.available_start)
     target_graph = build_scarce_target_graph(target_grid, split)
     clients = []
@@ -162,8 +162,8 @@ def _copy_compatible_trainables(model: Any, donor_state: Mapping[str, Any]) -> t
     return tuple(sorted(copied))
 
 
-def _run_federated(grids: dict[str, Any], target: str, method: str, device: str, rounds: int, local_epochs: int, batch_size: int, seed: int = 42) -> tuple[dict[str, Any], dict[str, Any]]:
-    clients, split, _graph, graph_metadata = prepare_scenario_clients(grids, target, device, seed)
+def _run_federated(grids: dict[str, Any], target: str, method: str, device: str, rounds: int, local_epochs: int, batch_size: int, seed: int = 42, history_fraction: float = 0.25) -> tuple[dict[str, Any], dict[str, Any]]:
+    clients, split, _graph, graph_metadata = prepare_scenario_clients(grids, target, device, seed, history_fraction)
     algorithm = {"fedavg": "standard", "fedprox": "fedprox", "fedper": "fedper"}[method]
     report = FederatedTrainer(clients, "fedavg_all", rounds=rounds, local_epochs=local_epochs, batch_size=batch_size, learning_rate=1e-3, seed=seed, device=device, algorithm=algorithm, evaluate_validation_during_training=False).run()
     target_client = next(client for client in clients if client.grid_name == target)
@@ -176,7 +176,7 @@ def _run_federated(grids: dict[str, Any], target: str, method: str, device: str,
     return metrics, {"federated_report": report, "local_sample_counts": counts, "aggregation_weights": weights, "graph_metadata": graph_metadata}
 
 
-def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str | None] | None = None, device: str = "cpu", rounds: int = 10, local_epochs: int = 5, max_epochs: int = 50, btd_variant: str = "btd_fl", batch_size: int = 32, selection_metadata: dict[str, Any] | None = None, seed: int = 42) -> dict[str, Any]:
+def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str | None] | None = None, device: str = "cpu", rounds: int = 10, local_epochs: int = 5, max_epochs: int = 50, btd_variant: str = "btd_fl", batch_size: int = 32, selection_metadata: dict[str, Any] | None = None, seed: int = 42, history_fraction: float = 0.25) -> dict[str, Any]:
     set_global_seed(seed)
     variants = {"btd_fl", "btd_no_benefit_selection", "btd_no_zero_transfer", "btd_full_model_transfer"}
     if btd_variant not in variants:
@@ -196,7 +196,7 @@ def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str |
 
     scenarios = {}
     for target in CLIENT_NAMES:
-        grid = grids[target]; split = scarce_split(grid); scaler = fit_fit_only_scaler(grid, split.fit_indices, split.available_start); graph = build_scarce_target_graph(grid, split)
+        grid = grids[target]; split = scarce_split(grid, history_fraction); scaler = fit_fit_only_scaler(grid, split.fit_indices, split.available_start); graph = build_scarce_target_graph(grid, split)
         local_proxy_state, local_proxy_training = _train_proxy_once(grid, split.fit_indices, split.calibration_indices, scaler, device, max_epochs, batch_size, seed=seed)
         local_proxy = make_proxy(grid, seed=seed); local_proxy.load_state_dict(local_proxy_state); local_calibration_mae = float(local_proxy_training["best_calibration_node_mae"])
         adapted_by_donor, calibration_benefits = {}, {}
@@ -222,7 +222,7 @@ def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str |
             inject_temporal_state(btd_model, {name: value for name, value in adapted_by_donor[selected_donor]["state"].items() if name in parameter_groups(btd_model)["temporal"]}); state, training = train_full_model(btd_model, grid, split.fit_indices, split.calibration_indices, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed); btd_model.load_state_dict(state); btd_metrics = _method_metrics(btd_model, grid, split, scaler, device, batch_size); btd_training = {"adaptation": adapted_by_donor[selected_donor]["training"], "full": training, "transferred_parameter_names": list(parameter_groups(btd_model)["temporal"])}; del btd_model
         methods = {"scarce_local": local_metrics}; federated = {}
         for method in ("fedavg", "fedprox", "fedper"):
-            methods[method], federated[method] = _run_federated(grids, target, method, device, rounds, local_epochs, batch_size, seed)
+            methods[method], federated[method] = _run_federated(grids, target, method, device, rounds, local_epochs, batch_size, seed, history_fraction)
         methods["btd_fl"] = btd_metrics
         selected_adaptation = adapted_by_donor.get(selected_donor)
         train = grid.splits["train"]
@@ -271,18 +271,19 @@ def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str |
         macros[split_name] = {method: {scope: {metric: float(np.mean([scenarios[name]["methods"][method][split_name][scope][metric] for name in CLIENT_NAMES])) for metric in ("mae", "rmse", "wape_pct", "smape_pct")} for scope in ("node_macro", "grid_aggregate")} for method in METHODS}
     wins = {method: sum(scenarios[name]["methods"]["btd_fl"]["validation"]["node_macro"]["mae"] < scenarios[name]["methods"][method]["validation"]["node_macro"]["mae"] for name in CLIENT_NAMES) for method in METHODS[:-1]}
     relative = {method: {split: float((macros[split][method]["node_macro"]["mae"] - macros[split]["btd_fl"]["node_macro"]["mae"]) / (macros[split][method]["node_macro"]["mae"] + 1e-12)) for split in ("audit", "validation")} for method in METHODS[:-1]}
-    return {"experiment": "formal_btd_fl_25pct_benchmark", "method_name": "BTD-FL", "btd_variant": btd_variant, "methods": list(METHODS), "client_grid_names": list(CLIENT_NAMES), "rounds": rounds, "local_epochs": local_epochs, "max_epochs": max_epochs, "batch_size": batch_size, "learning_rate": 1e-3, "seed": int(seed), "history_fraction": 0.25, "train_calibration_audit_split": "60/20/20 for scarce target; donor train-internal fit/calibration", "validation_used_for_selection": False, "audit_used_for_selection": False, "test_evaluated": False, "communication_round_selection": "fixed_final_round", "canonical_validation_evaluated_during_training": False, "donor_proxy_metadata_by_grid": donor_metadata, "donor_full_model_metadata_by_grid": donor_full_metadata, "scenarios": scenarios, "four_scenario_macro": macros, "relative_btd_fl_improvement_vs": relative, "btd_fl_win_counts": wins, "reproducibility": reproducibility_metadata(seed, device)}
+    return {"experiment": f"formal_btd_fl_{int(history_fraction * 100)}pct_benchmark", "method_name": "BTD-FL", "btd_variant": btd_variant, "methods": list(METHODS), "client_grid_names": list(CLIENT_NAMES), "rounds": rounds, "local_epochs": local_epochs, "max_epochs": max_epochs, "batch_size": batch_size, "learning_rate": 1e-3, "seed": int(seed), "history_fraction": history_fraction, "train_calibration_audit_split": "60/20/20 for scarce target; donor train-internal fit/calibration", "validation_used_for_selection": False, "audit_used_for_selection": False, "test_evaluated": False, "communication_round_selection": "fixed_final_round", "canonical_validation_evaluated_during_training": False, "donor_proxy_metadata_by_grid": donor_metadata, "donor_full_model_metadata_by_grid": donor_full_metadata, "scenarios": scenarios, "four_scenario_macro": macros, "relative_btd_fl_improvement_vs": relative, "btd_fl_win_counts": wins, "reproducibility": reproducibility_metadata(seed, device)}
 
 
 def run_formal_baselines(grids: dict[str, Any], device: str = "cpu", rounds: int = 10,
                          local_epochs: int = 5, max_epochs: int = 50,
-                         batch_size: int = 32, seed: int = 42) -> dict[str, Any]:
+                         batch_size: int = 32, seed: int = 42,
+                         history_fraction: float = 0.25) -> dict[str, Any]:
     """Run only scarce-local and the three accepted fixed-round FL baselines."""
     set_global_seed(seed)
     scenarios: dict[str, Any] = {}
     for target in CLIENT_NAMES:
         grid = grids[target]
-        split = scarce_split(grid)
+        split = scarce_split(grid, history_fraction)
         scaler = fit_fit_only_scaler(grid, split.fit_indices, split.available_start)
         graph = build_scarce_target_graph(grid, split)
         local_proxy_state, local_proxy_training = _train_proxy_once(
@@ -304,11 +305,12 @@ def run_formal_baselines(grids: dict[str, Any], device: str = "cpu", rounds: int
         for method in ("fedavg", "fedprox", "fedper"):
             methods[method], federated[method] = _run_federated(
                 grids, target, method, device, rounds, local_epochs, batch_size, seed,
+                history_fraction,
             )
         scenarios[target] = {
             "methods": methods,
             "metadata": {
-                "history_fraction": 0.25,
+                "history_fraction": history_fraction,
                 "fit_target_count": int(len(split.fit_indices)),
                 "calibration_target_count": int(len(split.calibration_indices)),
                 "audit_target_count": int(len(split.audit_indices)),
@@ -345,7 +347,7 @@ def run_formal_baselines(grids: dict[str, Any], device: str = "cpu", rounds: int
         "client_grid_names": list(CLIENT_NAMES),
         "rounds": rounds, "local_epochs": local_epochs, "max_epochs": max_epochs,
         "patience": 8, "batch_size": batch_size, "learning_rate": 1e-3,
-        "seed": int(seed), "history_fraction": 0.25,
+        "seed": int(seed), "history_fraction": history_fraction,
         "train_calibration_audit_split": "60/20/20 for scarce target; donor train-internal fit/calibration",
         "validation_used_for_selection": False,
         "audit_used_for_selection": False,
