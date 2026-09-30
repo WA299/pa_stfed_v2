@@ -1,0 +1,692 @@
+{
+  "experiment": "history_fraction_25_vs_50_summary",
+  "history_fractions": [
+    0.25,
+    0.5
+  ],
+  "methods": [
+    "scarce_local",
+    "fedavg",
+    "fedprox",
+    "fedper",
+    "fedfomo_style",
+    "btd_fl_direct_transfer"
+  ],
+  "primary_metric": "validation node-macro MAE",
+  "metrics": {
+    "scarce_local": {
+      "validation": {
+        "25pct": {
+          "mean": 0.0003739304568965831,
+          "std": 2.293019321928134e-06,
+          "per_seed": {
+            "42": 0.00037104596097698155,
+            "123": 0.0003740894788889661,
+            "2026": 0.0003766559308238016
+          }
+        },
+        "50pct": {
+          "mean": 0.00035062209210361155,
+          "std": 8.758104785082134e-07,
+          "per_seed": {
+            "42": 0.00035137812431442037,
+            "123": 0.0003510937097213854,
+            "2026": 0.0003493944422750288
+          }
+        }
+      },
+      "audit": {
+        "25pct": {
+          "mean": 0.00032938658043240774,
+          "std": 1.667918881406037e-06,
+          "per_seed": {
+            "42": 0.0003270459326828087,
+            "123": 0.0003303040087227286,
+            "2026": 0.0003308097998916859
+          }
+        },
+        "50pct": {
+          "mean": 0.0003205142383071421,
+          "std": 7.45794668780766e-07,
+          "per_seed": {
+            "42": 0.0003205148663798561,
+            "123": 0.0003214273323045335,
+            "2026": 0.0003196005162370366
+          }
+        }
+      }
+    },
+    "fedavg": {
+      "validation": {
+        "25pct": {
+          "mean": 0.0003613628958204597,
+          "std": 3.963300641403902e-06,
+          "per_seed": {
+            "42": 0.00035979742667447605,
+            "123": 0.0003668064895123221,
+            "2026": 0.00035748477127458097
+          }
+        },
+        "50pct": {
+          "mean": 0.00035730080002285055,
+          "std": 4.049059150743375e-06,
+          "per_seed": {
+            "42": 0.00035672823033048424,
+            "123": 0.0003625212963531379,
+            "2026": 0.00035265287338492955
+          }
+        }
+      },
+      "audit": {
+        "25pct": {
+          "mean": 0.00033332623541934325,
+          "std": 3.59920548483475e-06,
+          "per_seed": {
+            "42": 0.0003313283953491131,
+            "123": 0.0003383795230344187,
+            "2026": 0.0003302707878744979
+          }
+        },
+        "50pct": {
+          "mean": 0.0003330001653552773,
+          "std": 3.951296154032436e-06,
+          "per_seed": {
+            "42": 0.0003318212839882922,
+            "123": 0.00033832001733032145,
+            "2026": 0.0003288591947472183
+          }
+        }
+      }
+    },
+    "fedprox": {
+      "validation": {
+        "25pct": {
+          "mean": 0.00038814487293691203,
+          "std": 1.1090279617434959e-06,
+          "per_seed": {
+            "42": 0.0003871542597296736,
+            "123": 0.00038969323634580196,
+            "2026": 0.0003875871227352605
+          }
+        },
+        "50pct": {
+          "mean": 0.00038665942105532166,
+          "std": 6.655297576748568e-07,
+          "per_seed": {
+            "42": 0.00038572984173505906,
+            "123": 0.00038725190763409724,
+            "2026": 0.0003869965137968086
+          }
+        }
+      },
+      "audit": {
+        "25pct": {
+          "mean": 0.00036284402482139426,
+          "std": 9.664677168980082e-07,
+          "per_seed": {
+            "42": 0.0003617286947108627,
+            "123": 0.0003640858819769618,
+            "2026": 0.0003627174977763583
+          }
+        },
+        "50pct": {
+          "mean": 0.0003635309963190758,
+          "std": 7.497810051422703e-07,
+          "per_seed": {
+            "42": 0.00036248909951071094,
+            "123": 0.00036388137035810435,
+            "2026": 0.000364222519088412
+          }
+        }
+      }
+    },
+    "fedper": {
+      "validation": {
+        "25pct": {
+          "mean": 0.0003803896747997208,
+          "std": 5.962400972059978e-06,
+          "per_seed": {
+            "42": 0.0003796168487709983,
+            "123": 0.00038804777214265605,
+            "2026": 0.00037350440348550795
+          }
+        },
+        "50pct": {
+          "mean": 0.000365555543365815,
+          "std": 3.9813907598617465e-06,
+          "per_seed": {
+            "42": 0.0003680758033969651,
+            "123": 0.00036865585204440927,
+            "2026": 0.0003599349746560706
+          }
+        }
+      },
+      "audit": {
+        "25pct": {
+          "mean": 0.00034346845113912864,
+          "std": 4.041291817428826e-06,
+          "per_seed": {
+            "42": 0.0003405694412694931,
+            "123": 0.0003491835000793744,
+            "2026": 0.0003406524120685184
+          }
+        },
+        "50pct": {
+          "mean": 0.0003411423987358036,
+          "std": 3.6881825673613985e-06,
+          "per_seed": {
+            "42": 0.00034258456496188527,
+            "123": 0.0003447623009265325,
+            "2026": 0.000336080330318993
+          }
+        }
+      }
+    },
+    "fedfomo_style": {
+      "validation": {
+        "25pct": {
+          "mean": 0.00036882159763834764,
+          "std": 6.243767923841199e-06,
+          "per_seed": {
+            "42": 0.0003601430334390362,
+            "123": 0.0003717506140151677,
+            "2026": 0.00037457114546083893
+          }
+        },
+        "50pct": {
+          "mean": 0.000349061298024347,
+          "std": 6.41503865379168e-07,
+          "per_seed": {
+            "42": 0.00034995473439702754,
+            "123": 0.0003487510327600099,
+            "2026": 0.0003484781269160036
+          }
+        }
+      },
+      "audit": {
+        "25pct": {
+          "mean": 0.00032661367487040187,
+          "std": 2.071584288589816e-06,
+          "per_seed": {
+            "42": 0.0003239491967988796,
+            "123": 0.0003268911107719806,
+            "2026": 0.0003290007170403454
+          }
+        },
+        "50pct": {
+          "mean": 0.0003236813737309933,
+          "std": 1.1893213089111607e-06,
+          "per_seed": {
+            "42": 0.00032535039832249057,
+            "123": 0.00032266659649556355,
+            "2026": 0.00032302712637492575
+          }
+        }
+      }
+    },
+    "btd_fl_direct_transfer": {
+      "validation": {
+        "25pct": {
+          "mean": 0.00034577673225562013,
+          "std": 2.515943738737929e-06,
+          "per_seed": {
+            "42": 0.0003437680937597074,
+            "123": 0.00034423763099385044,
+            "2026": 0.0003493244720133025
+          }
+        },
+        "50pct": {
+          "mean": 0.0003354481131077414,
+          "std": 1.7520254865545847e-06,
+          "per_seed": {
+            "42": 0.00033760503892135826,
+            "123": 0.0003333136467756449,
+            "2026": 0.000335425653626221
+          }
+        }
+      },
+      "audit": {
+        "25pct": {
+          "mean": 0.00031234004172635293,
+          "std": 2.0791964689959653e-06,
+          "per_seed": {
+            "42": 0.00031355851678525095,
+            "123": 0.00030941324603513955,
+            "2026": 0.00031404836235866823
+          }
+        },
+        "50pct": {
+          "mean": 0.00031050523702533657,
+          "std": 2.2799332664390512e-06,
+          "per_seed": {
+            "42": 0.0003126549134178483,
+            "123": 0.0003073492183696463,
+            "2026": 0.00031151157928851504
+          }
+        }
+      }
+    }
+  },
+  "btd_vs_comparators": {
+    "scarce_local": {
+      "25pct": {
+        "mean_relative_improvement": 0.07529276239766151,
+        "std_relative_improvement": 0.00320981728123254,
+        "seeds_btd_wins": 3,
+        "target_x_seed_validation_wins": 12
+      },
+      "50pct": {
+        "mean_relative_improvement": 0.043273086366926665,
+        "std_relative_improvement": 0.005220346565042788,
+        "seeds_btd_wins": 3,
+        "target_x_seed_validation_wins": 11
+      }
+    },
+    "fedavg": {
+      "25pct": {
+        "mean_relative_improvement": 0.04296864908952084,
+        "std_relative_improvement": 0.015839179768413186,
+        "seeds_btd_wins": 3,
+        "target_x_seed_validation_wins": 10
+      },
+      "50pct": {
+        "mean_relative_improvement": 0.06100854131332002,
+        "std_relative_improvement": 0.013966360992410934,
+        "seeds_btd_wins": 3,
+        "target_x_seed_validation_wins": 12
+      }
+    },
+    "fedprox": {
+      "25pct": {
+        "mean_relative_improvement": 0.10914299952300076,
+        "std_relative_improvement": 0.007603593799693188,
+        "seeds_btd_wins": 3,
+        "target_x_seed_validation_wins": 12
+      },
+      "50pct": {
+        "mean_relative_improvement": 0.13243563295641927,
+        "std_relative_improvement": 0.0059569998081508225,
+        "seeds_btd_wins": 3,
+        "target_x_seed_validation_wins": 12
+      }
+    },
+    "fedper": {
+      "25pct": {
+        "mean_relative_improvement": 0.09069029629333719,
+        "std_relative_improvement": 0.019838985444682745,
+        "seeds_btd_wins": 3,
+        "target_x_seed_validation_wins": 12
+      },
+      "50pct": {
+        "mean_relative_improvement": 0.08224847641260156,
+        "std_relative_improvement": 0.011345007244546663,
+        "seeds_btd_wins": 3,
+        "target_x_seed_validation_wins": 12
+      }
+    },
+    "fedfomo_style": {
+      "25pct": {
+        "mean_relative_improvement": 0.062292889579418975,
+        "std_relative_improvement": 0.012199076130362412,
+        "seeds_btd_wins": 3,
+        "target_x_seed_validation_wins": 12
+      },
+      "50pct": {
+        "mean_relative_improvement": 0.039003276211258986,
+        "std_relative_improvement": 0.003824105313932098,
+        "seeds_btd_wins": 3,
+        "target_x_seed_validation_wins": 12
+      }
+    }
+  },
+  "donor_behavior": {
+    "25pct": {
+      "by_target": {
+        "39_bus_semi_urban_reference_grid": {
+          "42": {
+            "selected_donor": "56_bus_semi_urban_reference_grid",
+            "selected_calibration_benefit": 0.06604898238886778,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "50_bus_rural_reference_grid": 0.029625682374936842,
+              "56_bus_semi_urban_reference_grid": 0.06604898238886778,
+              "80_bus_rural_reference_grid": 0.0067842399282855015
+            }
+          },
+          "123": {
+            "selected_donor": "80_bus_rural_reference_grid",
+            "selected_calibration_benefit": 0.06641684496895539,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "50_bus_rural_reference_grid": 0.02551100774714172,
+              "56_bus_semi_urban_reference_grid": 0.065194400470909,
+              "80_bus_rural_reference_grid": 0.06641684496895539
+            }
+          },
+          "2026": {
+            "selected_donor": "56_bus_semi_urban_reference_grid",
+            "selected_calibration_benefit": 0.07830907945812092,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "50_bus_rural_reference_grid": 0.05615034068793299,
+              "56_bus_semi_urban_reference_grid": 0.07830907945812092,
+              "80_bus_rural_reference_grid": 0.05278380453989889
+            }
+          }
+        },
+        "50_bus_rural_reference_grid": {
+          "42": {
+            "selected_donor": "39_bus_semi_urban_reference_grid",
+            "selected_calibration_benefit": 0.0547870609190852,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "39_bus_semi_urban_reference_grid": 0.0547870609190852,
+              "56_bus_semi_urban_reference_grid": 0.047912686441344325,
+              "80_bus_rural_reference_grid": 0.0031272255341950298
+            }
+          },
+          "123": {
+            "selected_donor": "80_bus_rural_reference_grid",
+            "selected_calibration_benefit": 0.10327874431639207,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "39_bus_semi_urban_reference_grid": 0.049789497008550544,
+              "56_bus_semi_urban_reference_grid": 0.05994630175229056,
+              "80_bus_rural_reference_grid": 0.10327874431639207
+            }
+          },
+          "2026": {
+            "selected_donor": "80_bus_rural_reference_grid",
+            "selected_calibration_benefit": 0.06424583659390454,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "39_bus_semi_urban_reference_grid": 0.048411851793925244,
+              "56_bus_semi_urban_reference_grid": 0.06206371007360496,
+              "80_bus_rural_reference_grid": 0.06424583659390454
+            }
+          }
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "42": {
+            "selected_donor": "39_bus_semi_urban_reference_grid",
+            "selected_calibration_benefit": 0.050339444113278495,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "39_bus_semi_urban_reference_grid": 0.050339444113278495,
+              "50_bus_rural_reference_grid": 0.02582378125003198,
+              "80_bus_rural_reference_grid": 0.010616416271099306
+            }
+          },
+          "123": {
+            "selected_donor": "80_bus_rural_reference_grid",
+            "selected_calibration_benefit": 0.05862936026984722,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "39_bus_semi_urban_reference_grid": 0.04716444607185544,
+              "50_bus_rural_reference_grid": 0.02311532109819445,
+              "80_bus_rural_reference_grid": 0.05862936026984722
+            }
+          },
+          "2026": {
+            "selected_donor": "39_bus_semi_urban_reference_grid",
+            "selected_calibration_benefit": 0.046201860210043195,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "39_bus_semi_urban_reference_grid": 0.046201860210043195,
+              "50_bus_rural_reference_grid": 0.03961119486190236,
+              "80_bus_rural_reference_grid": 0.03457395992060361
+            }
+          }
+        },
+        "80_bus_rural_reference_grid": {
+          "42": {
+            "selected_donor": "50_bus_rural_reference_grid",
+            "selected_calibration_benefit": 0.06375675689307114,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "39_bus_semi_urban_reference_grid": 0.05364305311185491,
+              "50_bus_rural_reference_grid": 0.06375675689307114,
+              "56_bus_semi_urban_reference_grid": 0.05113810734265432
+            }
+          },
+          "123": {
+            "selected_donor": "39_bus_semi_urban_reference_grid",
+            "selected_calibration_benefit": 0.08573227565688189,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "39_bus_semi_urban_reference_grid": 0.08573227565688189,
+              "50_bus_rural_reference_grid": 0.07005653789739331,
+              "56_bus_semi_urban_reference_grid": 0.05596429479776676
+            }
+          },
+          "2026": {
+            "selected_donor": "39_bus_semi_urban_reference_grid",
+            "selected_calibration_benefit": 0.07145174757359135,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "39_bus_semi_urban_reference_grid": 0.07145174757359135,
+              "50_bus_rural_reference_grid": 0.06834931187076033,
+              "56_bus_semi_urban_reference_grid": 0.0667889456864799
+            }
+          }
+        }
+      },
+      "target_summary": {
+        "39_bus_semi_urban_reference_grid": {
+          "selected_donor_by_seed": {
+            "42": "56_bus_semi_urban_reference_grid",
+            "123": "80_bus_rural_reference_grid",
+            "2026": "56_bus_semi_urban_reference_grid"
+          },
+          "unique_selected_donor_count": 2,
+          "fallback_occurrence_count": 0
+        },
+        "50_bus_rural_reference_grid": {
+          "selected_donor_by_seed": {
+            "42": "39_bus_semi_urban_reference_grid",
+            "123": "80_bus_rural_reference_grid",
+            "2026": "80_bus_rural_reference_grid"
+          },
+          "unique_selected_donor_count": 2,
+          "fallback_occurrence_count": 0
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "selected_donor_by_seed": {
+            "42": "39_bus_semi_urban_reference_grid",
+            "123": "80_bus_rural_reference_grid",
+            "2026": "39_bus_semi_urban_reference_grid"
+          },
+          "unique_selected_donor_count": 2,
+          "fallback_occurrence_count": 0
+        },
+        "80_bus_rural_reference_grid": {
+          "selected_donor_by_seed": {
+            "42": "50_bus_rural_reference_grid",
+            "123": "39_bus_semi_urban_reference_grid",
+            "2026": "39_bus_semi_urban_reference_grid"
+          },
+          "unique_selected_donor_count": 2,
+          "fallback_occurrence_count": 0
+        }
+      },
+      "positive_directed_benefit_count": 36,
+      "non_positive_directed_benefit_count": 0,
+      "fallback_occurrence_count": 0,
+      "directed_edge_observations": 36
+    },
+    "50pct": {
+      "by_target": {
+        "39_bus_semi_urban_reference_grid": {
+          "42": {
+            "selected_donor": "56_bus_semi_urban_reference_grid",
+            "selected_calibration_benefit": 0.04816421820329959,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "50_bus_rural_reference_grid": 0.026459663192002592,
+              "56_bus_semi_urban_reference_grid": 0.04816421820329959,
+              "80_bus_rural_reference_grid": 0.010078332479248716
+            }
+          },
+          "123": {
+            "selected_donor": "80_bus_rural_reference_grid",
+            "selected_calibration_benefit": 0.05653426965193464,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "50_bus_rural_reference_grid": 0.02947487716919263,
+              "56_bus_semi_urban_reference_grid": 0.0465817285976303,
+              "80_bus_rural_reference_grid": 0.05653426965193464
+            }
+          },
+          "2026": {
+            "selected_donor": "56_bus_semi_urban_reference_grid",
+            "selected_calibration_benefit": 0.057521049568706815,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "50_bus_rural_reference_grid": 0.05420223989065329,
+              "56_bus_semi_urban_reference_grid": 0.057521049568706815,
+              "80_bus_rural_reference_grid": 0.05008158957627296
+            }
+          }
+        },
+        "50_bus_rural_reference_grid": {
+          "42": {
+            "selected_donor": "56_bus_semi_urban_reference_grid",
+            "selected_calibration_benefit": 0.06384014872366463,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "39_bus_semi_urban_reference_grid": 0.051535431295233795,
+              "56_bus_semi_urban_reference_grid": 0.06384014872366463,
+              "80_bus_rural_reference_grid": 0.015017175683936663
+            }
+          },
+          "123": {
+            "selected_donor": "80_bus_rural_reference_grid",
+            "selected_calibration_benefit": 0.11087661203409771,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "39_bus_semi_urban_reference_grid": 0.04919181426267827,
+              "56_bus_semi_urban_reference_grid": 0.067266725114072,
+              "80_bus_rural_reference_grid": 0.11087661203409771
+            }
+          },
+          "2026": {
+            "selected_donor": "56_bus_semi_urban_reference_grid",
+            "selected_calibration_benefit": 0.07537306561356254,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "39_bus_semi_urban_reference_grid": 0.07321122296161975,
+              "56_bus_semi_urban_reference_grid": 0.07537306561356254,
+              "80_bus_rural_reference_grid": 0.05562624336121169
+            }
+          }
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "42": {
+            "selected_donor": "39_bus_semi_urban_reference_grid",
+            "selected_calibration_benefit": 0.04902718896204155,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "39_bus_semi_urban_reference_grid": 0.04902718896204155,
+              "50_bus_rural_reference_grid": 0.02358148157363844,
+              "80_bus_rural_reference_grid": 0.013533825026805632
+            }
+          },
+          "123": {
+            "selected_donor": "80_bus_rural_reference_grid",
+            "selected_calibration_benefit": 0.0636581227574032,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "39_bus_semi_urban_reference_grid": 0.051380675739715206,
+              "50_bus_rural_reference_grid": 0.026195908482145234,
+              "80_bus_rural_reference_grid": 0.0636581227574032
+            }
+          },
+          "2026": {
+            "selected_donor": "80_bus_rural_reference_grid",
+            "selected_calibration_benefit": 0.04334749633168829,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "39_bus_semi_urban_reference_grid": 0.042059932706317214,
+              "50_bus_rural_reference_grid": 0.04326598217387435,
+              "80_bus_rural_reference_grid": 0.04334749633168829
+            }
+          }
+        },
+        "80_bus_rural_reference_grid": {
+          "42": {
+            "selected_donor": "39_bus_semi_urban_reference_grid",
+            "selected_calibration_benefit": 0.02942627870297127,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "39_bus_semi_urban_reference_grid": 0.02942627870297127,
+              "50_bus_rural_reference_grid": 0.02001195366549251,
+              "56_bus_semi_urban_reference_grid": 0.028135353771525234
+            }
+          },
+          "123": {
+            "selected_donor": "39_bus_semi_urban_reference_grid",
+            "selected_calibration_benefit": 0.02404008954364483,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "39_bus_semi_urban_reference_grid": 0.02404008954364483,
+              "50_bus_rural_reference_grid": -0.004281249850546267,
+              "56_bus_semi_urban_reference_grid": 0.022754214965765462
+            }
+          },
+          "2026": {
+            "selected_donor": "56_bus_semi_urban_reference_grid",
+            "selected_calibration_benefit": 0.033138257522277594,
+            "zero_transfer_fallback": false,
+            "calibration_benefit_by_donor": {
+              "39_bus_semi_urban_reference_grid": 0.021967546453366377,
+              "50_bus_rural_reference_grid": 0.019987524443666978,
+              "56_bus_semi_urban_reference_grid": 0.033138257522277594
+            }
+          }
+        }
+      },
+      "target_summary": {
+        "39_bus_semi_urban_reference_grid": {
+          "selected_donor_by_seed": {
+            "42": "56_bus_semi_urban_reference_grid",
+            "123": "80_bus_rural_reference_grid",
+            "2026": "56_bus_semi_urban_reference_grid"
+          },
+          "unique_selected_donor_count": 2,
+          "fallback_occurrence_count": 0
+        },
+        "50_bus_rural_reference_grid": {
+          "selected_donor_by_seed": {
+            "42": "56_bus_semi_urban_reference_grid",
+            "123": "80_bus_rural_reference_grid",
+            "2026": "56_bus_semi_urban_reference_grid"
+          },
+          "unique_selected_donor_count": 2,
+          "fallback_occurrence_count": 0
+        },
+        "56_bus_semi_urban_reference_grid": {
+          "selected_donor_by_seed": {
+            "42": "39_bus_semi_urban_reference_grid",
+            "123": "80_bus_rural_reference_grid",
+            "2026": "80_bus_rural_reference_grid"
+          },
+          "unique_selected_donor_count": 2,
+          "fallback_occurrence_count": 0
+        },
+        "80_bus_rural_reference_grid": {
+          "selected_donor_by_seed": {
+            "42": "39_bus_semi_urban_reference_grid",
+            "123": "39_bus_semi_urban_reference_grid",
+            "2026": "56_bus_semi_urban_reference_grid"
+          },
+          "unique_selected_donor_count": 2,
+          "fallback_occurrence_count": 0
+        }
+      },
+      "positive_directed_benefit_count": 35,
+      "non_positive_directed_benefit_count": 1,
+      "fallback_occurrence_count": 0,
+      "directed_edge_observations": 36
+    }
+  }
+}
