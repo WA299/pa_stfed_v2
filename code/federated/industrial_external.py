@@ -146,7 +146,12 @@ def _client_bundle(
                 target_split.available_start,
             )
         else:
-            train_indices, calibration = donor_split(grid)
+            # Standard FL sources follow the accepted formal baseline: all
+            # complete canonical-TRAIN targets are optimized locally. The
+            # donor fit/calibration split remains reserved for BTD proxies
+            # and FedFomo's calibration objective.
+            train_indices = _indices(grid)
+            _, calibration = donor_split(grid)
             scaler = fit_fit_only_scaler(grid, train_indices)
             graph = build_conditional_utility_graph(grid)
             history_start = None
@@ -166,6 +171,11 @@ def _client_bundle(
         client.history_start = history_start
         clients.append(client)
         metadata[name] = dict(graph.diagnostics)
+        metadata[name]["training_index_contract"] = (
+            "industrial_scarce_fit_only" if name == INDUSTRIAL_TARGET else "full_canonical_train_all_complete_targets"
+        )
+        metadata[name]["train_target_count"] = int(len(train_indices))
+        metadata[name]["scaler_fit_target_count"] = int(len(train_indices))
     return clients, target_split, target_graph, metadata
 
 
@@ -250,6 +260,13 @@ def _run_federated(
         "local_sample_counts": counts,
         "aggregation_weights": weights,
         "graph_metadata": graph_metadata,
+        "training_index_contract_by_client": {
+            name: ("industrial_scarce_fit_only" if name == INDUSTRIAL_TARGET else "full_canonical_train_all_complete_targets")
+            for name in EXTERNAL_CLIENT_NAMES
+        },
+        "scaler_fit_target_count_by_client": {
+            client.grid_name: int(len(client.train_dataset)) for client in clients
+        },
         "fedprox_mu": 0.01 if method == "fedprox" else None,
         "primary_target": INDUSTRIAL_TARGET,
     }
@@ -481,6 +498,7 @@ def run_external_fedfomo(
     batch_size: int = 32,
     device: str = "cpu",
     seed: int = 42,
+    max_epochs_metadata: int = 50,
 ) -> dict[str, Any]:
     from code.federated.fedfomo_style import run_fedfomo_scenario
 
@@ -513,7 +531,7 @@ def run_external_fedfomo(
         history_fraction,
         rounds,
         local_epochs,
-        50,
+        max_epochs_metadata,
         batch_size,
         seed,
         {INDUSTRIAL_TARGET: scenario},

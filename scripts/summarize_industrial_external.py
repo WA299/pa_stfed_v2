@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from code.federated.industrial_result_validation import load_valid_external_result
+from code.federated.industrial_result_validation import CONTRACTS, load_valid_external_result
 
 SEEDS = (42, 123, 2026)
 METHODS = ("industrial_scarce_local", "fedavg", "fedprox", "fedper", "fedfomo_style", "btd_fl_direct_transfer")
@@ -38,16 +38,17 @@ def _read(path: Path, seed: int, fraction: float) -> dict[str, Any]:
     }.get(artifact_type)
     if expected_methods is None or set(report.get("methods", ())) != expected_methods:
         raise ValueError(f"wrong artifact type or method set in {path}")
+    expected_rounds, expected_local_epochs, expected_max_epochs, expected_batch_size = CONTRACTS[artifact_type]
     load_valid_external_result(
         path,
         artifact_type=artifact_type,
         seed=seed,
         fraction=fraction,
         run_mode="real",
-        rounds=int(report.get("rounds", 0)),
-        local_epochs=int(report.get("local_epochs", 0)),
-        max_epochs=int(report.get("max_epochs", 0)),
-        batch_size=int(report.get("batch_size", 0)),
+        rounds=expected_rounds,
+        local_epochs=expected_local_epochs,
+        max_epochs=expected_max_epochs,
+        batch_size=expected_batch_size,
     )
     for field in ("test_evaluated", "industrial_test_evaluated", "reference_grid_tests_evaluated"):
         if report.get(field) is not False:

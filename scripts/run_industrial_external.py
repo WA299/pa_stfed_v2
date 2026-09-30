@@ -95,6 +95,11 @@ def main() -> None:
         local_epochs = min(args.local_epochs, 1)
         run_mode = "synthetic_smoke"
     else:
+        if (args.rounds, args.local_epochs, args.max_epochs, args.batch_size) != (10, 5, 50, 32):
+            raise ValueError(
+                "real industrial production runs require rounds=10, local_epochs=5, "
+                "max_epochs=50, batch_size=32"
+            )
         output_dir = args.output_dir
         grids = load_external_grids(args.data_root, args.mapping_json)
         batch_size = args.batch_size
@@ -129,7 +134,7 @@ def main() -> None:
             reports.append(("industrial_btd_direct_transfer", run_external_btd(grids, args.history_fraction, max_epochs, batch_size, args.device, args.seed)))
     if args.method in ("fedfomo", "all"):
         if should_run("industrial_fedfomo_style", "industrial_fedfomo_style", rounds, local_epochs):
-            reports.append(("industrial_fedfomo_style", run_external_fedfomo(grids, args.history_fraction, rounds, local_epochs, batch_size, args.device, args.seed)))
+            reports.append(("industrial_fedfomo_style", run_external_fedfomo(grids, args.history_fraction, rounds, local_epochs, batch_size, args.device, args.seed, max_epochs_metadata=max_epochs)))
     output_dir.mkdir(parents=True, exist_ok=True)
     for stem, report in reports:
         report["run_mode"] = run_mode
