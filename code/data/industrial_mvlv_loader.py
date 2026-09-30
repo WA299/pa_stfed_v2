@@ -17,7 +17,6 @@ import numpy as np
 import pandas as pd
 
 from code.data.lv_grid_loader import (
-    DISTANCE_NAMES,
     DYNAMIC_FEATURE_NAMES,
     EDGE_FEATURE_NAMES,
     LVGridData,
@@ -207,13 +206,15 @@ class IndustrialMVLVLoader:
         hop_values = hop[off_diagonal]
         zero_count = int(np.count_nonzero(impedance_values == 0.0))
         positive = impedance_values[impedance_values > 0.0]
+        normalization_median = float(np.median(impedance_values))
         return {
             "load_load_pair_count": int(len(impedance_values)),
             "load_load_zero_impedance_path_count": zero_count,
             "load_load_zero_impedance_path_fraction": float(zero_count / len(impedance_values)),
             "load_load_impedance_path_median": float(np.median(impedance_values)),
             "load_load_impedance_path_positive_median": float(np.median(positive)) if len(positive) else None,
-            "load_load_impedance_path_normalization_median_positive": bool(len(positive) and np.median(positive) > 0),
+            "load_load_impedance_path_normalization_median": normalization_median,
+            "load_load_impedance_path_normalization_median_positive": bool(np.isfinite(normalization_median) and normalization_median > 0),
             "hop_distance_min": float(np.min(hop_values)),
             "hop_distance_median": float(np.median(hop_values)),
             "hop_distance_max": float(np.max(hop_values)),
@@ -227,7 +228,12 @@ class IndustrialMVLVLoader:
         f_col, t_col = _column(branch, "F_BUS"), _column(branch, "T_BUS")
         r_col, x_col = _column(branch, "BR_R"), _column(branch, "BR_X")
         node_set = set(bus_ids)
+        if len(bus_ids) != EXPECTED_NODE_COUNT:
+            raise ValueError(f"industrial archive identity requires {EXPECTED_NODE_COUNT} buses, found {len(bus_ids)}")
+        if len(branch) != EXPECTED_EDGE_COUNT:
+            raise ValueError(f"industrial archive identity requires {EXPECTED_EDGE_COUNT} branch rows, found {len(branch)}")
         edges: list[tuple[str, str]] = []
+        physical_pairs: set[frozenset[str]] = set()
         r_values: list[float] = []
         x_values: list[float] = []
         graph = nx.Graph()
@@ -236,6 +242,10 @@ class IndustrialMVLVLoader:
             left, right = _id(row[f_col]), _id(row[t_col])
             if left not in node_set or right not in node_set:
                 raise ValueError(f"branch endpoint missing from bus.csv: {left}, {right}")
+            pair = frozenset((left, right))
+            if pair in physical_pairs:
+                raise ValueError(f"duplicate physical branch pair: {left}, {right}")
+            physical_pairs.add(pair)
             r_value = float(pd.to_numeric(row[r_col], errors="coerce"))
             x_value = float(pd.to_numeric(row[x_col], errors="coerce"))
             if not np.isfinite(r_value) or not np.isfinite(x_value):
@@ -249,8 +259,8 @@ class IndustrialMVLVLoader:
 
         type_col, kv_col = _column(bus, "BUS_TYPE"), _column(bus, "BASE_KV")
         source_ids = [_id(value) for value in bus.loc[pd.to_numeric(bus[type_col], errors="coerce") == 3, bus_col]]
-        if not source_ids:
-            raise ValueError("no BUS_TYPE=3 source/slack buses found")
+        if len(source_ids) != 2:
+            raise ValueError(f"industrial archive identity requires 2 source/slack buses, found {len(source_ids)}")
         root_depth: dict[str, int] = {}
         for node in bus_ids:
             root_depth[node] = min(nx.shortest_path_length(graph, node, source) for source in source_ids)
@@ -336,6 +346,8 @@ class IndustrialMVLVLoader:
                 "zero_load_count": int(np.count_nonzero(values == 0)),
                 "zero_load_fraction": float(np.mean(values == 0)),
             }
+        if len(series) != EXPECTED_LOAD_COUNT:
+            raise ValueError("industrial archive identity requires 45 unique measured load buses")
         return series, metadata
 
     @staticmethod

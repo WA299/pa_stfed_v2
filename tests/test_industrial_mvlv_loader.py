@@ -47,7 +47,21 @@ def test_topology_and_raw_zero_electrical_values_are_preserved():
     assert np.count_nonzero(grid.edge_features[:, 0] == 0) == 63
     assert np.count_nonzero(grid.edge_features[:, 1] == 0) == 63
     assert grid.metadata["electrical_diagnostics"]["load_load_impedance_path_normalization_median_positive"]
+    assert grid.metadata["electrical_diagnostics"]["load_load_impedance_path_normalization_median"] == pytest.approx(
+        np.median(grid.distance_matrices["impedance_abs_distance"][np.ix_(np.flatnonzero(grid.load_bus_mask), np.flatnonzero(grid.load_bus_mask))][~np.eye(45, dtype=bool)])
+    )
     assert np.isfinite(grid.distance_matrices["impedance_abs_distance"]).all()
+
+
+@requires_archive
+def test_archive_late_starting_files_are_exact():
+    grid = load_industrial_mvlv(DATA_ROOT)
+    earliest = min(item["start_time"] for item in grid.metadata["load_file_metadata"].values())
+    late = sorted(
+        bus_id for bus_id, item in grid.metadata["load_file_metadata"].items()
+        if item["start_time"] > earliest
+    )
+    assert late == ["r1v0.415b41", "r1v0.415b9", "r2v0.415b3", "r2v0.415b4"]
 
 
 @requires_archive
@@ -88,8 +102,8 @@ def test_fit_only_graph_compatibility_for_both_history_fractions():
         assert graph.diagnostics["graph_uses_test"] is False
 
 
-def test_conflicting_duplicate_values_raise(tmp_path):
-    path = tmp_path / "r1v0.415b1.txt"
+def test_conflicting_duplicate_values_raise():
+    path = Path("r1v0.415b1.txt")
     pd.DataFrame(
         {
             "Bus_ID": ["r1v0.415b1", "r1v0.415b1"],
@@ -97,12 +111,15 @@ def test_conflicting_duplicate_values_raise(tmp_path):
             "Load_kWh": [1.0, 2.0],
         }
     ).to_csv(path, sep=";", index=False)
-    with pytest.raises(ValueError, match="conflicting duplicate"):
-        parse_industrial_load_file(path, {"r1v0.415b1"})
+    try:
+        with pytest.raises(ValueError, match="conflicting duplicate"):
+            parse_industrial_load_file(path, {"r1v0.415b1"})
+    finally:
+        path.unlink(missing_ok=True)
 
 
-def test_identical_duplicate_values_deduplicate(tmp_path):
-    path = tmp_path / "r1v0.415b1.txt"
+def test_identical_duplicate_values_deduplicate():
+    path = Path("r1v0.415b1.txt")
     pd.DataFrame(
         {
             "Bus_ID": ["r1v0.415b1", "r1v0.415b1", "r1v0.415b1"],
@@ -110,7 +127,10 @@ def test_identical_duplicate_values_deduplicate(tmp_path):
             "Load_kWh": [1.0, 1.0, 2.0],
         }
     ).to_csv(path, sep=";", index=False)
-    bus_id, timestamps, values, duplicates = parse_industrial_load_file(path, {"r1v0.415b1"})
-    assert bus_id == "r1v0.415b1"
-    assert len(timestamps) == 2 and len(values) == 2
-    assert list(duplicates.values()) == [1]
+    try:
+        bus_id, timestamps, values, duplicates = parse_industrial_load_file(path, {"r1v0.415b1"})
+        assert bus_id == "r1v0.415b1"
+        assert len(timestamps) == 2 and len(values) == 2
+        assert list(duplicates.values()) == [1]
+    finally:
+        path.unlink(missing_ok=True)

@@ -67,13 +67,15 @@ def _update_vectors(
 
 
 def cosine_diagnostics(
-    vectors_by_client: Mapping[str, np.ndarray], client_order: tuple[str, ...]
+    vectors_by_client: Mapping[str, np.ndarray], client_order: tuple[str, ...],
+    client_pairs: tuple[tuple[int, int], ...] | None = None,
 ) -> dict[str, Any]:
     """Compute six pairwise cosines; undefined zero-norm comparisons map to 0."""
     pair_values: dict[str, float] = {}
     zero_norm_pairs: list[str] = []
     values = []
-    for left, right in CLIENT_PAIRS:
+    pairs = CLIENT_PAIRS if client_pairs is None else client_pairs
+    for left, right in pairs:
         left_name, right_name = client_order[left], client_order[right]
         a = np.asarray(vectors_by_client[left_name], dtype=np.float64).reshape(-1)
         b = np.asarray(vectors_by_client[right_name], dtype=np.float64).reshape(-1)
@@ -142,6 +144,7 @@ class FederatedTrainer:
         device: str = "cpu",
         algorithm: str = "standard",
         evaluate_validation_during_training: bool = True,
+        expected_client_count: int = 4,
     ) -> None:
         if mode not in SHARING_MODES:
             raise ValueError(f"unknown sharing mode: {mode}")
@@ -149,8 +152,8 @@ class FederatedTrainer:
             raise ValueError(f"unknown federated algorithm: {algorithm}")
         if algorithm != "standard" and mode != "fedavg_all":
             raise ValueError("FedProx and FedPer use --mode fedavg_all; their sharing is algorithm-defined")
-        if len(clients) != 4:
-            raise ValueError("the topology-heterogeneous framework requires exactly four clients")
+        if len(clients) != int(expected_client_count):
+            raise ValueError(f"the topology-heterogeneous framework requires exactly {expected_client_count} clients")
         if rounds < 1 or local_epochs < 1 or batch_size < 1 or learning_rate <= 0:
             raise ValueError("rounds, local_epochs, batch_size, and learning_rate must be positive")
         self.clients = clients
@@ -163,6 +166,7 @@ class FederatedTrainer:
         self.seed = int(seed)
         self.device = device
         self.evaluate_validation_during_training = bool(evaluate_validation_during_training)
+        self.client_pairs = tuple((left, right) for left in range(len(clients)) for right in range(left + 1, len(clients)))
         self.client_order = tuple(client.grid_name for client in clients)
         self.groups = {
             client.grid_name: (
@@ -291,6 +295,7 @@ class FederatedTrainer:
                 group: cosine_diagnostics(
                     {client.grid_name: deltas[client.grid_name][group] for client in self.clients},
                     self.client_order,
+                    self.client_pairs,
                 )
                 for group in ("temporal", "spatial")
             }

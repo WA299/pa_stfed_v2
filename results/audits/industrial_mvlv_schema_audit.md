@@ -15,6 +15,8 @@ Stage 1 schema/quality audit only. No neural training or forecasting metric was 
 - Common interval: `2020-09-07 01:00:00` through `2022-03-17 00:00:00`
 - Common rows: 13344; missing hours: 0
 - Duplicate groups identical and deduplicated: `True`
+- Late-starting files: `r1v0.415b41, r1v0.415b9, r2v0.415b3, r2v0.415b4`
+- Impedance normalization median (all finite off-diagonal load-load values): 0.00597671
 
 ## Splits
 

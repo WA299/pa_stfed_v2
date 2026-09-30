@@ -64,10 +64,11 @@ def build_audit(data_root: str | Path = DEFAULT_DATA_ROOT) -> dict[str, Any]:
     splits = {str(fraction): _split_record(scarce_split(grid, fraction)) for fraction in (0.25, 0.50)}
     graph_checks = {str(fraction): _graph_audit(grid, fraction) for fraction in (0.25, 0.50)}
     file_meta = grid.metadata["load_file_metadata"]
+    earliest_archive_start = min(item["start_time"] for item in file_meta.values())
     late_starting = {
         bus_id: details["start_time"]
         for bus_id, details in file_meta.items()
-        if details["start_time"] != grid.metadata["common_interval"]["start_time"]
+        if details["start_time"] > earliest_archive_start
     }
     return {
         "audit": "industrial_mvlv_schema_audit_stage_1",
@@ -97,6 +98,7 @@ def build_audit(data_root: str | Path = DEFAULT_DATA_ROOT) -> dict[str, Any]:
                 for bus_id, item in file_meta.items()
             },
             "late_starting_files": late_starting,
+            "earliest_archive_start": earliest_archive_start,
             "duplicate_timestamps": {
                 bus_id: item["duplicate_timestamps"] for bus_id, item in file_meta.items()
             },
@@ -152,6 +154,8 @@ def _markdown(report: dict[str, Any]) -> str:
         f"- Common interval: `{common['start_time']}` through `{common['end_time']}`",
         f"- Common rows: {common['row_count']}; missing hours: {common['missing_hour_count']}",
         f"- Duplicate groups identical and deduplicated: `{report['time_series']['duplicate_equality_check']}`",
+        f"- Late-starting files: `{', '.join(sorted(report['time_series']['late_starting_files']))}`",
+        f"- Impedance normalization median (all finite off-diagonal load-load values): {report['electrical']['load_load_impedance_path_normalization_median']:.6g}",
         "",
         "## Splits",
         "",
