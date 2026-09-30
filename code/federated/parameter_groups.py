@@ -50,6 +50,36 @@ TOPOLOGY_BUFFER_NAMES = frozenset(
     }
 )
 
+# Stable names for the frozen PUC-RSTAttn V2 temporal group.  This is used by
+# artifact validation to distinguish a complete temporal transfer from a
+# non-empty subset; it does not alter grouping or training behavior.
+FROZEN_TEMPORAL_PARAMETER_NAMES = (
+    "gru.bias_hh_l0",
+    "gru.bias_ih_l0",
+    "gru.weight_hh_l0",
+    "gru.weight_ih_l0",
+    "gru_head.bias",
+    "gru_head.weight",
+    "temporal_correction.0.bias",
+    "temporal_correction.0.weight",
+    "temporal_correction.2.bias",
+    "temporal_correction.2.weight",
+    "temporal_gate.0.bias",
+    "temporal_gate.0.weight",
+    "temporal_gate.2.bias",
+    "temporal_gate.2.weight",
+    "temporal_key.bias",
+    "temporal_key.weight",
+    "temporal_query.bias",
+    "temporal_query.weight",
+    "temporal_score.weight",
+)
+
+
+def frozen_temporal_parameter_names() -> tuple[str, ...]:
+    """Return the complete ordered temporal group for the frozen model."""
+    return FROZEN_TEMPORAL_PARAMETER_NAMES
+
 
 def parameter_groups(model: Any) -> dict[str, tuple[str, ...]]:
     """Partition every trainable named parameter into exactly one group."""

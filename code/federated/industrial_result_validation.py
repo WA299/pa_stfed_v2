@@ -13,7 +13,7 @@ from code.federated.industrial_external import (
     REFERENCE_CLIENT_NAMES,
     select_external_donor,
 )
-from code.federated.parameter_groups import TEMPORAL_PREFIXES
+from code.federated.parameter_groups import frozen_temporal_parameter_names
 
 METRICS = ("mae", "rmse", "wape_pct", "smape_pct")
 TARGET_COUNTS = {
@@ -187,13 +187,27 @@ def _validate_report(
         for method, item in federated.items():
             if not isinstance(item, Mapping):
                 raise ValueError(f"missing federated report for {method}")
-            if item.get("communication_round_selection") != "fixed_final_round":
+            trainer_report = item.get("federated_report")
+            if not isinstance(trainer_report, Mapping):
+                raise ValueError(f"{method} trainer report is missing")
+            if trainer_report.get("rounds") != int(rounds) or trainer_report.get("local_epochs") != int(local_epochs) or trainer_report.get("batch_size") != int(batch_size):
+                raise ValueError(f"{method} trainer budget is not frozen")
+            optimizer = trainer_report.get("optimizer")
+            if not isinstance(optimizer, Mapping) or optimizer.get("name") != "Adam" or not _same_number(optimizer.get("learning_rate"), 1e-3):
+                raise ValueError(f"{method} trainer optimizer contract is invalid")
+            if trainer_report.get("communication_round_selection") != "fixed_final_round":
                 raise ValueError(f"{method} did not use fixed final round")
-            if item.get("canonical_validation_evaluated_during_training") is not False:
-                raise ValueError(f"{method} evaluated validation during training")
+            for field in ("canonical_validation_evaluated_during_training", "validation_used_for_selection", "test_evaluated"):
+                if trainer_report.get(field) is not False:
+                    raise ValueError(f"{method} trainer guardrail {field} is invalid")
+            if tuple(trainer_report.get("client_grid_names", ())) != EXTERNAL_CLIENT_NAMES:
+                raise ValueError(f"{method} trainer client set is incomplete")
             counts = item.get("local_sample_counts")
             if not isinstance(counts, Mapping) or tuple(counts) != EXTERNAL_CLIENT_NAMES:
                 raise ValueError(f"{method} local sample-count clients are incomplete")
+            trainer_counts = trainer_report.get("local_sample_counts")
+            if not isinstance(trainer_counts, Mapping) or dict(trainer_counts) != dict(counts):
+                raise ValueError(f"{method} trainer/wrapper sample counts disagree")
             if run_mode == "real":
                 expected_counts = {name: (5964 if name in REFERENCE_CLIENT_NAMES else TARGET_COUNTS[_fraction_key(fraction)][2]) for name in EXTERNAL_CLIENT_NAMES}
                 if any(not isinstance(counts[name], int) or isinstance(counts[name], bool) for name in EXTERNAL_CLIENT_NAMES):
@@ -209,6 +223,14 @@ def _validate_report(
                     raise ValueError(f"{method} has invalid index contract for {name}")
             if method == "fedprox" and not _same_number(item.get("fedprox_mu"), 0.01):
                 raise ValueError("FedProx mu is not frozen at 0.01")
+            round_history = trainer_report.get("round_history")
+            if not isinstance(round_history, list) or len(round_history) != int(rounds):
+                raise ValueError(f"{method} trainer round history is incomplete")
+            if [round_item.get("round") for round_item in round_history if isinstance(round_item, Mapping)] != list(range(1, int(rounds) + 1)):
+                raise ValueError(f"{method} trainer round numbers are invalid")
+            aggregation_weights = item.get("aggregation_weights")
+            if not isinstance(aggregation_weights, Mapping) or round_history[-1].get("aggregation_weights") != dict(aggregation_weights):
+                raise ValueError(f"{method} final aggregation weights disagree with wrapper")
     elif artifact_type == "industrial_btd_direct_transfer":
         if report.get("btd_variant") != "btd_fl_direct_transfer":
             raise ValueError("wrong BTD variant")
@@ -217,6 +239,11 @@ def _validate_report(
         metadata = scenario.get("metadata")
         if not isinstance(metadata, Mapping):
             raise ValueError("BTD metadata is missing")
+        if run_mode == "real":
+            _require_counts(metadata, fraction)
+        for field in ("target_scaler_fit_start_index", "target_scaler_fit_end_index"):
+            if not isinstance(metadata.get(field), int) or isinstance(metadata.get(field), bool):
+                raise ValueError(f"BTD {field} is missing or not an integer")
         benefits = metadata.get("calibration_benefit_by_donor")
         if not isinstance(benefits, Mapping) or tuple(benefits) != REFERENCE_CLIENT_NAMES:
             raise ValueError("BTD requires exactly the four reference donor benefits")
@@ -243,8 +270,8 @@ def _validate_report(
         if fallback:
             if transferred:
                 raise ValueError("fallback BTD must transfer no parameters")
-        elif not transferred or any(not isinstance(name, str) or not name.startswith(TEMPORAL_PREFIXES) for name in transferred):
-            raise ValueError("BTD transferred parameter group is not temporal-only")
+        elif tuple(transferred) != frozen_temporal_parameter_names():
+            raise ValueError("BTD transferred parameter group is not the complete frozen temporal group")
         for field in ("validation_used_for_selection", "audit_used_for_selection", "test_evaluated", "industrial_test_evaluated", "reference_grid_tests_evaluated"):
             if metadata.get(field) is not False:
                 raise ValueError(f"BTD guardrail {field} is invalid")
@@ -258,6 +285,8 @@ def _validate_report(
         metadata = scenario.get("metadata")
         if not isinstance(metadata, Mapping):
             raise ValueError("FedFomo metadata is missing")
+        if metadata.get("target_graph_is_local") is not True:
+            raise ValueError("FedFomo target topology is not marked local")
         for field in ("validation_used_for_peer_weighting", "audit_used_for_peer_weighting", "test_evaluated", "industrial_test_evaluated", "reference_grid_tests_evaluated"):
             if metadata.get(field) is not False:
                 raise ValueError(f"FedFomo guardrail {field} is invalid")

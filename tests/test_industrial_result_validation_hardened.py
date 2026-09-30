@@ -13,6 +13,7 @@ from code.federated.industrial_external import (
     REFERENCE_CLIENT_NAMES,
 )
 from code.federated.industrial_result_validation import resumable_external_result
+from code.federated.parameter_groups import frozen_temporal_parameter_names
 
 
 def _metric(value: float = 1.0) -> dict:
@@ -43,10 +44,20 @@ def _baseline() -> dict:
     counts = {name: 5964 for name in REFERENCE_CLIENT_NAMES} | {INDUSTRIAL_TARGET: 1300}
     contracts = {name: "full_canonical_train_all_complete_targets" for name in REFERENCE_CLIENT_NAMES} | {INDUSTRIAL_TARGET: "industrial_scarce_fit_only"}
     for method in ("fedavg", "fedprox", "fedper"):
-        federated[method] = {
+        weights = {name: count / float(sum(counts.values())) for name, count in counts.items()}
+        trainer_report = {
+            "rounds": 10, "local_epochs": 5, "batch_size": 32,
+            "optimizer": {"name": "Adam", "learning_rate": 1e-3},
             "communication_round_selection": "fixed_final_round",
             "canonical_validation_evaluated_during_training": False,
+            "validation_used_for_selection": False, "test_evaluated": False,
+            "client_grid_names": list(EXTERNAL_CLIENT_NAMES), "local_sample_counts": counts,
+            "round_history": [{"round": index, "aggregation_weights": weights} for index in range(1, 11)],
+        }
+        federated[method] = {
+            "federated_report": trainer_report,
             "local_sample_counts": counts,
+            "aggregation_weights": weights,
             "training_index_contract_by_client": contracts,
             "fedprox_mu": 0.01 if method == "fedprox" else None,
         }
@@ -69,7 +80,10 @@ def _btd(fallback: bool = False) -> dict:
         "selected_calibration_benefit": 0.0 if fallback else 0.1, "positive_benefit_count": 0 if fallback else 1,
         "non_positive_benefit_count": 4 if fallback else 3, "zero_transfer_fallback": fallback,
         "raw_selected_donor_temporal_state_used": not fallback, "adapted_probe_states_used_for_final_initialization": False,
-        "transferred_parameter_names": [] if fallback else ["gru.weight"], "validation_used_for_selection": False,
+        "transferred_parameter_names": [] if fallback else list(frozen_temporal_parameter_names()), "validation_used_for_selection": False,
+        "available_raw_hours": 2335, "eligible_target_count": 2167, "fit_target_count": 1300,
+        "calibration_target_count": 433, "audit_target_count": 434,
+        "target_scaler_fit_start_index": 0, "target_scaler_fit_end_index": 1300,
         "audit_used_for_selection": False, "test_evaluated": False, "industrial_test_evaluated": False,
         "reference_grid_tests_evaluated": False,
     }
@@ -87,7 +101,7 @@ def _fedfomo() -> dict:
         diagnostics = {"baseline_self_calibration_loss": 1.0, "candidate_calibration_loss_by_client": {name: 1.0 for name in EXTERNAL_CLIENT_NAMES}, "trainable_parameter_l2_distance_by_client": {name: 1.0 for name in EXTERNAL_CLIENT_NAMES}, "raw_weight_by_client": {name: 1.0 for name in EXTERNAL_CLIENT_NAMES}, "normalized_weight_by_client": weights, "positive_candidate_count": 1, "peer_only_positive_count": 1, "no_positive_candidate_fallback": False}
         rounds.append({"round": index, "peer_weights": {INDUSTRIAL_TARGET: weights}, "diagnostics": {INDUSTRIAL_TARGET: diagnostics}})
     metrics = _metric()
-    report["scenarios"] = {INDUSTRIAL_TARGET: {"scarce_target_metrics": metrics, "round_history": rounds, "final_round_peer_weights": rounds[-1]["peer_weights"], "metadata": {"validation_used_for_peer_weighting": False, "audit_used_for_peer_weighting": False, "test_evaluated": False, "industrial_test_evaluated": False, "reference_grid_tests_evaluated": False}}}
+    report["scenarios"] = {INDUSTRIAL_TARGET: {"scarce_target_metrics": metrics, "round_history": rounds, "final_round_peer_weights": rounds[-1]["peer_weights"], "metadata": {"target_graph_is_local": True, "validation_used_for_peer_weighting": False, "audit_used_for_peer_weighting": False, "test_evaluated": False, "industrial_test_evaluated": False, "reference_grid_tests_evaluated": False}}}
     report["industrial_target_macro"] = {"fedfomo_style": copy.deepcopy(metrics)}
     return report
 
@@ -134,6 +148,32 @@ def test_wrong_budget_and_incomplete_fedfomo_do_not_resume():
     path.write_text(json.dumps(report), encoding="utf-8")
     assert not resumable_external_result(path, **_contract("industrial_fedfomo_style"))
     path.unlink(missing_ok=True)
+
+
+def test_baseline_requires_actual_nested_trainer_report():
+    report = _baseline()
+    path = _write(report)
+    try:
+        assert resumable_external_result(path, **_contract("industrial_baselines"))
+        report["scenarios"][INDUSTRIAL_TARGET]["metadata"]["federated"]["fedavg"]["federated_report"].pop("rounds")
+        path.write_text(json.dumps(report), encoding="utf-8")
+        assert not resumable_external_result(path, **_contract("industrial_baselines"))
+    finally:
+        path.unlink(missing_ok=True)
+
+
+def test_baseline_wrapper_level_trainer_fields_are_not_accepted():
+    report = _baseline()
+    item = report["scenarios"][INDUSTRIAL_TARGET]["metadata"]["federated"]["fedavg"]
+    item["communication_round_selection"] = "fixed_final_round"
+    item["canonical_validation_evaluated_during_training"] = False
+    item["federated_report"].pop("communication_round_selection")
+    item["federated_report"].pop("canonical_validation_evaluated_during_training")
+    path = _write(report)
+    try:
+        assert not resumable_external_result(path, **_contract("industrial_baselines"))
+    finally:
+        path.unlink(missing_ok=True)
 
 
 def test_btd_selection_and_fallback_contracts():

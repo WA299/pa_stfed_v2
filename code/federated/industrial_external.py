@@ -462,6 +462,8 @@ def run_external_btd(
             "target_scaler_fit_start_index": int(target_scaler.fit_start_index),
             "target_scaler_fit_end_index": int(target_scaler.fit_end_index),
             "target_scaler_fit_timestamp_end": target_scaler.fit_timestamp_end,
+            "available_raw_hours": int(target_split.available_raw_hours),
+            "eligible_target_count": int(len(target_split.eligible_indices)),
             "fit_target_count": int(len(target_split.fit_indices)),
             "calibration_target_count": int(len(target_split.calibration_indices)),
             "audit_target_count": int(len(target_split.audit_indices)),
