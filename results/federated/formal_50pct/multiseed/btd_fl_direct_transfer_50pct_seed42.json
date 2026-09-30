@@ -1,0 +1,724 @@
+{
+  "experiment": "formal_btd_fl_direct_temporal_transfer_50pct",
+  "method_name": "BTD-FL Direct Temporal Transfer",
+  "btd_variant": "btd_fl_direct_transfer",
+  "client_grid_names": [
+    "39_bus_semi_urban_reference_grid",
+    "50_bus_rural_reference_grid",
+    "56_bus_semi_urban_reference_grid",
+    "80_bus_rural_reference_grid"
+  ],
+  "seed": 42,
+  "rounds": 0,
+  "local_epochs": 0,
+  "history_fraction": 0.5,
+  "train_calibration_audit_split": "60/20/20 for scarce target; donor train-internal fit/calibration",
+  "max_epochs": 50,
+  "patience": 8,
+  "learning_rate": 0.001,
+  "batch_size": 32,
+  "validation_used_for_selection": false,
+  "audit_used_for_selection": false,
+  "test_evaluated": false,
+  "canonical_validation_evaluated_during_training": false,
+  "selection_semantics": "current-run target-calibration benefit probes; raw selected donor temporal state is transferred",
+  "adapted_probe_states_used_for_final_initialization": false,
+  "donor_proxy_metadata_by_grid": {
+    "39_bus_semi_urban_reference_grid": {
+      "source": "current_direct_transfer_run_full_history_temporal_proxy",
+      "fit_target_count": 4771,
+      "calibration_target_count": 1193,
+      "scaler_fit_start_index": 0,
+      "scaler_fit_end_index": 4939,
+      "scaler_fit_timestamp_end": "2021-07-25 18:00:00",
+      "best_calibration_node_mae": 0.000352376147300724,
+      "epochs_run": 50
+    },
+    "50_bus_rural_reference_grid": {
+      "source": "current_direct_transfer_run_full_history_temporal_proxy",
+      "fit_target_count": 4771,
+      "calibration_target_count": 1193,
+      "scaler_fit_start_index": 0,
+      "scaler_fit_end_index": 4939,
+      "scaler_fit_timestamp_end": "2021-07-25 18:00:00",
+      "best_calibration_node_mae": 0.0002918288797579991,
+      "epochs_run": 50
+    },
+    "56_bus_semi_urban_reference_grid": {
+      "source": "current_direct_transfer_run_full_history_temporal_proxy",
+      "fit_target_count": 4771,
+      "calibration_target_count": 1193,
+      "scaler_fit_start_index": 0,
+      "scaler_fit_end_index": 4939,
+      "scaler_fit_timestamp_end": "2021-07-25 18:00:00",
+      "best_calibration_node_mae": 0.0003941802250528741,
+      "epochs_run": 50
+    },
+    "80_bus_rural_reference_grid": {
+      "source": "current_direct_transfer_run_full_history_temporal_proxy",
+      "fit_target_count": 4771,
+      "calibration_target_count": 1193,
+      "scaler_fit_start_index": 0,
+      "scaler_fit_end_index": 4939,
+      "scaler_fit_timestamp_end": "2021-07-25 18:00:00",
+      "best_calibration_node_mae": 0.000290112257570965,
+      "epochs_run": 17
+    }
+  },
+  "scenarios": {
+    "39_bus_semi_urban_reference_grid": {
+      "metrics": {
+        "audit": {
+          "node_macro": {
+            "mae": 0.0003509426927488886,
+            "rmse": 0.0005240887916407962,
+            "wape_pct": 32.90225850992296,
+            "smape_pct": 32.31166631096641
+          },
+          "grid_aggregate": {
+            "mae": 0.003506833353011835,
+            "rmse": 0.004356842799066524,
+            "wape_pct": 11.158652423909698,
+            "smape_pct": 11.266177635734218
+          },
+          "node_count": 28,
+          "sample_count": 580
+        },
+        "validation": {
+          "node_macro": {
+            "mae": 0.00038673689726519795,
+            "rmse": 0.0005639103445852367,
+            "wape_pct": 27.821281537183868,
+            "smape_pct": 27.8534080681459
+          },
+          "grid_aggregate": {
+            "mae": 0.00403346784463196,
+            "rmse": 0.00508034238413758,
+            "wape_pct": 9.955150432796971,
+            "smape_pct": 10.181414359504702
+          },
+          "node_count": 28,
+          "sample_count": 1314
+        }
+      },
+      "metadata": {
+        "candidate_donors": [
+          "50_bus_rural_reference_grid",
+          "56_bus_semi_urban_reference_grid",
+          "80_bus_rural_reference_grid"
+        ],
+        "local_proxy_training": {
+          "best_calibration_node_mae": 0.00035735779553864303,
+          "epochs_run": 50
+        },
+        "local_proxy_calibration_node_mae": 0.00035735779553864303,
+        "calibration_benefit_by_donor": {
+          "50_bus_rural_reference_grid": 0.026459663192002592,
+          "56_bus_semi_urban_reference_grid": 0.04816421820329959,
+          "80_bus_rural_reference_grid": 0.010078332479248716
+        },
+        "benefit_probe_training_by_donor": {
+          "50_bus_rural_reference_grid": {
+            "donor_proxy_source": "current_direct_transfer_run_full_history_temporal_proxy",
+            "adapted_probe_calibration_node_mae": 0.00034790222860319435,
+            "training": {
+              "best_calibration_node_mae": 0.00034790222860319435,
+              "epochs_run": 50
+            }
+          },
+          "56_bus_semi_urban_reference_grid": {
+            "donor_proxy_source": "current_direct_transfer_run_full_history_temporal_proxy",
+            "adapted_probe_calibration_node_mae": 0.0003401459366495055,
+            "training": {
+              "best_calibration_node_mae": 0.0003401459366495055,
+              "epochs_run": 46
+            }
+          },
+          "80_bus_rural_reference_grid": {
+            "donor_proxy_source": "current_direct_transfer_run_full_history_temporal_proxy",
+            "adapted_probe_calibration_node_mae": 0.00035375622485107487,
+            "training": {
+              "best_calibration_node_mae": 0.00035375622485107487,
+              "epochs_run": 50
+            }
+          }
+        },
+        "selected_donor": "56_bus_semi_urban_reference_grid",
+        "selected_calibration_benefit": 0.04816421820329959,
+        "zero_transfer_fallback": false,
+        "selection_rule": "maximum_current_calibration_benefit_with_zero_transfer",
+        "matches_historical_seed42_selection": true,
+        "historical_25pct_seed42_donor": "56_bus_semi_urban_reference_grid",
+        "raw_donor_temporal_source": "current_direct_transfer_run_full_history_temporal_proxy",
+        "donor_proxy_training": {
+          "source": "current_direct_transfer_run_full_history_temporal_proxy",
+          "fit_target_count": 4771,
+          "calibration_target_count": 1193,
+          "scaler_fit_start_index": 0,
+          "scaler_fit_end_index": 4939,
+          "scaler_fit_timestamp_end": "2021-07-25 18:00:00",
+          "best_calibration_node_mae": 0.0003941802250528741,
+          "epochs_run": 50
+        },
+        "transferred_parameter_names": [
+          "gru.bias_hh_l0",
+          "gru.bias_ih_l0",
+          "gru.weight_hh_l0",
+          "gru.weight_ih_l0",
+          "gru_head.bias",
+          "gru_head.weight",
+          "temporal_correction.0.bias",
+          "temporal_correction.0.weight",
+          "temporal_correction.2.bias",
+          "temporal_correction.2.weight",
+          "temporal_gate.0.bias",
+          "temporal_gate.0.weight",
+          "temporal_gate.2.bias",
+          "temporal_gate.2.weight",
+          "temporal_key.bias",
+          "temporal_key.weight",
+          "temporal_query.bias",
+          "temporal_query.weight",
+          "temporal_score.weight"
+        ],
+        "target_graph_metadata": {
+          "graph_fit_target_count": 1158,
+          "graph_selection_target_count": 580,
+          "graph_uses_target_fit_only": true,
+          "graph_uses_calibration": false,
+          "graph_uses_audit": false,
+          "graph_uses_validation": false,
+          "graph_uses_test": false,
+          "selected_edge_count": 84,
+          "targets_with_selected_neighbors": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 28
+          },
+          "graph_fit_first_target_index": 3234,
+          "graph_fit_last_target_index": 4391,
+          "graph_selection_first_target_index": 4392,
+          "graph_selection_last_target_index": 4971,
+          "graph_top_k": 3,
+          "graph_positive_only": true
+        },
+        "target_scaler_metadata": {
+          "fit_start_index": 3066,
+          "fit_end_index": 4972,
+          "fit_timestamp_end": "2021-07-27 03:00:00",
+          "fit_split": "train_fit_only"
+        },
+        "target_full_model_training": {
+          "best_calibration_node_mae": 0.0003416337600158307,
+          "epochs_run": 47
+        },
+        "validation_used_for_selection": false,
+        "audit_used_for_selection": false,
+        "test_evaluated": false
+      }
+    },
+    "50_bus_rural_reference_grid": {
+      "metrics": {
+        "audit": {
+          "node_macro": {
+            "mae": 0.0002727883686942554,
+            "rmse": 0.0004082088210876929,
+            "wape_pct": 37.334355999927645,
+            "smape_pct": 36.84370353088271
+          },
+          "grid_aggregate": {
+            "mae": 0.0022905807573648396,
+            "rmse": 0.0029586495943291135,
+            "wape_pct": 7.75968549195821,
+            "smape_pct": 7.8093654745648875
+          },
+          "node_count": 21,
+          "sample_count": 580
+        },
+        "validation": {
+          "node_macro": {
+            "mae": 0.000325276176601039,
+            "rmse": 0.0005065280265023807,
+            "wape_pct": 30.359014163030338,
+            "smape_pct": 31.487926575503394
+          },
+          "grid_aggregate": {
+            "mae": 0.0029114318682121336,
+            "rmse": 0.003734723624974048,
+            "wape_pct": 7.550745687653769,
+            "smape_pct": 7.579056708915593
+          },
+          "node_count": 21,
+          "sample_count": 1314
+        }
+      },
+      "metadata": {
+        "candidate_donors": [
+          "39_bus_semi_urban_reference_grid",
+          "56_bus_semi_urban_reference_grid",
+          "80_bus_rural_reference_grid"
+        ],
+        "local_proxy_training": {
+          "best_calibration_node_mae": 0.00029297349001668497,
+          "epochs_run": 50
+        },
+        "local_proxy_calibration_node_mae": 0.00029297349001668497,
+        "calibration_benefit_by_donor": {
+          "39_bus_semi_urban_reference_grid": 0.051535431295233795,
+          "56_bus_semi_urban_reference_grid": 0.06384014872366463,
+          "80_bus_rural_reference_grid": 0.015017175683936663
+        },
+        "benefit_probe_training_by_donor": {
+          "39_bus_semi_urban_reference_grid": {
+            "donor_proxy_source": "current_direct_transfer_run_full_history_temporal_proxy",
+            "adapted_probe_calibration_node_mae": 0.0002778749747990698,
+            "training": {
+              "best_calibration_node_mae": 0.0002778749747990698,
+              "epochs_run": 36
+            }
+          },
+          "56_bus_semi_urban_reference_grid": {
+            "donor_proxy_source": "current_direct_transfer_run_full_history_temporal_proxy",
+            "adapted_probe_calibration_node_mae": 0.0002742700187780886,
+            "training": {
+              "best_calibration_node_mae": 0.0002742700187780886,
+              "epochs_run": 50
+            }
+          },
+          "80_bus_rural_reference_grid": {
+            "donor_proxy_source": "current_direct_transfer_run_full_history_temporal_proxy",
+            "adapted_probe_calibration_node_mae": 0.0002885738556313512,
+            "training": {
+              "best_calibration_node_mae": 0.0002885738556313512,
+              "epochs_run": 50
+            }
+          }
+        },
+        "selected_donor": "56_bus_semi_urban_reference_grid",
+        "selected_calibration_benefit": 0.06384014872366463,
+        "zero_transfer_fallback": false,
+        "selection_rule": "maximum_current_calibration_benefit_with_zero_transfer",
+        "matches_historical_seed42_selection": false,
+        "historical_25pct_seed42_donor": "39_bus_semi_urban_reference_grid",
+        "raw_donor_temporal_source": "current_direct_transfer_run_full_history_temporal_proxy",
+        "donor_proxy_training": {
+          "source": "current_direct_transfer_run_full_history_temporal_proxy",
+          "fit_target_count": 4771,
+          "calibration_target_count": 1193,
+          "scaler_fit_start_index": 0,
+          "scaler_fit_end_index": 4939,
+          "scaler_fit_timestamp_end": "2021-07-25 18:00:00",
+          "best_calibration_node_mae": 0.0003941802250528741,
+          "epochs_run": 50
+        },
+        "transferred_parameter_names": [
+          "gru.bias_hh_l0",
+          "gru.bias_ih_l0",
+          "gru.weight_hh_l0",
+          "gru.weight_ih_l0",
+          "gru_head.bias",
+          "gru_head.weight",
+          "temporal_correction.0.bias",
+          "temporal_correction.0.weight",
+          "temporal_correction.2.bias",
+          "temporal_correction.2.weight",
+          "temporal_gate.0.bias",
+          "temporal_gate.0.weight",
+          "temporal_gate.2.bias",
+          "temporal_gate.2.weight",
+          "temporal_key.bias",
+          "temporal_key.weight",
+          "temporal_query.bias",
+          "temporal_query.weight",
+          "temporal_score.weight"
+        ],
+        "target_graph_metadata": {
+          "graph_fit_target_count": 1158,
+          "graph_selection_target_count": 580,
+          "graph_uses_target_fit_only": true,
+          "graph_uses_calibration": false,
+          "graph_uses_audit": false,
+          "graph_uses_validation": false,
+          "graph_uses_test": false,
+          "selected_edge_count": 62,
+          "targets_with_selected_neighbors": {
+            "0": 0,
+            "1": 0,
+            "2": 1,
+            "3": 20
+          },
+          "graph_fit_first_target_index": 3234,
+          "graph_fit_last_target_index": 4391,
+          "graph_selection_first_target_index": 4392,
+          "graph_selection_last_target_index": 4971,
+          "graph_top_k": 3,
+          "graph_positive_only": true
+        },
+        "target_scaler_metadata": {
+          "fit_start_index": 3066,
+          "fit_end_index": 4972,
+          "fit_timestamp_end": "2021-07-27 03:00:00",
+          "fit_split": "train_fit_only"
+        },
+        "target_full_model_training": {
+          "best_calibration_node_mae": 0.0002745695028165876,
+          "epochs_run": 46
+        },
+        "validation_used_for_selection": false,
+        "audit_used_for_selection": false,
+        "test_evaluated": false
+      }
+    },
+    "56_bus_semi_urban_reference_grid": {
+      "metrics": {
+        "audit": {
+          "node_macro": {
+            "mae": 0.000401995133031294,
+            "rmse": 0.0005801216628461583,
+            "wape_pct": 33.32502032009111,
+            "smape_pct": 33.606446200803695
+          },
+          "grid_aggregate": {
+            "mae": 0.005884466157362733,
+            "rmse": 0.007131525955952384,
+            "wape_pct": 10.173259072193384,
+            "smape_pct": 10.476390453714968
+          },
+          "node_count": 44,
+          "sample_count": 580
+        },
+        "validation": {
+          "node_macro": {
+            "mae": 0.0004328672678030525,
+            "rmse": 0.0006142322412048414,
+            "wape_pct": 25.29419726072059,
+            "smape_pct": 26.506736568218994
+          },
+          "grid_aggregate": {
+            "mae": 0.006691620310844626,
+            "rmse": 0.008141122853389082,
+            "wape_pct": 8.399468676879652,
+            "smape_pct": 8.720467575972412
+          },
+          "node_count": 44,
+          "sample_count": 1314
+        }
+      },
+      "metadata": {
+        "candidate_donors": [
+          "39_bus_semi_urban_reference_grid",
+          "50_bus_rural_reference_grid",
+          "80_bus_rural_reference_grid"
+        ],
+        "local_proxy_training": {
+          "best_calibration_node_mae": 0.0003890494730936969,
+          "epochs_run": 50
+        },
+        "local_proxy_calibration_node_mae": 0.0003890494730936969,
+        "calibration_benefit_by_donor": {
+          "39_bus_semi_urban_reference_grid": 0.04902718896204155,
+          "50_bus_rural_reference_grid": 0.02358148157363844,
+          "80_bus_rural_reference_grid": 0.013533825026805632
+        },
+        "benefit_probe_training_by_donor": {
+          "39_bus_semi_urban_reference_grid": {
+            "donor_proxy_source": "current_direct_transfer_run_full_history_temporal_proxy",
+            "adapted_probe_calibration_node_mae": 0.00036997547101172234,
+            "training": {
+              "best_calibration_node_mae": 0.00036997547101172234,
+              "epochs_run": 50
+            }
+          },
+          "50_bus_rural_reference_grid": {
+            "donor_proxy_source": "current_direct_transfer_run_full_history_temporal_proxy",
+            "adapted_probe_calibration_node_mae": 0.00037987511008912266,
+            "training": {
+              "best_calibration_node_mae": 0.00037987511008912266,
+              "epochs_run": 50
+            }
+          },
+          "80_bus_rural_reference_grid": {
+            "donor_proxy_source": "current_direct_transfer_run_full_history_temporal_proxy",
+            "adapted_probe_calibration_node_mae": 0.00038378414558454206,
+            "training": {
+              "best_calibration_node_mae": 0.00038378414558454206,
+              "epochs_run": 50
+            }
+          }
+        },
+        "selected_donor": "39_bus_semi_urban_reference_grid",
+        "selected_calibration_benefit": 0.04902718896204155,
+        "zero_transfer_fallback": false,
+        "selection_rule": "maximum_current_calibration_benefit_with_zero_transfer",
+        "matches_historical_seed42_selection": true,
+        "historical_25pct_seed42_donor": "39_bus_semi_urban_reference_grid",
+        "raw_donor_temporal_source": "current_direct_transfer_run_full_history_temporal_proxy",
+        "donor_proxy_training": {
+          "source": "current_direct_transfer_run_full_history_temporal_proxy",
+          "fit_target_count": 4771,
+          "calibration_target_count": 1193,
+          "scaler_fit_start_index": 0,
+          "scaler_fit_end_index": 4939,
+          "scaler_fit_timestamp_end": "2021-07-25 18:00:00",
+          "best_calibration_node_mae": 0.000352376147300724,
+          "epochs_run": 50
+        },
+        "transferred_parameter_names": [
+          "gru.bias_hh_l0",
+          "gru.bias_ih_l0",
+          "gru.weight_hh_l0",
+          "gru.weight_ih_l0",
+          "gru_head.bias",
+          "gru_head.weight",
+          "temporal_correction.0.bias",
+          "temporal_correction.0.weight",
+          "temporal_correction.2.bias",
+          "temporal_correction.2.weight",
+          "temporal_gate.0.bias",
+          "temporal_gate.0.weight",
+          "temporal_gate.2.bias",
+          "temporal_gate.2.weight",
+          "temporal_key.bias",
+          "temporal_key.weight",
+          "temporal_query.bias",
+          "temporal_query.weight",
+          "temporal_score.weight"
+        ],
+        "target_graph_metadata": {
+          "graph_fit_target_count": 1158,
+          "graph_selection_target_count": 580,
+          "graph_uses_target_fit_only": true,
+          "graph_uses_calibration": false,
+          "graph_uses_audit": false,
+          "graph_uses_validation": false,
+          "graph_uses_test": false,
+          "selected_edge_count": 132,
+          "targets_with_selected_neighbors": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 44
+          },
+          "graph_fit_first_target_index": 3234,
+          "graph_fit_last_target_index": 4391,
+          "graph_selection_first_target_index": 4392,
+          "graph_selection_last_target_index": 4971,
+          "graph_top_k": 3,
+          "graph_positive_only": true
+        },
+        "target_scaler_metadata": {
+          "fit_start_index": 3066,
+          "fit_end_index": 4972,
+          "fit_timestamp_end": "2021-07-27 03:00:00",
+          "fit_split": "train_fit_only"
+        },
+        "target_full_model_training": {
+          "best_calibration_node_mae": 0.00037093068399806,
+          "epochs_run": 43
+        },
+        "validation_used_for_selection": false,
+        "audit_used_for_selection": false,
+        "test_evaluated": false
+      }
+    },
+    "80_bus_rural_reference_grid": {
+      "metrics": {
+        "audit": {
+          "node_macro": {
+            "mae": 0.00022489345919695508,
+            "rmse": 0.0003961075416269538,
+            "wape_pct": 41.23747659679063,
+            "smape_pct": 38.66179108283024
+          },
+          "grid_aggregate": {
+            "mae": 0.002880728841733249,
+            "rmse": 0.00381361660770556,
+            "wape_pct": 14.262624983273417,
+            "smape_pct": 15.312547494021667
+          },
+          "node_count": 32,
+          "sample_count": 580
+        },
+        "validation": {
+          "node_macro": {
+            "mae": 0.00020553981401614363,
+            "rmse": 0.00036628012227024175,
+            "wape_pct": 40.845150840619766,
+            "smape_pct": 46.42758180437284
+          },
+          "grid_aggregate": {
+            "mae": 0.002802497836755838,
+            "rmse": 0.0037510320915141904,
+            "wape_pct": 11.597818161231773,
+            "smape_pct": 12.218385908032205
+          },
+          "node_count": 32,
+          "sample_count": 1314
+        }
+      },
+      "metadata": {
+        "candidate_donors": [
+          "39_bus_semi_urban_reference_grid",
+          "50_bus_rural_reference_grid",
+          "56_bus_semi_urban_reference_grid"
+        ],
+        "local_proxy_training": {
+          "best_calibration_node_mae": 0.00028155111983056225,
+          "epochs_run": 50
+        },
+        "local_proxy_calibration_node_mae": 0.00028155111983056225,
+        "calibration_benefit_by_donor": {
+          "39_bus_semi_urban_reference_grid": 0.02942627870297127,
+          "50_bus_rural_reference_grid": 0.02001195366549251,
+          "56_bus_semi_urban_reference_grid": 0.028135353771525234
+        },
+        "benefit_probe_training_by_donor": {
+          "39_bus_semi_urban_reference_grid": {
+            "donor_proxy_source": "current_direct_transfer_run_full_history_temporal_proxy",
+            "adapted_probe_calibration_node_mae": 0.0002732661180798682,
+            "training": {
+              "best_calibration_node_mae": 0.0002732661180798682,
+              "epochs_run": 19
+            }
+          },
+          "50_bus_rural_reference_grid": {
+            "donor_proxy_source": "current_direct_transfer_run_full_history_temporal_proxy",
+            "adapted_probe_calibration_node_mae": 0.00027591673184603356,
+            "training": {
+              "best_calibration_node_mae": 0.00027591673184603356,
+              "epochs_run": 27
+            }
+          },
+          "56_bus_semi_urban_reference_grid": {
+            "donor_proxy_source": "current_direct_transfer_run_full_history_temporal_proxy",
+            "adapted_probe_calibration_node_mae": 0.00027362957944122493,
+            "training": {
+              "best_calibration_node_mae": 0.00027362957944122493,
+              "epochs_run": 37
+            }
+          }
+        },
+        "selected_donor": "39_bus_semi_urban_reference_grid",
+        "selected_calibration_benefit": 0.02942627870297127,
+        "zero_transfer_fallback": false,
+        "selection_rule": "maximum_current_calibration_benefit_with_zero_transfer",
+        "matches_historical_seed42_selection": false,
+        "historical_25pct_seed42_donor": "50_bus_rural_reference_grid",
+        "raw_donor_temporal_source": "current_direct_transfer_run_full_history_temporal_proxy",
+        "donor_proxy_training": {
+          "source": "current_direct_transfer_run_full_history_temporal_proxy",
+          "fit_target_count": 4771,
+          "calibration_target_count": 1193,
+          "scaler_fit_start_index": 0,
+          "scaler_fit_end_index": 4939,
+          "scaler_fit_timestamp_end": "2021-07-25 18:00:00",
+          "best_calibration_node_mae": 0.000352376147300724,
+          "epochs_run": 50
+        },
+        "transferred_parameter_names": [
+          "gru.bias_hh_l0",
+          "gru.bias_ih_l0",
+          "gru.weight_hh_l0",
+          "gru.weight_ih_l0",
+          "gru_head.bias",
+          "gru_head.weight",
+          "temporal_correction.0.bias",
+          "temporal_correction.0.weight",
+          "temporal_correction.2.bias",
+          "temporal_correction.2.weight",
+          "temporal_gate.0.bias",
+          "temporal_gate.0.weight",
+          "temporal_gate.2.bias",
+          "temporal_gate.2.weight",
+          "temporal_key.bias",
+          "temporal_key.weight",
+          "temporal_query.bias",
+          "temporal_query.weight",
+          "temporal_score.weight"
+        ],
+        "target_graph_metadata": {
+          "graph_fit_target_count": 1158,
+          "graph_selection_target_count": 580,
+          "graph_uses_target_fit_only": true,
+          "graph_uses_calibration": false,
+          "graph_uses_audit": false,
+          "graph_uses_validation": false,
+          "graph_uses_test": false,
+          "selected_edge_count": 96,
+          "targets_with_selected_neighbors": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 32
+          },
+          "graph_fit_first_target_index": 3234,
+          "graph_fit_last_target_index": 4391,
+          "graph_selection_first_target_index": 4392,
+          "graph_selection_last_target_index": 4971,
+          "graph_top_k": 3,
+          "graph_positive_only": true
+        },
+        "target_scaler_metadata": {
+          "fit_start_index": 3066,
+          "fit_end_index": 4972,
+          "fit_timestamp_end": "2021-07-27 03:00:00",
+          "fit_split": "train_fit_only"
+        },
+        "target_full_model_training": {
+          "best_calibration_node_mae": 0.00027306805015657313,
+          "epochs_run": 22
+        },
+        "validation_used_for_selection": false,
+        "audit_used_for_selection": false,
+        "test_evaluated": false
+      }
+    }
+  },
+  "four_target_unweighted_macro": {
+    "audit": {
+      "node_macro": {
+        "mae": 0.00031265491341784824,
+        "rmse": 0.00047713170430040033,
+        "wape_pct": 36.199777856683085,
+        "smape_pct": 35.35590178137076
+      },
+      "grid_aggregate": {
+        "mae": 0.0036406522773681643,
+        "rmse": 0.004565158739263395,
+        "wape_pct": 10.838555492833677,
+        "smape_pct": 11.216120264508934
+      }
+    },
+    "validation": {
+      "node_macro": {
+        "mae": 0.00033760503892135826,
+        "rmse": 0.0005127376836406752,
+        "wape_pct": 31.07991095038864,
+        "smape_pct": 33.068913254060284
+      },
+      "grid_aggregate": {
+        "mae": 0.00410975446511114,
+        "rmse": 0.005176805238503725,
+        "wape_pct": 9.375795739640541,
+        "smape_pct": 9.674831138106228
+      }
+    }
+  },
+  "reproducibility": {
+    "seed": 42,
+    "python_version": "3.13.7",
+    "torch_version": "2.11.0+cu128",
+    "cuda_available": true,
+    "cuda_device_name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "device": "cuda",
+    "deterministic_algorithms": false,
+    "cudnn_deterministic": false,
+    "cudnn_benchmark": false
+  },
+  "run_mode": "real",
+  "artifact_type": "btd_fl_direct_transfer",
+  "methods": [
+    "btd_fl_direct_transfer"
+  ]
+}
