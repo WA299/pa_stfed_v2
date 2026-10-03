@@ -1,0 +1,545 @@
+{
+  "history_fractions": [
+    0.25,
+    0.5
+  ],
+  "methods": {
+    "industrial_scarce_local": {
+      "25pct": {
+        "audit": {
+          "values": [
+            4.542895257993716,
+            4.553959694411701,
+            4.629279825993488
+          ],
+          "mean": 4.5753782594663015,
+          "std": 0.03838089449952443
+        },
+        "validation": {
+          "values": [
+            4.53515748852501,
+            4.553577132786987,
+            4.552390318909332
+          ],
+          "mean": 4.547041646740443,
+          "std": 0.008417325155579879
+        }
+      },
+      "50pct": {
+        "audit": {
+          "values": [
+            3.973418126236417,
+            3.676764351091721,
+            3.7225865640615456
+          ],
+          "mean": 3.7909230137965615,
+          "std": 0.13039240353305276
+        },
+        "validation": {
+          "values": [
+            4.15231089922574,
+            3.8622249490623632,
+            3.873169587258876
+          ],
+          "mean": 3.96256847851566,
+          "std": 0.13424253160853794
+        }
+      }
+    },
+    "fedavg": {
+      "25pct": {
+        "audit": {
+          "values": [
+            9.67837983105156,
+            10.79815950015195,
+            8.18255654216308
+          ],
+          "mean": 9.553031957788864,
+          "std": 1.0714876808931408
+        },
+        "validation": {
+          "values": [
+            9.512345386630221,
+            10.877954020950263,
+            8.114472522715392
+          ],
+          "mean": 9.501590643431959,
+          "std": 1.1282122277147317
+        }
+      },
+      "50pct": {
+        "audit": {
+          "values": [
+            8.184580954092093,
+            9.436406062799227,
+            7.134874247849586
+          ],
+          "mean": 8.251953754913636,
+          "std": 0.9408033781558721
+        },
+        "validation": {
+          "values": [
+            8.404491424142584,
+            9.611303941640065,
+            7.358821673936414
+          ],
+          "mean": 8.458205679906355,
+          "std": 0.9203560932356697
+        }
+      }
+    },
+    "fedprox": {
+      "25pct": {
+        "audit": {
+          "values": [
+            12.711424118573992,
+            12.635999379924217,
+            11.673570126198713
+          ],
+          "mean": 12.340331208232307,
+          "std": 0.47247573354692235
+        },
+        "validation": {
+          "values": [
+            12.618496583409028,
+            12.613652334282271,
+            11.645227452125166
+          ],
+          "mean": 12.29245878993882,
+          "std": 0.4576659408880685
+        }
+      },
+      "50pct": {
+        "audit": {
+          "values": [
+            11.168804779874543,
+            11.455939025877747,
+            10.61123819483269
+          ],
+          "mean": 11.07866066686166,
+          "std": 0.3506891732243923
+        },
+        "validation": {
+          "values": [
+            11.361334088387848,
+            11.669308410167023,
+            10.788064994236143
+          ],
+          "mean": 11.272902497597004,
+          "std": 0.3651598729485767
+        }
+      }
+    },
+    "fedper": {
+      "25pct": {
+        "audit": {
+          "values": [
+            5.78133638142762,
+            6.5796846690752915,
+            6.089611681814201
+          ],
+          "mean": 6.15021091077237,
+          "std": 0.328729064743025
+        },
+        "validation": {
+          "values": [
+            5.660833181294317,
+            6.501380427646544,
+            5.9644301074232455
+          ],
+          "mean": 6.042214572121369,
+          "std": 0.3475319990531886
+        }
+      },
+      "50pct": {
+        "audit": {
+          "values": [
+            6.388484634075102,
+            6.214096780513168,
+            6.141808379679556
+          ],
+          "mean": 6.248129931422608,
+          "std": 0.10354060440642768
+        },
+        "validation": {
+          "values": [
+            6.45563430713807,
+            6.20128667145568,
+            6.135095447562646
+          ],
+          "mean": 6.264005475385464,
+          "std": 0.13817024860479318
+        }
+      }
+    },
+    "fedfomo_style": {
+      "25pct": {
+        "audit": {
+          "values": [
+            4.89608941186014,
+            4.984988659409693,
+            4.989967749442928
+          ],
+          "mean": 4.957015273570921,
+          "std": 0.043129018099114555
+        },
+        "validation": {
+          "values": [
+            4.8951577203731755,
+            5.039648871025119,
+            4.903103332117792
+          ],
+          "mean": 4.9459699745053625,
+          "std": 0.06632035849505322
+        }
+      },
+      "50pct": {
+        "audit": {
+          "values": [
+            4.510235274093853,
+            4.405287734264016,
+            4.4239147979596956
+          ],
+          "mean": 4.446479268772522,
+          "std": 0.04571916473705503
+        },
+        "validation": {
+          "values": [
+            4.617298215814721,
+            4.505473957233995,
+            4.515427162130938
+          ],
+          "mean": 4.546066445059885,
+          "std": 0.05053210494713433
+        }
+      }
+    },
+    "btd_fl_direct_transfer": {
+      "25pct": {
+        "audit": {
+          "values": [
+            3.7095559117969072,
+            3.9289245033273423,
+            3.6710316244827936
+          ],
+          "mean": 3.769837346535681,
+          "std": 0.11358571732486455
+        },
+        "validation": {
+          "values": [
+            3.6169644353820836,
+            3.843417172758104,
+            3.6564255676447237
+          ],
+          "mean": 3.7056023919283034,
+          "std": 0.09877240033274068
+        }
+      },
+      "50pct": {
+        "audit": {
+          "values": [
+            3.277129236816922,
+            3.1909036653871654,
+            3.114693821086811
+          ],
+          "mean": 3.194242241096966,
+          "std": 0.06635598760564647
+        },
+        "validation": {
+          "values": [
+            3.4795935790437227,
+            3.417782311051825,
+            3.3402214699065618
+          ],
+          "mean": 3.412532453334036,
+          "std": 0.05701939410339808
+        }
+      }
+    }
+  },
+  "btd_comparisons": {
+    "industrial_scarce_local": {
+      "25pct": {
+        "per_seed": {
+          "42": {
+            "relative_improvement": 0.2024611174950292,
+            "btd_wins": true
+          },
+          "123": {
+            "relative_improvement": 0.15595650173912365,
+            "btd_wins": true
+          },
+          "2026": {
+            "relative_improvement": 0.19681193581816328,
+            "btd_wins": true
+          }
+        },
+        "mean_relative_improvement": 0.18507651835077202,
+        "std_relative_improvement": 0.020719714267681853,
+        "seed_win_count": 3
+      },
+      "50pct": {
+        "per_seed": {
+          "42": {
+            "relative_improvement": 0.16201034472329456,
+            "btd_wins": true
+          },
+          "123": {
+            "relative_improvement": 0.11507424965454717,
+            "btd_wins": true
+          },
+          "2026": {
+            "relative_improvement": 0.13759999539017223,
+            "btd_wins": true
+          }
+        },
+        "mean_relative_improvement": 0.13822819658933796,
+        "std_relative_improvement": 0.01916672868341732,
+        "seed_win_count": 3
+      }
+    },
+    "fedavg": {
+      "25pct": {
+        "per_seed": {
+          "42": {
+            "relative_improvement": 0.6197610275520048,
+            "btd_wins": true
+          },
+          "123": {
+            "relative_improvement": 0.6466783031665175,
+            "btd_wins": true
+          },
+          "2026": {
+            "relative_improvement": 0.5493945469148372,
+            "btd_wins": true
+          }
+        },
+        "mean_relative_improvement": 0.6052779592111199,
+        "std_relative_improvement": 0.041015052188468105,
+        "seed_win_count": 3
+      },
+      "50pct": {
+        "per_seed": {
+          "42": {
+            "relative_improvement": 0.5859840407417285,
+            "btd_wins": true
+          },
+          "123": {
+            "relative_improvement": 0.6443997264257505,
+            "btd_wins": true
+          },
+          "2026": {
+            "relative_improvement": 0.5460928912386129,
+            "btd_wins": true
+          }
+        },
+        "mean_relative_improvement": 0.592158886135364,
+        "std_relative_improvement": 0.04037040993809066,
+        "seed_win_count": 3
+      }
+    },
+    "fedprox": {
+      "25pct": {
+        "per_seed": {
+          "42": {
+            "relative_improvement": 0.7133601129520905,
+            "btd_wins": true
+          },
+          "123": {
+            "relative_improvement": 0.6952970423710753,
+            "btd_wins": true
+          },
+          "2026": {
+            "relative_improvement": 0.6860151008061126,
+            "btd_wins": true
+          }
+        },
+        "mean_relative_improvement": 0.6982240853764261,
+        "std_relative_improvement": 0.01135379842115401,
+        "seed_win_count": 3
+      },
+      "50pct": {
+        "per_seed": {
+          "42": {
+            "relative_improvement": 0.6937337154268857,
+            "btd_wins": true
+          },
+          "123": {
+            "relative_improvement": 0.7071135502704899,
+            "btd_wins": true
+          },
+          "2026": {
+            "relative_improvement": 0.6903780732047992,
+            "btd_wins": true
+          }
+        },
+        "mean_relative_improvement": 0.6970751129673917,
+        "std_relative_improvement": 0.007229234689639923,
+        "seed_win_count": 3
+      }
+    },
+    "fedper": {
+      "25pct": {
+        "per_seed": {
+          "42": {
+            "relative_improvement": 0.3610544032043978,
+            "btd_wins": true
+          },
+          "123": {
+            "relative_improvement": 0.4088305990502076,
+            "btd_wins": true
+          },
+          "2026": {
+            "relative_improvement": 0.3869614528478798,
+            "btd_wins": true
+          }
+        },
+        "mean_relative_improvement": 0.3856154850341617,
+        "std_relative_improvement": 0.019527757071938507,
+        "seed_win_count": 3
+      },
+      "50pct": {
+        "per_seed": {
+          "42": {
+            "relative_improvement": 0.4609989640837065,
+            "btd_wins": true
+          },
+          "123": {
+            "relative_improvement": 0.4488591655044405,
+            "btd_wins": true
+          },
+          "2026": {
+            "relative_improvement": 0.4555550930778066,
+            "btd_wins": true
+          }
+        },
+        "mean_relative_improvement": 0.45513774088865117,
+        "std_relative_improvement": 0.004964830612997241,
+        "seed_win_count": 3
+      }
+    },
+    "fedfomo_style": {
+      "25pct": {
+        "per_seed": {
+          "42": {
+            "relative_improvement": 0.26111381042353615,
+            "btd_wins": true
+          },
+          "123": {
+            "relative_improvement": 0.23736409596795013,
+            "btd_wins": true
+          },
+          "2026": {
+            "relative_improvement": 0.2542630003953716,
+            "btd_wins": true
+          }
+        },
+        "mean_relative_improvement": 0.25091363559561924,
+        "std_relative_improvement": 0.00998084557546212,
+        "seed_win_count": 3
+      },
+      "50pct": {
+        "per_seed": {
+          "42": {
+            "relative_improvement": 0.24640051034044028,
+            "btd_wins": true
+          },
+          "123": {
+            "relative_improvement": 0.24141558835015103,
+            "btd_wins": true
+          },
+          "2026": {
+            "relative_improvement": 0.2602645663471423,
+            "btd_wins": true
+          }
+        },
+        "mean_relative_improvement": 0.24936022167924454,
+        "std_relative_improvement": 0.007974580920631504,
+        "seed_win_count": 3
+      }
+    }
+  },
+  "btd_donor_behavior": {
+    "25pct": {
+      "by_seed": {
+        "42": {
+          "selected_donor": "56_bus_semi_urban_reference_grid",
+          "selected_calibration_benefit": 0.23225674588915424,
+          "zero_transfer_fallback": false,
+          "benefits": {
+            "39_bus_semi_urban_reference_grid": 0.22704404679251647,
+            "50_bus_rural_reference_grid": 0.06800634934900457,
+            "56_bus_semi_urban_reference_grid": 0.23225674588915424,
+            "80_bus_rural_reference_grid": -0.04449526253628153
+          }
+        },
+        "123": {
+          "selected_donor": "56_bus_semi_urban_reference_grid",
+          "selected_calibration_benefit": 0.23138472548973268,
+          "zero_transfer_fallback": false,
+          "benefits": {
+            "39_bus_semi_urban_reference_grid": 0.2181470819032599,
+            "50_bus_rural_reference_grid": 0.10793306299401881,
+            "56_bus_semi_urban_reference_grid": 0.23138472548973268,
+            "80_bus_rural_reference_grid": 0.17921654350988395
+          }
+        },
+        "2026": {
+          "selected_donor": "56_bus_semi_urban_reference_grid",
+          "selected_calibration_benefit": 0.3242365452189944,
+          "zero_transfer_fallback": false,
+          "benefits": {
+            "39_bus_semi_urban_reference_grid": 0.2999401133463308,
+            "50_bus_rural_reference_grid": 0.05152005864900721,
+            "56_bus_semi_urban_reference_grid": 0.3242365452189944,
+            "80_bus_rural_reference_grid": 0.10465218686251597
+          }
+        }
+      },
+      "positive_benefit_count": 11,
+      "non_positive_benefit_count": 1,
+      "fallback_count": 0
+    },
+    "50pct": {
+      "by_seed": {
+        "42": {
+          "selected_donor": "39_bus_semi_urban_reference_grid",
+          "selected_calibration_benefit": 0.2808615653736997,
+          "zero_transfer_fallback": false,
+          "benefits": {
+            "39_bus_semi_urban_reference_grid": 0.2808615653736997,
+            "50_bus_rural_reference_grid": 0.16627908193232332,
+            "56_bus_semi_urban_reference_grid": 0.25452304292910505,
+            "80_bus_rural_reference_grid": 0.05552738150965696
+          }
+        },
+        "123": {
+          "selected_donor": "39_bus_semi_urban_reference_grid",
+          "selected_calibration_benefit": 0.2392883531781149,
+          "zero_transfer_fallback": false,
+          "benefits": {
+            "39_bus_semi_urban_reference_grid": 0.2392883531781149,
+            "50_bus_rural_reference_grid": 0.09484448253963716,
+            "56_bus_semi_urban_reference_grid": 0.20307682049656162,
+            "80_bus_rural_reference_grid": 0.1822986519883357
+          }
+        },
+        "2026": {
+          "selected_donor": "56_bus_semi_urban_reference_grid",
+          "selected_calibration_benefit": 0.24196165113272763,
+          "zero_transfer_fallback": false,
+          "benefits": {
+            "39_bus_semi_urban_reference_grid": 0.22192968516874065,
+            "50_bus_rural_reference_grid": 0.0482711962175039,
+            "56_bus_semi_urban_reference_grid": 0.24196165113272763,
+            "80_bus_rural_reference_grid": 0.21999318565078235
+          }
+        }
+      },
+      "positive_benefit_count": 12,
+      "non_positive_benefit_count": 0,
+      "fallback_count": 0
+    }
+  },
+  "interpretation_guardrail": "No monotonicity or significance claim is made from three seeds."
+}

@@ -1,0 +1,2975 @@
+{
+  "experiment": "industrial_fedfomo_style",
+  "artifact_type": "industrial_fedfomo_style",
+  "method_name": "industrial_fedfomo_style",
+  "methods": [
+    "fedfomo_style"
+  ],
+  "client_grid_names": [
+    "39_bus_semi_urban_reference_grid",
+    "50_bus_rural_reference_grid",
+    "56_bus_semi_urban_reference_grid",
+    "80_bus_rural_reference_grid",
+    "norway_industrial_mvlv"
+  ],
+  "primary_targets": [
+    "norway_industrial_mvlv"
+  ],
+  "rounds": 10,
+  "local_epochs": 5,
+  "max_epochs": 50,
+  "batch_size": 32,
+  "learning_rate": 0.001,
+  "patience": 8,
+  "seed": 2026,
+  "history_fraction": 0.5,
+  "train_calibration_audit_split": "60/20/20 industrial scarce target; full-history donor train-internal fit/calibration",
+  "validation_used_for_selection": false,
+  "audit_used_for_selection": false,
+  "test_evaluated": false,
+  "industrial_test_locked": true,
+  "industrial_test_evaluated": false,
+  "reference_grid_tests_evaluated": false,
+  "communication_round_selection": "fixed_final_round",
+  "canonical_validation_evaluated_during_training": false,
+  "scenarios": {
+    "norway_industrial_mvlv": {
+      "scarce_target_metrics": {
+        "audit": {
+          "node_macro": {
+            "mae": 4.4239147979596956,
+            "rmse": 8.945456040481323,
+            "wape_pct": 54.47233950648888,
+            "smape_pct": 51.23669145401666
+          },
+          "grid_aggregate": {
+            "mae": 107.63595275308013,
+            "rmse": 186.04918773156214,
+            "wape_pct": 4.837052384813774,
+            "smape_pct": 4.728190303907796
+          },
+          "node_count": 45,
+          "sample_count": 901
+        },
+        "validation": {
+          "node_macro": {
+            "mae": 4.515427162130938,
+            "rmse": 8.989353449759493,
+            "wape_pct": 48.68844468946559,
+            "smape_pct": 45.37669429949141
+          },
+          "grid_aggregate": {
+            "mae": 108.40778238589316,
+            "rmse": 189.0656054736708,
+            "wape_pct": 4.797294857749333,
+            "smape_pct": 4.791854213987782
+          },
+          "node_count": 45,
+          "sample_count": 2001
+        }
+      },
+      "round_history": [
+        {
+          "round": 1,
+          "peer_weights": {
+            "39_bus_semi_urban_reference_grid": {
+              "39_bus_semi_urban_reference_grid": 0.20315437298104994,
+              "50_bus_rural_reference_grid": 0.19500381206036121,
+              "56_bus_semi_urban_reference_grid": 0.19745746455784952,
+              "80_bus_rural_reference_grid": 0.2370826507002063,
+              "norway_industrial_mvlv": 0.16730169970053307
+            },
+            "50_bus_rural_reference_grid": {
+              "39_bus_semi_urban_reference_grid": 0.18876929895587685,
+              "50_bus_rural_reference_grid": 0.20018138636541175,
+              "56_bus_semi_urban_reference_grid": 0.18711587972106494,
+              "80_bus_rural_reference_grid": 0.24116269096714626,
+              "norway_industrial_mvlv": 0.1827707439905002
+            },
+            "56_bus_semi_urban_reference_grid": {
+              "39_bus_semi_urban_reference_grid": 0.2017083614521408,
+              "50_bus_rural_reference_grid": 0.1962179249354351,
+              "56_bus_semi_urban_reference_grid": 0.19717824426493605,
+              "80_bus_rural_reference_grid": 0.23738739732086875,
+              "norway_industrial_mvlv": 0.16750807202661933
+            },
+            "80_bus_rural_reference_grid": {
+              "39_bus_semi_urban_reference_grid": 0.18891427411492354,
+              "50_bus_rural_reference_grid": 0.1951483715565435,
+              "56_bus_semi_urban_reference_grid": 0.189736314002273,
+              "80_bus_rural_reference_grid": 0.23975938490003165,
+              "norway_industrial_mvlv": 0.18644165542622834
+            },
+            "norway_industrial_mvlv": {
+              "39_bus_semi_urban_reference_grid": 0.16029782362787504,
+              "50_bus_rural_reference_grid": 0.20344398272535386,
+              "56_bus_semi_urban_reference_grid": 0.17776273516634175,
+              "80_bus_rural_reference_grid": 0.24365724168683434,
+              "norway_industrial_mvlv": 0.21483821679359505
+            }
+          },
+          "diagnostics": {
+            "39_bus_semi_urban_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.0010701668297168193,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0003823508383973136,
+                "50_bus_rural_reference_grid": 0.00040733832497567683,
+                "56_bus_semi_urban_reference_grid": 0.00038586817887262747,
+                "80_bus_rural_reference_grid": 0.00040459962279722553,
+                "norway_industrial_mvlv": 0.0005047012016850882
+              },
+              "peer_calibration_loss_by_donor": {
+                "50_bus_rural_reference_grid": 0.00040733832497567683,
+                "56_bus_semi_urban_reference_grid": 0.00038586817887262747,
+                "80_bus_rural_reference_grid": 0.00040459962279722553,
+                "norway_industrial_mvlv": 0.0005047012016850882
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 9.160408020019531,
+                "50_bus_rural_reference_grid": 9.196589469909668,
+                "56_bus_semi_urban_reference_grid": 9.37650203704834,
+                "80_bus_rural_reference_grid": 7.595578670501709,
+                "norway_industrial_mvlv": 9.144807815551758
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 7.508573742744311e-05,
+                "50_bus_rural_reference_grid": 7.207329487847422e-05,
+                "56_bus_semi_urban_reference_grid": 7.298016340638812e-05,
+                "80_bus_rural_reference_grid": 8.762560902756651e-05,
+                "norway_industrial_mvlv": 6.183461035343273e-05
+              },
+              "raw_weight_by_donor": {
+                "50_bus_rural_reference_grid": 7.207329487847422e-05,
+                "56_bus_semi_urban_reference_grid": 7.298016340638812e-05,
+                "80_bus_rural_reference_grid": 8.762560902756651e-05,
+                "norway_industrial_mvlv": 6.183461035343273e-05
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 7.508573742744311e-05,
+                "50_bus_rural_reference_grid": 7.207329487847422e-05,
+                "56_bus_semi_urban_reference_grid": 7.298016340638812e-05,
+                "80_bus_rural_reference_grid": 8.762560902756651e-05,
+                "norway_industrial_mvlv": 6.183461035343273e-05
+              },
+              "normalized_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.20315437298104994,
+                "50_bus_rural_reference_grid": 0.19500381206036121,
+                "56_bus_semi_urban_reference_grid": 0.19745746455784952,
+                "80_bus_rural_reference_grid": 0.2370826507002063,
+                "norway_industrial_mvlv": 0.16730169970053307
+              },
+              "normalized_weight_by_donor": {
+                "50_bus_rural_reference_grid": 0.19500381206036121,
+                "56_bus_semi_urban_reference_grid": 0.19745746455784952,
+                "80_bus_rural_reference_grid": 0.2370826507002063,
+                "norway_industrial_mvlv": 0.16730169970053307
+              },
+              "positive_candidate_count": 5,
+              "peer_only_positive_count": 4,
+              "no_positive_candidate_fallback": false
+            },
+            "50_bus_rural_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.0022406963314759642,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0004257006131264268,
+                "50_bus_rural_reference_grid": 0.0003083724713997336,
+                "56_bus_semi_urban_reference_grid": 0.0003991573275788419,
+                "80_bus_rural_reference_grid": 0.00031804554003108147,
+                "norway_industrial_mvlv": 0.0004863687710241034
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.0004257006131264268,
+                "56_bus_semi_urban_reference_grid": 0.0003991573275788419,
+                "80_bus_rural_reference_grid": 0.00031804554003108147,
+                "norway_industrial_mvlv": 0.0004863687710241034
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 9.160408020019531,
+                "50_bus_rural_reference_grid": 9.196589469909668,
+                "56_bus_semi_urban_reference_grid": 9.37650203704834,
+                "80_bus_rural_reference_grid": 7.595578670501709,
+                "norway_industrial_mvlv": 9.144807815551758
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0001981348117226627,
+                "50_bus_rural_reference_grid": 0.000210113093163329,
+                "56_bus_semi_urban_reference_grid": 0.00019639936050999142,
+                "80_bus_rural_reference_grid": 0.000253127625273827,
+                "norway_industrial_mvlv": 0.000191838647223208
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.0001981348117226627,
+                "56_bus_semi_urban_reference_grid": 0.00019639936050999142,
+                "80_bus_rural_reference_grid": 0.000253127625273827,
+                "norway_industrial_mvlv": 0.000191838647223208
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0001981348117226627,
+                "50_bus_rural_reference_grid": 0.000210113093163329,
+                "56_bus_semi_urban_reference_grid": 0.00019639936050999142,
+                "80_bus_rural_reference_grid": 0.000253127625273827,
+                "norway_industrial_mvlv": 0.000191838647223208
+              },
+              "normalized_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.18876929895587685,
+                "50_bus_rural_reference_grid": 0.20018138636541175,
+                "56_bus_semi_urban_reference_grid": 0.18711587972106494,
+                "80_bus_rural_reference_grid": 0.24116269096714626,
+                "norway_industrial_mvlv": 0.1827707439905002
+              },
+              "normalized_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.18876929895587685,
+                "56_bus_semi_urban_reference_grid": 0.18711587972106494,
+                "80_bus_rural_reference_grid": 0.24116269096714626,
+                "norway_industrial_mvlv": 0.1827707439905002
+              },
+              "positive_candidate_count": 5,
+              "peer_only_positive_count": 4,
+              "no_positive_candidate_fallback": false
+            },
+            "56_bus_semi_urban_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.0014399271918015175,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0004224263205513378,
+                "50_bus_rural_reference_grid": 0.0004462128704905926,
+                "56_bus_semi_urban_reference_grid": 0.00042181434502918996,
+                "80_bus_rural_reference_grid": 0.00044700642228897496,
+                "norway_industrial_mvlv": 0.0005963858095893727
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.0004224263205513378,
+                "50_bus_rural_reference_grid": 0.0004462128704905926,
+                "80_bus_rural_reference_grid": 0.00044700642228897496,
+                "norway_industrial_mvlv": 0.0005963858095893727
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 9.160408020019531,
+                "50_bus_rural_reference_grid": 9.196589469909668,
+                "56_bus_semi_urban_reference_grid": 9.37650203704834,
+                "80_bus_rural_reference_grid": 7.595578670501709,
+                "norway_industrial_mvlv": 9.144807815551758
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00011107593341108612,
+                "50_bus_rural_reference_grid": 0.00010805248234273715,
+                "56_bus_semi_urban_reference_grid": 0.00010858130705346852,
+                "80_bus_rural_reference_grid": 0.00013072351858700804,
+                "norway_industrial_mvlv": 9.224265826314218e-05
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.00011107593341108612,
+                "50_bus_rural_reference_grid": 0.00010805248234273715,
+                "80_bus_rural_reference_grid": 0.00013072351858700804,
+                "norway_industrial_mvlv": 9.224265826314218e-05
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00011107593341108612,
+                "50_bus_rural_reference_grid": 0.00010805248234273715,
+                "56_bus_semi_urban_reference_grid": 0.00010858130705346852,
+                "80_bus_rural_reference_grid": 0.00013072351858700804,
+                "norway_industrial_mvlv": 9.224265826314218e-05
+              },
+              "normalized_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.2017083614521408,
+                "50_bus_rural_reference_grid": 0.1962179249354351,
+                "56_bus_semi_urban_reference_grid": 0.19717824426493605,
+                "80_bus_rural_reference_grid": 0.23738739732086875,
+                "norway_industrial_mvlv": 0.16750807202661933
+              },
+              "normalized_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.2017083614521408,
+                "50_bus_rural_reference_grid": 0.1962179249354351,
+                "80_bus_rural_reference_grid": 0.23738739732086875,
+                "norway_industrial_mvlv": 0.16750807202661933
+              },
+              "positive_candidate_count": 5,
+              "peer_only_positive_count": 4,
+              "no_positive_candidate_fallback": false
+            },
+            "80_bus_rural_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.0009458250860696062,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00032864751774106226,
+                "50_bus_rural_reference_grid": 0.0003057627493636009,
+                "56_bus_semi_urban_reference_grid": 0.0003113393656357442,
+                "80_bus_rural_reference_grid": 0.0002963432304421718,
+                "norway_industrial_mvlv": 0.00033776279135034877
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.00032864751774106226,
+                "50_bus_rural_reference_grid": 0.0003057627493636009,
+                "56_bus_semi_urban_reference_grid": 0.0003113393656357442,
+                "norway_industrial_mvlv": 0.00033776279135034877
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 9.160408020019531,
+                "50_bus_rural_reference_grid": 9.196589469909668,
+                "56_bus_semi_urban_reference_grid": 9.37650203704834,
+                "80_bus_rural_reference_grid": 7.595578670501709,
+                "norway_industrial_mvlv": 9.144807815551758
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 6.737446268546897e-05,
+                "50_bus_rural_reference_grid": 6.959779370386776e-05,
+                "56_bus_semi_urban_reference_grid": 6.766763532144724e-05,
+                "80_bus_rural_reference_grid": 8.550788344141378e-05,
+                "norway_industrial_mvlv": 6.649262696205749e-05
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": 6.737446268546897e-05,
+                "50_bus_rural_reference_grid": 6.959779370386776e-05,
+                "56_bus_semi_urban_reference_grid": 6.766763532144724e-05,
+                "norway_industrial_mvlv": 6.649262696205749e-05
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 6.737446268546897e-05,
+                "50_bus_rural_reference_grid": 6.959779370386776e-05,
+                "56_bus_semi_urban_reference_grid": 6.766763532144724e-05,
+                "80_bus_rural_reference_grid": 8.550788344141378e-05,
+                "norway_industrial_mvlv": 6.649262696205749e-05
+              },
+              "normalized_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.18891427411492354,
+                "50_bus_rural_reference_grid": 0.1951483715565435,
+                "56_bus_semi_urban_reference_grid": 0.189736314002273,
+                "80_bus_rural_reference_grid": 0.23975938490003165,
+                "norway_industrial_mvlv": 0.18644165542622834
+              },
+              "normalized_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.18891427411492354,
+                "50_bus_rural_reference_grid": 0.1951483715565435,
+                "56_bus_semi_urban_reference_grid": 0.189736314002273,
+                "norway_industrial_mvlv": 0.18644165542622834
+              },
+              "positive_candidate_count": 5,
+              "peer_only_positive_count": 4,
+              "no_positive_candidate_fallback": false
+            },
+            "norway_industrial_mvlv": {
+              "is_scarce_target": true,
+              "baseline_self_calibration_loss": 59.03498138966197,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 19.624479943718338,
+                "50_bus_rural_reference_grid": 8.819091198060937,
+                "56_bus_semi_urban_reference_grid": 14.29960530704321,
+                "80_bus_rural_reference_grid": 9.363203347393384,
+                "norway_industrial_mvlv": 6.305240366818353
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 19.624479943718338,
+                "50_bus_rural_reference_grid": 8.819091198060937,
+                "56_bus_semi_urban_reference_grid": 14.29960530704321,
+                "80_bus_rural_reference_grid": 9.363203347393384
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 9.160408020019531,
+                "50_bus_rural_reference_grid": 9.196589469909668,
+                "56_bus_semi_urban_reference_grid": 9.37650203704834,
+                "80_bus_rural_reference_grid": 7.595578670501709,
+                "norway_industrial_mvlv": 9.144807815551758
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 4.302264851064495,
+                "50_bus_rural_reference_grid": 5.460273110580504,
+                "56_bus_semi_urban_reference_grid": 4.771009050694601,
+                "80_bus_rural_reference_grid": 6.539564685857053,
+                "norway_industrial_mvlv": 5.766085202268012
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": 4.302264851064495,
+                "50_bus_rural_reference_grid": 5.460273110580504,
+                "56_bus_semi_urban_reference_grid": 4.771009050694601,
+                "80_bus_rural_reference_grid": 6.539564685857053
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 4.302264851064495,
+                "50_bus_rural_reference_grid": 5.460273110580504,
+                "56_bus_semi_urban_reference_grid": 4.771009050694601,
+                "80_bus_rural_reference_grid": 6.539564685857053,
+                "norway_industrial_mvlv": 5.766085202268012
+              },
+              "normalized_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.16029782362787504,
+                "50_bus_rural_reference_grid": 0.20344398272535386,
+                "56_bus_semi_urban_reference_grid": 0.17776273516634175,
+                "80_bus_rural_reference_grid": 0.24365724168683434,
+                "norway_industrial_mvlv": 0.21483821679359505
+              },
+              "normalized_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.16029782362787504,
+                "50_bus_rural_reference_grid": 0.20344398272535386,
+                "56_bus_semi_urban_reference_grid": 0.17776273516634175,
+                "80_bus_rural_reference_grid": 0.24365724168683434
+              },
+              "positive_candidate_count": 5,
+              "peer_only_positive_count": 4,
+              "no_positive_candidate_fallback": false
+            }
+          }
+        },
+        {
+          "round": 2,
+          "peer_weights": {
+            "39_bus_semi_urban_reference_grid": {
+              "39_bus_semi_urban_reference_grid": 0.3474854471799263,
+              "50_bus_rural_reference_grid": 0.165052366489678,
+              "56_bus_semi_urban_reference_grid": 0.2729431441343133,
+              "80_bus_rural_reference_grid": 0.2145190421960823
+            },
+            "50_bus_rural_reference_grid": {
+              "50_bus_rural_reference_grid": 0.5853636984747459,
+              "80_bus_rural_reference_grid": 0.41463630152525416
+            },
+            "56_bus_semi_urban_reference_grid": {
+              "39_bus_semi_urban_reference_grid": 0.30739143733796737,
+              "50_bus_rural_reference_grid": 0.2005365033582825,
+              "56_bus_semi_urban_reference_grid": 0.2778509416710563,
+              "80_bus_rural_reference_grid": 0.2142211176326939
+            },
+            "80_bus_rural_reference_grid": {
+              "80_bus_rural_reference_grid": 0.6940613783883675,
+              "norway_industrial_mvlv": 0.30593862161163243
+            },
+            "norway_industrial_mvlv": {
+              "50_bus_rural_reference_grid": 0.1433471804532554,
+              "80_bus_rural_reference_grid": 0.034814672427756675,
+              "norway_industrial_mvlv": 0.821838147118988
+            }
+          },
+          "diagnostics": {
+            "39_bus_semi_urban_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.00041414225418085333,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00037813894673004205,
+                "50_bus_rural_reference_grid": 0.00040086703376721435,
+                "56_bus_semi_urban_reference_grid": 0.0003820679311755133,
+                "80_bus_rural_reference_grid": 0.0003964136444631294,
+                "norway_industrial_mvlv": 0.00043052597739308114
+              },
+              "peer_calibration_loss_by_donor": {
+                "50_bus_rural_reference_grid": 0.00040086703376721435,
+                "56_bus_semi_urban_reference_grid": 0.0003820679311755133,
+                "80_bus_rural_reference_grid": 0.0003964136444631294,
+                "norway_industrial_mvlv": 0.00043052597739308114
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 7.753199577331543,
+                "50_bus_rural_reference_grid": 6.0185956954956055,
+                "56_bus_semi_urban_reference_grid": 8.793474197387695,
+                "80_bus_rural_reference_grid": 6.184206962585449,
+                "norway_industrial_mvlv": 5.247856140136719
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 4.643670924720098e-06,
+                "50_bus_rural_reference_grid": 2.205700646011515e-06,
+                "56_bus_semi_urban_reference_grid": 3.6475143140654e-06,
+                "80_bus_rural_reference_grid": 2.866755563806235e-06,
+                "norway_industrial_mvlv": -3.121984058769922e-06
+              },
+              "raw_weight_by_donor": {
+                "50_bus_rural_reference_grid": 2.205700646011515e-06,
+                "56_bus_semi_urban_reference_grid": 3.6475143140654e-06,
+                "80_bus_rural_reference_grid": 2.866755563806235e-06,
+                "norway_industrial_mvlv": -3.121984058769922e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 4.643670924720098e-06,
+                "50_bus_rural_reference_grid": 2.205700646011515e-06,
+                "56_bus_semi_urban_reference_grid": 3.6475143140654e-06,
+                "80_bus_rural_reference_grid": 2.866755563806235e-06,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.3474854471799263,
+                "50_bus_rural_reference_grid": 0.165052366489678,
+                "56_bus_semi_urban_reference_grid": 0.2729431441343133,
+                "80_bus_rural_reference_grid": 0.2145190421960823
+              },
+              "normalized_weight_by_donor": {
+                "50_bus_rural_reference_grid": 0.165052366489678,
+                "56_bus_semi_urban_reference_grid": 0.2729431441343133,
+                "80_bus_rural_reference_grid": 0.2145190421960823
+              },
+              "positive_candidate_count": 4,
+              "peer_only_positive_count": 3,
+              "no_positive_candidate_fallback": false
+            },
+            "50_bus_rural_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.000330251391654938,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00044625571676248444,
+                "50_bus_rural_reference_grid": 0.00030674166194780643,
+                "56_bus_semi_urban_reference_grid": 0.00043506838191858496,
+                "80_bus_rural_reference_grid": 0.0003131332924235358,
+                "norway_industrial_mvlv": 0.0003430020616970196
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.00044625571676248444,
+                "56_bus_semi_urban_reference_grid": 0.00043506838191858496,
+                "80_bus_rural_reference_grid": 0.0003131332924235358,
+                "norway_industrial_mvlv": 0.0003430020616970196
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 7.815307140350342,
+                "50_bus_rural_reference_grid": 6.0084333419799805,
+                "56_bus_semi_urban_reference_grid": 8.825704574584961,
+                "80_bus_rural_reference_grid": 6.176289081573486,
+                "norway_industrial_mvlv": 5.16249942779541
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -1.4843220237449475e-05,
+                "50_bus_rural_reference_grid": 3.9127886370759715e-06,
+                "56_bus_semi_urban_reference_grid": -1.1876331161760443e-05,
+                "80_bus_rural_reference_grid": 2.7715832282640507e-06,
+                "norway_industrial_mvlv": -2.4698637201639614e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -1.4843220237449475e-05,
+                "56_bus_semi_urban_reference_grid": -1.1876331161760443e-05,
+                "80_bus_rural_reference_grid": 2.7715832282640507e-06,
+                "norway_industrial_mvlv": -2.4698637201639614e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 3.9127886370759715e-06,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 2.7715832282640507e-06,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "50_bus_rural_reference_grid": 0.5853636984747459,
+                "80_bus_rural_reference_grid": 0.41463630152525416
+              },
+              "normalized_weight_by_donor": {
+                "80_bus_rural_reference_grid": 0.41463630152525416
+              },
+              "positive_candidate_count": 2,
+              "peer_only_positive_count": 1,
+              "no_positive_candidate_fallback": false
+            },
+            "56_bus_semi_urban_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.00046108569029111325,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0004186150049340889,
+                "50_bus_rural_reference_grid": 0.00043960025536421486,
+                "56_bus_semi_urban_reference_grid": 0.0004175543606111376,
+                "80_bus_rural_reference_grid": 0.0004374939760667924,
+                "norway_industrial_mvlv": 0.00047234748909750715
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.0004186150049340889,
+                "50_bus_rural_reference_grid": 0.00043960025536421486,
+                "80_bus_rural_reference_grid": 0.0004374939760667924,
+                "norway_industrial_mvlv": 0.00047234748909750715
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 7.756537914276123,
+                "50_bus_rural_reference_grid": 6.014799118041992,
+                "56_bus_semi_urban_reference_grid": 8.795498847961426,
+                "80_bus_rural_reference_grid": 6.182549953460693,
+                "norway_industrial_mvlv": 5.242949485778809
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 5.475469317161514e-06,
+                "50_bus_rural_reference_grid": 3.5720951781161068e-06,
+                "56_bus_semi_urban_reference_grid": 4.949273535526656e-06,
+                "80_bus_rural_reference_grid": 3.815855011589762e-06,
+                "norway_industrial_mvlv": -2.1479891875629773e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": 5.475469317161514e-06,
+                "50_bus_rural_reference_grid": 3.5720951781161068e-06,
+                "80_bus_rural_reference_grid": 3.815855011589762e-06,
+                "norway_industrial_mvlv": -2.1479891875629773e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 5.475469317161514e-06,
+                "50_bus_rural_reference_grid": 3.5720951781161068e-06,
+                "56_bus_semi_urban_reference_grid": 4.949273535526656e-06,
+                "80_bus_rural_reference_grid": 3.815855011589762e-06,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.30739143733796737,
+                "50_bus_rural_reference_grid": 0.2005365033582825,
+                "56_bus_semi_urban_reference_grid": 0.2778509416710563,
+                "80_bus_rural_reference_grid": 0.2142211176326939
+              },
+              "normalized_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.30739143733796737,
+                "50_bus_rural_reference_grid": 0.2005365033582825,
+                "80_bus_rural_reference_grid": 0.2142211176326939
+              },
+              "positive_candidate_count": 4,
+              "peer_only_positive_count": 3,
+              "no_positive_candidate_fallback": false
+            },
+            "80_bus_rural_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.000307741355550324,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0003264738293674358,
+                "50_bus_rural_reference_grid": 0.00030912639995701906,
+                "56_bus_semi_urban_reference_grid": 0.0003281221785413125,
+                "80_bus_rural_reference_grid": 0.00029115507234410155,
+                "norway_industrial_mvlv": 0.00030164115563474257
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.0003264738293674358,
+                "50_bus_rural_reference_grid": 0.00030912639995701906,
+                "56_bus_semi_urban_reference_grid": 0.0003281221785413125,
+                "norway_industrial_mvlv": 0.00030164115563474257
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 7.81640100479126,
+                "50_bus_rural_reference_grid": 6.025970458984375,
+                "56_bus_semi_urban_reference_grid": 8.823081970214844,
+                "80_bus_rural_reference_grid": 6.184195041656494,
+                "norway_industrial_mvlv": 5.159905433654785
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -2.396559977619737e-06,
+                "50_bus_rural_reference_grid": -2.2984586733740573e-07,
+                "56_bus_semi_urban_reference_grid": -2.309943742990063e-06,
+                "80_bus_rural_reference_grid": 2.6820439999862885e-06,
+                "norway_industrial_mvlv": 1.1822309524884904e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -2.396559977619737e-06,
+                "50_bus_rural_reference_grid": -2.2984586733740573e-07,
+                "56_bus_semi_urban_reference_grid": -2.309943742990063e-06,
+                "norway_industrial_mvlv": 1.1822309524884904e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 2.6820439999862885e-06,
+                "norway_industrial_mvlv": 1.1822309524884904e-06
+              },
+              "normalized_weight_by_client": {
+                "80_bus_rural_reference_grid": 0.6940613783883675,
+                "norway_industrial_mvlv": 0.30593862161163243
+              },
+              "normalized_weight_by_donor": {
+                "norway_industrial_mvlv": 0.30593862161163243
+              },
+              "positive_candidate_count": 2,
+              "peer_only_positive_count": 1,
+              "no_positive_candidate_fallback": false
+            },
+            "norway_industrial_mvlv": {
+              "is_scarce_target": true,
+              "baseline_self_calibration_loss": 9.866198468995593,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 20.809810062062816,
+                "50_bus_rural_reference_grid": 8.73357677319672,
+                "56_bus_semi_urban_reference_grid": 17.63310751852487,
+                "80_bus_rural_reference_grid": 9.583658446915122,
+                "norway_industrial_mvlv": 4.457390488376547
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 20.809810062062816,
+                "50_bus_rural_reference_grid": 8.73357677319672,
+                "56_bus_semi_urban_reference_grid": 17.63310751852487,
+                "80_bus_rural_reference_grid": 9.583658446915122
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 7.937337875366211,
+                "50_bus_rural_reference_grid": 6.031857013702393,
+                "56_bus_semi_urban_reference_grid": 8.8883695602417,
+                "80_bus_rural_reference_grid": 6.195451736450195,
+                "norway_industrial_mvlv": 5.024242401123047
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -1.3787508815808007,
+                "50_bus_rural_reference_grid": 0.18777329986863778,
+                "56_bus_semi_urban_reference_grid": -0.873828321030927,
+                "80_bus_rural_reference_grid": 0.045604426295202304,
+                "norway_industrial_mvlv": 1.0765420035086208
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -1.3787508815808007,
+                "50_bus_rural_reference_grid": 0.18777329986863778,
+                "56_bus_semi_urban_reference_grid": -0.873828321030927,
+                "80_bus_rural_reference_grid": 0.045604426295202304
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.18777329986863778,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.045604426295202304,
+                "norway_industrial_mvlv": 1.0765420035086208
+              },
+              "normalized_weight_by_client": {
+                "50_bus_rural_reference_grid": 0.1433471804532554,
+                "80_bus_rural_reference_grid": 0.034814672427756675,
+                "norway_industrial_mvlv": 0.821838147118988
+              },
+              "normalized_weight_by_donor": {
+                "50_bus_rural_reference_grid": 0.1433471804532554,
+                "80_bus_rural_reference_grid": 0.034814672427756675
+              },
+              "positive_candidate_count": 3,
+              "peer_only_positive_count": 2,
+              "no_positive_candidate_fallback": false
+            }
+          }
+        },
+        {
+          "round": 3,
+          "peer_weights": {
+            "39_bus_semi_urban_reference_grid": {
+              "39_bus_semi_urban_reference_grid": 0.6616834572402328,
+              "56_bus_semi_urban_reference_grid": 0.3383165427597672
+            },
+            "50_bus_rural_reference_grid": {
+              "50_bus_rural_reference_grid": 1.0
+            },
+            "56_bus_semi_urban_reference_grid": {
+              "39_bus_semi_urban_reference_grid": 0.42814720901589115,
+              "56_bus_semi_urban_reference_grid": 0.5718527909841089
+            },
+            "80_bus_rural_reference_grid": {},
+            "norway_industrial_mvlv": {
+              "norway_industrial_mvlv": 1.0
+            }
+          },
+          "diagnostics": {
+            "39_bus_semi_urban_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.0003814368137063018,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00037486942319374844,
+                "50_bus_rural_reference_grid": 0.00039601861209929875,
+                "56_bus_semi_urban_reference_grid": 0.0003780125253398946,
+                "80_bus_rural_reference_grid": 0.00039029768817863746,
+                "norway_industrial_mvlv": 0.0004325660253299961
+              },
+              "peer_calibration_loss_by_donor": {
+                "50_bus_rural_reference_grid": 0.00039601861209929875,
+                "56_bus_semi_urban_reference_grid": 0.0003780125253398946,
+                "80_bus_rural_reference_grid": 0.00039029768817863746,
+                "norway_industrial_mvlv": 0.0004325660253299961
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 6.981236457824707,
+                "50_bus_rural_reference_grid": 7.3981242179870605,
+                "56_bus_semi_urban_reference_grid": 7.119293212890625,
+                "80_bus_rural_reference_grid": 7.972476482391357,
+                "norway_industrial_mvlv": 8.145522117614746
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 9.407202509508982e-07,
+                "50_bus_rural_reference_grid": -1.9710129166988374e-06,
+                "56_bus_semi_urban_reference_grid": 4.80987123863155e-07,
+                "80_bus_rural_reference_grid": -1.111433127699451e-06,
+                "norway_industrial_mvlv": -6.2769716766370005e-06
+              },
+              "raw_weight_by_donor": {
+                "50_bus_rural_reference_grid": -1.9710129166988374e-06,
+                "56_bus_semi_urban_reference_grid": 4.80987123863155e-07,
+                "80_bus_rural_reference_grid": -1.111433127699451e-06,
+                "norway_industrial_mvlv": -6.2769716766370005e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 9.407202509508982e-07,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 4.80987123863155e-07,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.6616834572402328,
+                "56_bus_semi_urban_reference_grid": 0.3383165427597672
+              },
+              "normalized_weight_by_donor": {
+                "56_bus_semi_urban_reference_grid": 0.3383165427597672
+              },
+              "positive_candidate_count": 2,
+              "peer_only_positive_count": 1,
+              "no_positive_candidate_fallback": false
+            },
+            "50_bus_rural_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.00030739368129714797,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0004475689414456531,
+                "50_bus_rural_reference_grid": 0.00030278957095930737,
+                "56_bus_semi_urban_reference_grid": 0.00042709937355321,
+                "80_bus_rural_reference_grid": 0.00031387976915846346,
+                "norway_industrial_mvlv": 0.00033517239343508243
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.0004475689414456531,
+                "56_bus_semi_urban_reference_grid": 0.00042709937355321,
+                "80_bus_rural_reference_grid": 0.00031387976915846346,
+                "norway_industrial_mvlv": 0.00033517239343508243
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 9.836040496826172,
+                "50_bus_rural_reference_grid": 5.366988658905029,
+                "56_bus_semi_urban_reference_grid": 10.02560043334961,
+                "80_bus_rural_reference_grid": 7.4568400382995605,
+                "norway_industrial_mvlv": 6.7091145515441895
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -1.4251187781681228e-05,
+                "50_bus_rural_reference_grid": 8.57857288407066e-07,
+                "56_bus_semi_urban_reference_grid": -1.1940002302291612e-05,
+                "80_bus_rural_reference_grid": -8.698172185538384e-07,
+                "norway_industrial_mvlv": -4.140443858055261e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -1.4251187781681228e-05,
+                "56_bus_semi_urban_reference_grid": -1.1940002302291612e-05,
+                "80_bus_rural_reference_grid": -8.698172185538384e-07,
+                "norway_industrial_mvlv": -4.140443858055261e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 8.57857288407066e-07,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "50_bus_rural_reference_grid": 1.0
+              },
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 1,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": false
+            },
+            "56_bus_semi_urban_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.0004207368538632008,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0004151132062949849,
+                "50_bus_rural_reference_grid": 0.000435185803812684,
+                "56_bus_semi_urban_reference_grid": 0.00041319156228906056,
+                "80_bus_rural_reference_grid": 0.00043189632918782123,
+                "norway_industrial_mvlv": 0.00047145869808971745
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.0004151132062949849,
+                "50_bus_rural_reference_grid": 0.000435185803812684,
+                "80_bus_rural_reference_grid": 0.00043189632918782123,
+                "norway_industrial_mvlv": 0.00047145869808971745
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 7.156230449676514,
+                "50_bus_rural_reference_grid": 7.211785316467285,
+                "56_bus_semi_urban_reference_grid": 7.1887125968933105,
+                "80_bus_rural_reference_grid": 7.9134202003479,
+                "norway_industrial_mvlv": 8.001449584960938
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 7.858393616249927e-07,
+                "50_bus_rural_reference_grid": -2.0035191447655365e-06,
+                "56_bus_semi_urban_reference_grid": 1.0496026197235893e-06,
+                "80_bus_rural_reference_grid": -1.4101962289489464e-06,
+                "norway_industrial_mvlv": -6.339081898590495e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": 7.858393616249927e-07,
+                "50_bus_rural_reference_grid": -2.0035191447655365e-06,
+                "80_bus_rural_reference_grid": -1.4101962289489464e-06,
+                "norway_industrial_mvlv": -6.339081898590495e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 7.858393616249927e-07,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 1.0496026197235893e-06,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.42814720901589115,
+                "56_bus_semi_urban_reference_grid": 0.5718527909841089
+              },
+              "normalized_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.42814720901589115
+              },
+              "positive_candidate_count": 2,
+              "peer_only_positive_count": 1,
+              "no_positive_candidate_fallback": false
+            },
+            "80_bus_rural_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.00028672353070940547,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00032180386143773187,
+                "50_bus_rural_reference_grid": 0.0003056649879339896,
+                "56_bus_semi_urban_reference_grid": 0.00032676464127896516,
+                "80_bus_rural_reference_grid": 0.0002878754194316932,
+                "norway_industrial_mvlv": 0.00029983307904858945
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.00032180386143773187,
+                "50_bus_rural_reference_grid": 0.0003056649879339896,
+                "56_bus_semi_urban_reference_grid": 0.00032676464127896516,
+                "norway_industrial_mvlv": 0.00029983307904858945
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 10.311165809631348,
+                "50_bus_rural_reference_grid": 7.48505163192749,
+                "56_bus_semi_urban_reference_grid": 10.2759370803833,
+                "80_bus_rural_reference_grid": 6.391883850097656,
+                "norway_industrial_mvlv": 6.20988130569458
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -3.4021691994862032e-06,
+                "50_bus_rural_reference_grid": -2.530571351543761e-06,
+                "56_bus_semi_urban_reference_grid": -3.89658969847081e-06,
+                "80_bus_rural_reference_grid": -1.8021114733959822e-07,
+                "norway_industrial_mvlv": -2.1110787298237347e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -3.4021691994862032e-06,
+                "50_bus_rural_reference_grid": -2.530571351543761e-06,
+                "56_bus_semi_urban_reference_grid": -3.89658969847081e-06,
+                "norway_industrial_mvlv": -2.1110787298237347e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {},
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 0,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": true
+            },
+            "norway_industrial_mvlv": {
+              "is_scarce_target": true,
+              "baseline_self_calibration_loss": 4.642499286057658,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 20.745240839262582,
+                "50_bus_rural_reference_grid": 8.04008612425086,
+                "56_bus_semi_urban_reference_grid": 17.271089648146326,
+                "80_bus_rural_reference_grid": 10.53609941382791,
+                "norway_industrial_mvlv": 4.257906875886282
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 20.745240839262582,
+                "50_bus_rural_reference_grid": 8.04008612425086,
+                "56_bus_semi_urban_reference_grid": 17.271089648146326,
+                "80_bus_rural_reference_grid": 10.53609941382791
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 11.438764572143555,
+                "50_bus_rural_reference_grid": 8.536505699157715,
+                "56_bus_semi_urban_reference_grid": 11.467947959899902,
+                "80_bus_rural_reference_grid": 9.318913459777832,
+                "norway_industrial_mvlv": 3.3561573028564453
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -1.4077343275704781,
+                "50_bus_rural_reference_grid": -0.3980067439687927,
+                "56_bus_semi_urban_reference_grid": -1.1012075051479213,
+                "80_bus_rural_reference_grid": -0.6324342589087769,
+                "norway_industrial_mvlv": 0.11459308234567342
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -1.4077343275704781,
+                "50_bus_rural_reference_grid": -0.3980067439687927,
+                "56_bus_semi_urban_reference_grid": -1.1012075051479213,
+                "80_bus_rural_reference_grid": -0.6324342589087769
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.11459308234567342
+              },
+              "normalized_weight_by_client": {
+                "norway_industrial_mvlv": 1.0
+              },
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 1,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": false
+            }
+          }
+        },
+        {
+          "round": 4,
+          "peer_weights": {
+            "39_bus_semi_urban_reference_grid": {
+              "39_bus_semi_urban_reference_grid": 0.5952873385904871,
+              "56_bus_semi_urban_reference_grid": 0.4047126614095129
+            },
+            "50_bus_rural_reference_grid": {
+              "50_bus_rural_reference_grid": 1.0
+            },
+            "56_bus_semi_urban_reference_grid": {
+              "39_bus_semi_urban_reference_grid": 0.297574609627428,
+              "56_bus_semi_urban_reference_grid": 0.702425390372572
+            },
+            "80_bus_rural_reference_grid": {},
+            "norway_industrial_mvlv": {
+              "norway_industrial_mvlv": 1.0
+            }
+          },
+          "diagnostics": {
+            "39_bus_semi_urban_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.00037541826607714884,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0003694439743947186,
+                "50_bus_rural_reference_grid": 0.00039624588723839423,
+                "56_bus_semi_urban_reference_grid": 0.00037092377257915424,
+                "80_bus_rural_reference_grid": 0.00039029768817863746,
+                "norway_industrial_mvlv": 0.00043242281808731524
+              },
+              "peer_calibration_loss_by_donor": {
+                "50_bus_rural_reference_grid": 0.00039624588723839423,
+                "56_bus_semi_urban_reference_grid": 0.00037092377257915424,
+                "80_bus_rural_reference_grid": 0.00039029768817863746,
+                "norway_industrial_mvlv": 0.00043242281808731524
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 5.992879867553711,
+                "50_bus_rural_reference_grid": 11.780698776245117,
+                "56_bus_semi_urban_reference_grid": 6.631469249725342,
+                "80_bus_rural_reference_grid": 10.520739555358887,
+                "norway_industrial_mvlv": 13.851418495178223
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 9.968982883796614e-07,
+                "50_bus_rural_reference_grid": -1.7679444621095764e-06,
+                "56_bus_semi_urban_reference_grid": 6.777522942114332e-07,
+                "80_bus_rural_reference_grid": -1.4142943110789352e-06,
+                "norway_industrial_mvlv": -4.115430634776213e-06
+              },
+              "raw_weight_by_donor": {
+                "50_bus_rural_reference_grid": -1.7679444621095764e-06,
+                "56_bus_semi_urban_reference_grid": 6.777522942114332e-07,
+                "80_bus_rural_reference_grid": -1.4142943110789352e-06,
+                "norway_industrial_mvlv": -4.115430634776213e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 9.968982883796614e-07,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 6.777522942114332e-07,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.5952873385904871,
+                "56_bus_semi_urban_reference_grid": 0.4047126614095129
+              },
+              "normalized_weight_by_donor": {
+                "56_bus_semi_urban_reference_grid": 0.4047126614095129
+              },
+              "positive_candidate_count": 2,
+              "peer_only_positive_count": 1,
+              "no_positive_candidate_fallback": false
+            },
+            "50_bus_rural_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.0003027895699985304,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00042496357421250517,
+                "50_bus_rural_reference_grid": 0.00029932949870097427,
+                "56_bus_semi_urban_reference_grid": 0.00039506046748257915,
+                "80_bus_rural_reference_grid": 0.00031387976915846346,
+                "norway_industrial_mvlv": 0.00033190049375719224
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.00042496357421250517,
+                "56_bus_semi_urban_reference_grid": 0.00039506046748257915,
+                "80_bus_rural_reference_grid": 0.00031387976915846346,
+                "norway_industrial_mvlv": 0.00033190049375719224
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 13.69761848449707,
+                "50_bus_rural_reference_grid": 4.093973636627197,
+                "56_bus_semi_urban_reference_grid": 13.651525497436523,
+                "80_bus_rural_reference_grid": 8.830259323120117,
+                "norway_industrial_mvlv": 11.21921443939209
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -8.919361008064438e-06,
+                "50_bus_rural_reference_grid": 8.451620857055265e-07,
+                "56_bus_semi_urban_reference_grid": -6.759017334829619e-06,
+                "80_bus_rural_reference_grid": -1.255931310068611e-06,
+                "norway_industrial_mvlv": -2.5947381535419356e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -8.919361008064438e-06,
+                "56_bus_semi_urban_reference_grid": -6.759017334829619e-06,
+                "80_bus_rural_reference_grid": -1.255931310068611e-06,
+                "norway_industrial_mvlv": -2.5947381535419356e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 8.451620857055265e-07,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "50_bus_rural_reference_grid": 1.0
+              },
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 1,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": false
+            },
+            "56_bus_semi_urban_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.0004123751927395253,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0004088017518948266,
+                "50_bus_rural_reference_grid": 0.00043725300344772455,
+                "56_bus_semi_urban_reference_grid": 0.00040504965334670767,
+                "80_bus_rural_reference_grid": 0.00043189632918782123,
+                "norway_industrial_mvlv": 0.00046972537314844286
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.0004088017518948266,
+                "50_bus_rural_reference_grid": 0.00043725300344772455,
+                "80_bus_rural_reference_grid": 0.00043189632918782123,
+                "norway_industrial_mvlv": 0.00046972537314844286
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 6.792720317840576,
+                "50_bus_rural_reference_grid": 11.707595825195312,
+                "56_bus_semi_urban_reference_grid": 5.899190425872803,
+                "80_bus_rural_reference_grid": 10.35061264038086,
+                "norway_industrial_mvlv": 13.846223831176758
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 5.260691854650301e-07,
+                "50_bus_rural_reference_grid": -2.1249290699512274e-06,
+                "56_bus_semi_urban_reference_grid": 1.2417872392604663e-06,
+                "80_bus_rural_reference_grid": -1.8859885039206506e-06,
+                "norway_industrial_mvlv": -4.141936538667047e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": 5.260691854650301e-07,
+                "50_bus_rural_reference_grid": -2.1249290699512274e-06,
+                "80_bus_rural_reference_grid": -1.8859885039206506e-06,
+                "norway_industrial_mvlv": -4.141936538667047e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 5.260691854650301e-07,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 1.2417872392604663e-06,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.297574609627428,
+                "56_bus_semi_urban_reference_grid": 0.702425390372572
+              },
+              "normalized_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.297574609627428
+              },
+              "positive_candidate_count": 2,
+              "peer_only_positive_count": 1,
+              "no_positive_candidate_fallback": false
+            },
+            "80_bus_rural_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.00028672353070940547,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00031238013785904624,
+                "50_bus_rural_reference_grid": 0.0003115161657622368,
+                "56_bus_semi_urban_reference_grid": 0.00031455459781966816,
+                "80_bus_rural_reference_grid": 0.0002878754194316932,
+                "norway_industrial_mvlv": 0.0003009413397724722
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.00031238013785904624,
+                "50_bus_rural_reference_grid": 0.0003115161657622368,
+                "56_bus_semi_urban_reference_grid": 0.00031455459781966816,
+                "norway_industrial_mvlv": 0.0003009413397724722
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 13.492063522338867,
+                "50_bus_rural_reference_grid": 10.361727714538574,
+                "56_bus_semi_urban_reference_grid": 13.457777976989746,
+                "80_bus_rural_reference_grid": 6.391883850097656,
+                "norway_industrial_mvlv": 9.198087692260742
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -1.90160734917673e-06,
+                "50_bus_rural_reference_grid": -2.3927124641619666e-06,
+                "56_bus_semi_urban_reference_grid": -2.0680284039346222e-06,
+                "80_bus_rural_reference_grid": -1.8021114733959822e-07,
+                "norway_industrial_mvlv": -1.545735324422708e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -1.90160734917673e-06,
+                "50_bus_rural_reference_grid": -2.3927124641619666e-06,
+                "56_bus_semi_urban_reference_grid": -2.0680284039346222e-06,
+                "norway_industrial_mvlv": -1.545735324422708e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {},
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 0,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": true
+            },
+            "norway_industrial_mvlv": {
+              "is_scarce_target": true,
+              "baseline_self_calibration_loss": 4.2579068338835775,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 19.36290797957429,
+                "50_bus_rural_reference_grid": 7.84309006796013,
+                "56_bus_semi_urban_reference_grid": 16.649349975774484,
+                "80_bus_rural_reference_grid": 10.53609941382791,
+                "norway_industrial_mvlv": 3.933797219197525
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 19.36290797957429,
+                "50_bus_rural_reference_grid": 7.84309006796013,
+                "56_bus_semi_urban_reference_grid": 16.649349975774484,
+                "80_bus_rural_reference_grid": 10.53609941382791
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 15.266489028930664,
+                "50_bus_rural_reference_grid": 12.142233848571777,
+                "56_bus_semi_urban_reference_grid": 15.402287483215332,
+                "80_bus_rural_reference_grid": 10.436243057250977,
+                "norway_industrial_mvlv": 4.245341777801514
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -0.989422067972871,
+                "50_bus_rural_reference_grid": -0.2952655399976473,
+                "56_bus_semi_urban_reference_grid": -0.8045196634197159,
+                "80_bus_rural_reference_grid": -0.6015759258866359,
+                "norway_industrial_mvlv": 0.07634476366089406
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -0.989422067972871,
+                "50_bus_rural_reference_grid": -0.2952655399976473,
+                "56_bus_semi_urban_reference_grid": -0.8045196634197159,
+                "80_bus_rural_reference_grid": -0.6015759258866359
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.07634476366089406
+              },
+              "normalized_weight_by_client": {
+                "norway_industrial_mvlv": 1.0
+              },
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 1,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": false
+            }
+          }
+        },
+        {
+          "round": 5,
+          "peer_weights": {
+            "39_bus_semi_urban_reference_grid": {
+              "39_bus_semi_urban_reference_grid": 0.6634431432494504,
+              "56_bus_semi_urban_reference_grid": 0.33655685675054964
+            },
+            "50_bus_rural_reference_grid": {
+              "50_bus_rural_reference_grid": 1.0
+            },
+            "56_bus_semi_urban_reference_grid": {
+              "39_bus_semi_urban_reference_grid": 0.19184052229891657,
+              "56_bus_semi_urban_reference_grid": 0.8081594777010833
+            },
+            "80_bus_rural_reference_grid": {},
+            "norway_industrial_mvlv": {
+              "norway_industrial_mvlv": 1.0
+            }
+          },
+          "diagnostics": {
+            "39_bus_semi_urban_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.00036916734678111245,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00036266014347337907,
+                "50_bus_rural_reference_grid": 0.0003930848287330293,
+                "56_bus_semi_urban_reference_grid": 0.0003655744858316548,
+                "80_bus_rural_reference_grid": 0.00039029768817863746,
+                "norway_industrial_mvlv": 0.00043599508391513493
+              },
+              "peer_calibration_loss_by_donor": {
+                "50_bus_rural_reference_grid": 0.0003930848287330293,
+                "56_bus_semi_urban_reference_grid": 0.0003655744858316548,
+                "80_bus_rural_reference_grid": 0.00039029768817863746,
+                "norway_industrial_mvlv": 0.00043599508391513493
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 5.287693023681641,
+                "50_bus_rural_reference_grid": 15.174108505249023,
+                "56_bus_semi_urban_reference_grid": 5.755161762237549,
+                "80_bus_rural_reference_grid": 13.190929412841797,
+                "norway_industrial_mvlv": 17.35467529296875
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 1.230631823479308e-06,
+                "50_bus_rural_reference_grid": -1.5762034351897332e-06,
+                "56_bus_semi_urban_reference_grid": 6.242849632883537e-07,
+                "80_bus_rural_reference_grid": -1.6018841990733673e-06,
+                "norway_industrial_mvlv": -3.8507051273436335e-06
+              },
+              "raw_weight_by_donor": {
+                "50_bus_rural_reference_grid": -1.5762034351897332e-06,
+                "56_bus_semi_urban_reference_grid": 6.242849632883537e-07,
+                "80_bus_rural_reference_grid": -1.6018841990733673e-06,
+                "norway_industrial_mvlv": -3.8507051273436335e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 1.230631823479308e-06,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 6.242849632883537e-07,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.6634431432494504,
+                "56_bus_semi_urban_reference_grid": 0.33655685675054964
+              },
+              "normalized_weight_by_donor": {
+                "56_bus_semi_urban_reference_grid": 0.33655685675054964
+              },
+              "positive_candidate_count": 2,
+              "peer_only_positive_count": 1,
+              "no_positive_candidate_fallback": false
+            },
+            "50_bus_rural_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.0002993294995757091,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0003758122787399411,
+                "50_bus_rural_reference_grid": 0.0002976969283516436,
+                "56_bus_semi_urban_reference_grid": 0.0003684715554035323,
+                "80_bus_rural_reference_grid": 0.00031387976915846346,
+                "norway_industrial_mvlv": 0.000335547169909725
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.0003758122787399411,
+                "56_bus_semi_urban_reference_grid": 0.0003684715554035323,
+                "80_bus_rural_reference_grid": 0.00031387976915846346,
+                "norway_industrial_mvlv": 0.000335547169909725
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 16.282407760620117,
+                "50_bus_rural_reference_grid": 3.6154561042785645,
+                "56_bus_semi_urban_reference_grid": 15.978414535522461,
+                "80_bus_rural_reference_grid": 10.767054557800293,
+                "norway_industrial_mvlv": 14.559852600097656
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -4.697264697497937e-06,
+                "50_bus_rural_reference_grid": 4.5155332466436196e-07,
+                "56_bus_semi_urban_reference_grid": -4.327216300096951e-06,
+                "80_bus_rural_reference_grid": -1.3513695416553742e-06,
+                "norway_industrial_mvlv": -2.4875025406349573e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -4.697264697497937e-06,
+                "56_bus_semi_urban_reference_grid": -4.327216300096951e-06,
+                "80_bus_rural_reference_grid": -1.3513695416553742e-06,
+                "norway_industrial_mvlv": -2.4875025406349573e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 4.5155332466436196e-07,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "50_bus_rural_reference_grid": 1.0
+              },
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 1,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": false
+            },
+            "56_bus_semi_urban_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.00040478548048196347,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0004032168782500048,
+                "50_bus_rural_reference_grid": 0.00043323832432160295,
+                "56_bus_semi_urban_reference_grid": 0.0003999041903077947,
+                "80_bus_rural_reference_grid": 0.00043189632918782123,
+                "norway_industrial_mvlv": 0.00047212610498092447
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.0004032168782500048,
+                "50_bus_rural_reference_grid": 0.00043323832432160295,
+                "80_bus_rural_reference_grid": 0.00043189632918782123,
+                "norway_industrial_mvlv": 0.00047212610498092447
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 6.383884429931641,
+                "50_bus_rural_reference_grid": 15.210408210754395,
+                "56_bus_semi_urban_reference_grid": 4.715742588043213,
+                "80_bus_rural_reference_grid": 13.127482414245605,
+                "norway_industrial_mvlv": 17.435134887695312
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 2.4571281782668674e-07,
+                "50_bus_rural_reference_grid": -1.8706167149097462e-06,
+                "56_bus_semi_urban_reference_grid": 1.0351053059054252e-06,
+                "80_bus_rural_reference_grid": -2.0651978688949306e-06,
+                "norway_industrial_mvlv": -3.862351793244925e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": 2.4571281782668674e-07,
+                "50_bus_rural_reference_grid": -1.8706167149097462e-06,
+                "80_bus_rural_reference_grid": -2.0651978688949306e-06,
+                "norway_industrial_mvlv": -3.862351793244925e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 2.4571281782668674e-07,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 1.0351053059054252e-06,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.19184052229891657,
+                "56_bus_semi_urban_reference_grid": 0.8081594777010833
+              },
+              "normalized_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.19184052229891657
+              },
+              "positive_candidate_count": 2,
+              "peer_only_positive_count": 1,
+              "no_positive_candidate_fallback": false
+            },
+            "80_bus_rural_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.00028672353070940547,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0002973743093966873,
+                "50_bus_rural_reference_grid": 0.0003176189147766585,
+                "56_bus_semi_urban_reference_grid": 0.0003034454394136842,
+                "80_bus_rural_reference_grid": 0.0002878754194316932,
+                "norway_industrial_mvlv": 0.0003053749172919984
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.0002973743093966873,
+                "50_bus_rural_reference_grid": 0.0003176189147766585,
+                "56_bus_semi_urban_reference_grid": 0.0003034454394136842,
+                "norway_industrial_mvlv": 0.0003053749172919984
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 15.638833045959473,
+                "50_bus_rural_reference_grid": 12.702709197998047,
+                "56_bus_semi_urban_reference_grid": 15.21677017211914,
+                "80_bus_rural_reference_grid": 6.391883850097656,
+                "norway_industrial_mvlv": 11.00946044921875
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -6.810468949940567e-07,
+                "50_bus_rural_reference_grid": -2.432188565894251e-06,
+                "56_bus_semi_urban_reference_grid": -1.0989131409053073e-06,
+                "80_bus_rural_reference_grid": -1.8021114733959822e-07,
+                "norway_industrial_mvlv": -1.6941235829513127e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -6.810468949940567e-07,
+                "50_bus_rural_reference_grid": -2.432188565894251e-06,
+                "56_bus_semi_urban_reference_grid": -1.0989131409053073e-06,
+                "norway_industrial_mvlv": -1.6941235829513127e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {},
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 0,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": true
+            },
+            "norway_industrial_mvlv": {
+              "is_scarce_target": true,
+              "baseline_self_calibration_loss": 3.933797234889754,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 15.748281300530511,
+                "50_bus_rural_reference_grid": 8.63541225559256,
+                "56_bus_semi_urban_reference_grid": 15.141865563905052,
+                "80_bus_rural_reference_grid": 10.53609941382791,
+                "norway_industrial_mvlv": 3.9295471818913668
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 15.748281300530511,
+                "50_bus_rural_reference_grid": 8.63541225559256,
+                "56_bus_semi_urban_reference_grid": 15.141865563905052,
+                "80_bus_rural_reference_grid": 10.53609941382791
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 18.41452407836914,
+                "50_bus_rural_reference_grid": 15.46594524383545,
+                "56_bus_semi_urban_reference_grid": 18.016555786132812,
+                "80_bus_rural_reference_grid": 12.156827926635742,
+                "norway_industrial_mvlv": 2.8559937477111816
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -0.6415850887788164,
+                "50_bus_rural_reference_grid": -0.3039979093794162,
+                "56_bus_semi_urban_reference_grid": -0.6220982779428591,
+                "80_bus_rural_reference_grid": -0.5430941540656258,
+                "norway_industrial_mvlv": 0.0014881170527042864
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -0.6415850887788164,
+                "50_bus_rural_reference_grid": -0.3039979093794162,
+                "56_bus_semi_urban_reference_grid": -0.6220982779428591,
+                "80_bus_rural_reference_grid": -0.5430941540656258
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0014881170527042864
+              },
+              "normalized_weight_by_client": {
+                "norway_industrial_mvlv": 1.0
+              },
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 1,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": false
+            }
+          }
+        },
+        {
+          "round": 6,
+          "peer_weights": {
+            "39_bus_semi_urban_reference_grid": {
+              "39_bus_semi_urban_reference_grid": 0.9496598052694025,
+              "56_bus_semi_urban_reference_grid": 0.050340194730597435
+            },
+            "50_bus_rural_reference_grid": {
+              "50_bus_rural_reference_grid": 1.0
+            },
+            "56_bus_semi_urban_reference_grid": {
+              "56_bus_semi_urban_reference_grid": 1.0
+            },
+            "80_bus_rural_reference_grid": {},
+            "norway_industrial_mvlv": {
+              "norway_industrial_mvlv": 1.0
+            }
+          },
+          "diagnostics": {
+            "39_bus_semi_urban_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.000363253949562554,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00035925272638973944,
+                "50_bus_rural_reference_grid": 0.0003919216339579942,
+                "56_bus_semi_urban_reference_grid": 0.00036298062062317037,
+                "80_bus_rural_reference_grid": 0.00039029768817863746,
+                "norway_industrial_mvlv": 0.000438237830638123
+              },
+              "peer_calibration_loss_by_donor": {
+                "50_bus_rural_reference_grid": 0.0003919216339579942,
+                "56_bus_semi_urban_reference_grid": 0.00036298062062317037,
+                "80_bus_rural_reference_grid": 0.00039029768817863746,
+                "norway_industrial_mvlv": 0.000438237830638123
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 4.369406223297119,
+                "50_bus_rural_reference_grid": 17.85772705078125,
+                "56_bus_semi_urban_reference_grid": 5.6307783126831055,
+                "80_bus_rural_reference_grid": 15.231820106506348,
+                "norway_industrial_mvlv": 19.663454055786133
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 9.157361362922983e-07,
+                "50_bus_rural_reference_grid": -1.6053378077690165e-06,
+                "56_bus_semi_urban_reference_grid": 4.8541946460208334e-08,
+                "80_bus_rural_reference_grid": -1.775476497685909e-06,
+                "norway_industrial_mvlv": -3.8133626402987225e-06
+              },
+              "raw_weight_by_donor": {
+                "50_bus_rural_reference_grid": -1.6053378077690165e-06,
+                "56_bus_semi_urban_reference_grid": 4.8541946460208334e-08,
+                "80_bus_rural_reference_grid": -1.775476497685909e-06,
+                "norway_industrial_mvlv": -3.8133626402987225e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 9.157361362922983e-07,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 4.8541946460208334e-08,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.9496598052694025,
+                "56_bus_semi_urban_reference_grid": 0.050340194730597435
+              },
+              "normalized_weight_by_donor": {
+                "56_bus_semi_urban_reference_grid": 0.050340194730597435
+              },
+              "positive_candidate_count": 2,
+              "peer_only_positive_count": 1,
+              "no_positive_candidate_fallback": false
+            },
+            "50_bus_rural_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.00029769692766762644,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0003774611187358177,
+                "50_bus_rural_reference_grid": 0.00029521265480970027,
+                "56_bus_semi_urban_reference_grid": 0.00036479060321801746,
+                "80_bus_rural_reference_grid": 0.00031387976915846346,
+                "norway_industrial_mvlv": 0.0003409506829167656
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.0003774611187358177,
+                "56_bus_semi_urban_reference_grid": 0.00036479060321801746,
+                "80_bus_rural_reference_grid": 0.00031387976915846346,
+                "norway_industrial_mvlv": 0.0003409506829167656
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 18.365703582763672,
+                "50_bus_rural_reference_grid": 3.5088536739349365,
+                "56_bus_semi_urban_reference_grid": 18.02146339416504,
+                "80_bus_rural_reference_grid": 12.65881633758545,
+                "norway_industrial_mvlv": 16.99602699279785
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -4.343105653901882e-06,
+                "50_bus_rural_reference_grid": 7.080012701525733e-07,
+                "56_bus_semi_urban_reference_grid": -3.7229870895007776e-06,
+                "80_bus_rural_reference_grid": -1.2783850447997317e-06,
+                "norway_industrial_mvlv": -2.5449333110300186e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -4.343105653901882e-06,
+                "56_bus_semi_urban_reference_grid": -3.7229870895007776e-06,
+                "80_bus_rural_reference_grid": -1.2783850447997317e-06,
+                "norway_industrial_mvlv": -2.5449333110300186e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 7.080012701525733e-07,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "50_bus_rural_reference_grid": 1.0
+              },
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 1,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": false
+            },
+            "56_bus_semi_urban_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.0003998526851143859,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00040096757848362,
+                "50_bus_rural_reference_grid": 0.0004319227518971628,
+                "56_bus_semi_urban_reference_grid": 0.000397554207877324,
+                "80_bus_rural_reference_grid": 0.00043189632918782123,
+                "norway_industrial_mvlv": 0.00047381194610781317
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.00040096757848362,
+                "50_bus_rural_reference_grid": 0.0004319227518971628,
+                "80_bus_rural_reference_grid": 0.00043189632918782123,
+                "norway_industrial_mvlv": 0.00047381194610781317
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 6.582004547119141,
+                "50_bus_rural_reference_grid": 17.791738510131836,
+                "56_bus_semi_urban_reference_grid": 3.6404943466186523,
+                "80_bus_rural_reference_grid": 15.055990219116211,
+                "norway_industrial_mvlv": 19.558645248413086
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -1.6938508037371287e-07,
+                "50_bus_rural_reference_grid": -1.8025257489318533e-06,
+                "56_bus_semi_urban_reference_grid": 6.313640451594533e-07,
+                "80_bus_rural_reference_grid": -2.128298677608609e-06,
+                "norway_industrial_mvlv": -3.7814102180427984e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -1.6938508037371287e-07,
+                "50_bus_rural_reference_grid": -1.8025257489318533e-06,
+                "80_bus_rural_reference_grid": -2.128298677608609e-06,
+                "norway_industrial_mvlv": -3.7814102180427984e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 6.313640451594533e-07,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "56_bus_semi_urban_reference_grid": 1.0
+              },
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 1,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": false
+            },
+            "80_bus_rural_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.00028672353070940547,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00029517143095545405,
+                "50_bus_rural_reference_grid": 0.00031938968700521097,
+                "56_bus_semi_urban_reference_grid": 0.0003005181616913278,
+                "80_bus_rural_reference_grid": 0.0002878754194316932,
+                "norway_industrial_mvlv": 0.00031453101830198954
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.00029517143095545405,
+                "50_bus_rural_reference_grid": 0.00031938968700521097,
+                "56_bus_semi_urban_reference_grid": 0.0003005181616913278,
+                "norway_industrial_mvlv": 0.00031453101830198954
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 17.070777893066406,
+                "50_bus_rural_reference_grid": 14.922816276550293,
+                "56_bus_semi_urban_reference_grid": 16.65610122680664,
+                "80_bus_rural_reference_grid": 6.391883850097656,
+                "norway_industrial_mvlv": 12.283018112182617
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -4.948749435419309e-07,
+                "50_bus_rural_reference_grid": -2.189007469530727e-06,
+                "56_bus_semi_urban_reference_grid": -8.282028785776212e-07,
+                "80_bus_rural_reference_grid": -1.8021114733959822e-07,
+                "norway_industrial_mvlv": -2.263896978626256e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -4.948749435419309e-07,
+                "50_bus_rural_reference_grid": -2.189007469530727e-06,
+                "56_bus_semi_urban_reference_grid": -8.282028785776212e-07,
+                "norway_industrial_mvlv": -2.263896978626256e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {},
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 0,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": true
+            },
+            "norway_industrial_mvlv": {
+              "is_scarce_target": true,
+              "baseline_self_calibration_loss": 3.929547187483012,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 14.383513132398344,
+                "50_bus_rural_reference_grid": 8.32129082837209,
+                "56_bus_semi_urban_reference_grid": 14.274079683174742,
+                "80_bus_rural_reference_grid": 10.53609941382791,
+                "norway_industrial_mvlv": 3.7648444373843586
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 14.383513132398344,
+                "50_bus_rural_reference_grid": 8.32129082837209,
+                "56_bus_semi_urban_reference_grid": 14.274079683174742,
+                "80_bus_rural_reference_grid": 10.53609941382791
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 20.42290687561035,
+                "50_bus_rural_reference_grid": 17.939130783081055,
+                "56_bus_semi_urban_reference_grid": 20.092689514160156,
+                "80_bus_rural_reference_grid": 13.407204627990723,
+                "norway_industrial_mvlv": 2.4070401191711426
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -0.5118745342466042,
+                "50_bus_rural_reference_grid": -0.24481362525272532,
+                "56_bus_semi_urban_reference_grid": -0.5148406084910132,
+                "80_bus_rural_reference_grid": -0.4927613480703994,
+                "norway_industrial_mvlv": 0.06842542788829795
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -0.5118745342466042,
+                "50_bus_rural_reference_grid": -0.24481362525272532,
+                "56_bus_semi_urban_reference_grid": -0.5148406084910132,
+                "80_bus_rural_reference_grid": -0.4927613480703994
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.06842542788829795
+              },
+              "normalized_weight_by_client": {
+                "norway_industrial_mvlv": 1.0
+              },
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 1,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": false
+            }
+          }
+        },
+        {
+          "round": 7,
+          "peer_weights": {
+            "39_bus_semi_urban_reference_grid": {
+              "39_bus_semi_urban_reference_grid": 1.0
+            },
+            "50_bus_rural_reference_grid": {},
+            "56_bus_semi_urban_reference_grid": {
+              "56_bus_semi_urban_reference_grid": 1.0
+            },
+            "80_bus_rural_reference_grid": {},
+            "norway_industrial_mvlv": {}
+          },
+          "diagnostics": {
+            "39_bus_semi_urban_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.0003594076018558979,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00035748983559267926,
+                "50_bus_rural_reference_grid": 0.0003918687508583492,
+                "56_bus_semi_urban_reference_grid": 0.0003618477152148562,
+                "80_bus_rural_reference_grid": 0.00039029768817863746,
+                "norway_industrial_mvlv": 0.0004415338915110414
+              },
+              "peer_calibration_loss_by_donor": {
+                "50_bus_rural_reference_grid": 0.0003918687508583492,
+                "56_bus_semi_urban_reference_grid": 0.0003618477152148562,
+                "80_bus_rural_reference_grid": 0.00039029768817863746,
+                "norway_industrial_mvlv": 0.0004415338915110414
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 3.347780227661133,
+                "50_bus_rural_reference_grid": 20.317340850830078,
+                "56_bus_semi_urban_reference_grid": 8.44094467163086,
+                "80_bus_rural_reference_grid": 16.97262954711914,
+                "norway_industrial_mvlv": 21.783878326416016
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 5.728471204210153e-07,
+                "50_bus_rural_reference_grid": -1.5977065719760994e-06,
+                "56_bus_semi_urban_reference_grid": -2.890806010326013e-07,
+                "80_bus_rural_reference_grid": -1.8199941403882738e-06,
+                "norway_industrial_mvlv": -3.77004904381742e-06
+              },
+              "raw_weight_by_donor": {
+                "50_bus_rural_reference_grid": -1.5977065719760994e-06,
+                "56_bus_semi_urban_reference_grid": -2.890806010326013e-07,
+                "80_bus_rural_reference_grid": -1.8199941403882738e-06,
+                "norway_industrial_mvlv": -3.77004904381742e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 5.728471204210153e-07,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 1.0
+              },
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 1,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": false
+            },
+            "50_bus_rural_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.0002952126538566926,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0003806277681790258,
+                "50_bus_rural_reference_grid": 0.00029783585304805096,
+                "56_bus_semi_urban_reference_grid": 0.00036124612140987013,
+                "80_bus_rural_reference_grid": 0.00031387976915846346,
+                "norway_industrial_mvlv": 0.0003496933404182928
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.0003806277681790258,
+                "56_bus_semi_urban_reference_grid": 0.00036124612140987013,
+                "80_bus_rural_reference_grid": 0.00031387976915846346,
+                "norway_industrial_mvlv": 0.0003496933404182928
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 20.43287467956543,
+                "50_bus_rural_reference_grid": 3.071307420730591,
+                "56_bus_semi_urban_reference_grid": 20.18549919128418,
+                "80_bus_rural_reference_grid": 14.631694793701172,
+                "norway_industrial_mvlv": 19.328468322753906
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -4.180278872250474e-06,
+                "50_bus_rural_reference_grid": -8.540985424160293e-07,
+                "56_bus_semi_urban_reference_grid": -3.271331906504776e-06,
+                "80_bus_rural_reference_grid": -1.2757999373938318e-06,
+                "norway_industrial_mvlv": -2.818675833586956e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -4.180278872250474e-06,
+                "56_bus_semi_urban_reference_grid": -3.271331906504776e-06,
+                "80_bus_rural_reference_grid": -1.2757999373938318e-06,
+                "norway_industrial_mvlv": -2.818675833586956e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {},
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 0,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": true
+            },
+            "56_bus_semi_urban_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.0003975542084123208,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00039988245670255376,
+                "50_bus_rural_reference_grid": 0.00043266217330534517,
+                "56_bus_semi_urban_reference_grid": 0.00039643340439774654,
+                "80_bus_rural_reference_grid": 0.00043189632918782123,
+                "norway_industrial_mvlv": 0.00047831269615748794
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.00039988245670255376,
+                "50_bus_rural_reference_grid": 0.00043266217330534517,
+                "80_bus_rural_reference_grid": 0.00043189632918782123,
+                "norway_industrial_mvlv": 0.00047831269615748794
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 8.895689964294434,
+                "50_bus_rural_reference_grid": 19.98979377746582,
+                "56_bus_semi_urban_reference_grid": 3.152705192565918,
+                "80_bus_rural_reference_grid": 16.628376007080078,
+                "norway_industrial_mvlv": 21.557615280151367
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -2.6172767931187123e-07,
+                "50_bus_rural_reference_grid": -1.7562945012769096e-06,
+                "56_bus_semi_urban_reference_grid": 3.555054932560085e-07,
+                "80_bus_rural_reference_grid": -2.0652720843500333e-06,
+                "norway_industrial_mvlv": -3.74616981960522e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -2.6172767931187123e-07,
+                "50_bus_rural_reference_grid": -1.7562945012769096e-06,
+                "80_bus_rural_reference_grid": -2.0652720843500333e-06,
+                "norway_industrial_mvlv": -3.74616981960522e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 3.555054932560085e-07,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "56_bus_semi_urban_reference_grid": 1.0
+              },
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 1,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": false
+            },
+            "80_bus_rural_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.00028672353070940547,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00029400622959009333,
+                "50_bus_rural_reference_grid": 0.00032140608105770514,
+                "56_bus_semi_urban_reference_grid": 0.000299149919273739,
+                "80_bus_rural_reference_grid": 0.0002878754194316932,
+                "norway_industrial_mvlv": 0.00032209386617515934
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.00029400622959009333,
+                "50_bus_rural_reference_grid": 0.00032140608105770514,
+                "56_bus_semi_urban_reference_grid": 0.000299149919273739,
+                "norway_industrial_mvlv": 0.00032209386617515934
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 18.395421981811523,
+                "50_bus_rural_reference_grid": 16.811298370361328,
+                "56_bus_semi_urban_reference_grid": 18.153852462768555,
+                "80_bus_rural_reference_grid": 6.391883850097656,
+                "norway_industrial_mvlv": 13.570451736450195
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -3.9589735358548646e-07,
+                "50_bus_rural_reference_grid": -2.0630500740765906e-06,
+                "56_bus_semi_urban_reference_grid": -6.845042169323533e-07,
+                "80_bus_rural_reference_grid": -1.8021114733959822e-07,
+                "norway_industrial_mvlv": -2.6064228481611e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -3.9589735358548646e-07,
+                "50_bus_rural_reference_grid": -2.0630500740765906e-06,
+                "56_bus_semi_urban_reference_grid": -6.845042169323533e-07,
+                "norway_industrial_mvlv": -2.6064228481611e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {},
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 0,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": true
+            },
+            "norway_industrial_mvlv": {
+              "is_scarce_target": true,
+              "baseline_self_calibration_loss": 3.7648444621286825,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 14.026210097812388,
+                "50_bus_rural_reference_grid": 7.9200931935261405,
+                "56_bus_semi_urban_reference_grid": 13.614996095183683,
+                "80_bus_rural_reference_grid": 10.53609941382791,
+                "norway_industrial_mvlv": 3.8790196350253785
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 14.026210097812388,
+                "50_bus_rural_reference_grid": 7.9200931935261405,
+                "56_bus_semi_urban_reference_grid": 13.614996095183683,
+                "80_bus_rural_reference_grid": 10.53609941382791
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 22.10138702392578,
+                "50_bus_rural_reference_grid": 19.874614715576172,
+                "56_bus_semi_urban_reference_grid": 22.031600952148438,
+                "80_bus_rural_reference_grid": 14.322735786437988,
+                "norway_industrial_mvlv": 2.586151123046875
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -0.46428604795594214,
+                "50_bus_rural_reference_grid": -0.20907317152370708,
+                "56_bus_semi_urban_reference_grid": -0.44709195915669514,
+                "80_bus_rural_reference_grid": -0.4727626797465865,
+                "norway_industrial_mvlv": -0.044148685619785556
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -0.46428604795594214,
+                "50_bus_rural_reference_grid": -0.20907317152370708,
+                "56_bus_semi_urban_reference_grid": -0.44709195915669514,
+                "80_bus_rural_reference_grid": -0.4727626797465865
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {},
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 0,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": true
+            }
+          }
+        },
+        {
+          "round": 8,
+          "peer_weights": {
+            "39_bus_semi_urban_reference_grid": {
+              "39_bus_semi_urban_reference_grid": 1.0
+            },
+            "50_bus_rural_reference_grid": {},
+            "56_bus_semi_urban_reference_grid": {
+              "56_bus_semi_urban_reference_grid": 1.0
+            },
+            "80_bus_rural_reference_grid": {},
+            "norway_industrial_mvlv": {}
+          },
+          "diagnostics": {
+            "39_bus_semi_urban_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.0003574898358668796,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00035628970129054785,
+                "50_bus_rural_reference_grid": 0.0003918687508583492,
+                "56_bus_semi_urban_reference_grid": 0.0003606590214936763,
+                "80_bus_rural_reference_grid": 0.00039029768817863746,
+                "norway_industrial_mvlv": 0.0004415338915110414
+              },
+              "peer_calibration_loss_by_donor": {
+                "50_bus_rural_reference_grid": 0.0003918687508583492,
+                "56_bus_semi_urban_reference_grid": 0.0003606590214936763,
+                "80_bus_rural_reference_grid": 0.00039029768817863746,
+                "norway_industrial_mvlv": 0.0004415338915110414
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 2.7226545810699463,
+                "50_bus_rural_reference_grid": 21.3900203704834,
+                "56_bus_semi_urban_reference_grid": 10.884920120239258,
+                "80_bus_rural_reference_grid": 18.2958927154541,
+                "norway_industrial_mvlv": 22.805784225463867
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 4.407957530402925e-07,
+                "50_bus_rural_reference_grid": -1.6072408719586011e-06,
+                "56_bus_semi_urban_reference_grid": -2.9115377897019604e-07,
+                "80_bus_rural_reference_grid": -1.7931812796455696e-06,
+                "norway_industrial_mvlv": -3.6852078759176566e-06
+              },
+              "raw_weight_by_donor": {
+                "50_bus_rural_reference_grid": -1.6072408719586011e-06,
+                "56_bus_semi_urban_reference_grid": -2.9115377897019604e-07,
+                "80_bus_rural_reference_grid": -1.7931812796455696e-06,
+                "norway_industrial_mvlv": -3.6852078759176566e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 4.407957530402925e-07,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 1.0
+              },
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 1,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": false
+            },
+            "50_bus_rural_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.0002952126538566926,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.000381623525954845,
+                "50_bus_rural_reference_grid": 0.00029783585304805096,
+                "56_bus_semi_urban_reference_grid": 0.00035613938660980797,
+                "80_bus_rural_reference_grid": 0.00031387976915846346,
+                "norway_industrial_mvlv": 0.0003496933404182928
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.000381623525954845,
+                "56_bus_semi_urban_reference_grid": 0.00035613938660980797,
+                "80_bus_rural_reference_grid": 0.00031387976915846346,
+                "norway_industrial_mvlv": 0.0003496933404182928
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 21.409820556640625,
+                "50_bus_rural_reference_grid": 3.071307420730591,
+                "56_bus_semi_urban_reference_grid": 21.317420959472656,
+                "80_bus_rural_reference_grid": 14.631694793701172,
+                "norway_industrial_mvlv": 19.328468322753906
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -4.0360390629872216e-06,
+                "50_bus_rural_reference_grid": -8.540985424160293e-07,
+                "56_bus_semi_urban_reference_grid": -2.8580724126498522e-06,
+                "80_bus_rural_reference_grid": -1.2757999373938318e-06,
+                "norway_industrial_mvlv": -2.818675833586956e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -4.0360390629872216e-06,
+                "56_bus_semi_urban_reference_grid": -2.8580724126498522e-06,
+                "80_bus_rural_reference_grid": -1.2757999373938318e-06,
+                "norway_industrial_mvlv": -2.818675833586956e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {},
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 0,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": true
+            },
+            "56_bus_semi_urban_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.0003964334045625911,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00039997275976750755,
+                "50_bus_rural_reference_grid": 0.00043266217330534517,
+                "56_bus_semi_urban_reference_grid": 0.0003951153147066632,
+                "80_bus_rural_reference_grid": 0.00043189632918782123,
+                "norway_industrial_mvlv": 0.00047831269615748794
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.00039997275976750755,
+                "50_bus_rural_reference_grid": 0.00043266217330534517,
+                "80_bus_rural_reference_grid": 0.00043189632918782123,
+                "norway_industrial_mvlv": 0.00047831269615748794
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 11.00236701965332,
+                "50_bus_rural_reference_grid": 21.102684020996094,
+                "56_bus_semi_urban_reference_grid": 2.843417167663574,
+                "80_bus_rural_reference_grid": 18.07855224609375,
+                "norway_industrial_mvlv": 22.76105308532715
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -3.2169034159593727e-07,
+                "50_bus_rural_reference_grid": -1.716784874696821e-06,
+                "56_bus_semi_urban_reference_grid": 4.635583800074155e-07,
+                "80_bus_rural_reference_grid": -1.9616020211403106e-06,
+                "norway_industrial_mvlv": -3.597341972181267e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -3.2169034159593727e-07,
+                "50_bus_rural_reference_grid": -1.716784874696821e-06,
+                "80_bus_rural_reference_grid": -1.9616020211403106e-06,
+                "norway_industrial_mvlv": -3.597341972181267e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 4.635583800074155e-07,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "56_bus_semi_urban_reference_grid": 1.0
+              },
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 1,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": false
+            },
+            "80_bus_rural_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.00028672353070940547,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0002938921872339237,
+                "50_bus_rural_reference_grid": 0.00032140608105770514,
+                "56_bus_semi_urban_reference_grid": 0.00029818956291812723,
+                "80_bus_rural_reference_grid": 0.0002878754194316932,
+                "norway_industrial_mvlv": 0.00032209386617515934
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.0002938921872339237,
+                "50_bus_rural_reference_grid": 0.00032140608105770514,
+                "56_bus_semi_urban_reference_grid": 0.00029818956291812723,
+                "norway_industrial_mvlv": 0.00032209386617515934
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 19.573062896728516,
+                "50_bus_rural_reference_grid": 16.811298370361328,
+                "56_bus_semi_urban_reference_grid": 19.557119369506836,
+                "80_bus_rural_reference_grid": 6.391883850097656,
+                "norway_industrial_mvlv": 13.570451736450195
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -3.662511361834969e-07,
+                "50_bus_rural_reference_grid": -2.0630500740765906e-06,
+                "56_bus_semi_urban_reference_grid": -5.862843086491991e-07,
+                "80_bus_rural_reference_grid": -1.8021114733959822e-07,
+                "norway_industrial_mvlv": -2.6064228481611e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -3.662511361834969e-07,
+                "50_bus_rural_reference_grid": -2.0630500740765906e-06,
+                "56_bus_semi_urban_reference_grid": -5.862843086491991e-07,
+                "norway_industrial_mvlv": -2.6064228481611e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {},
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 0,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": true
+            },
+            "norway_industrial_mvlv": {
+              "is_scarce_target": true,
+              "baseline_self_calibration_loss": 3.7648444621286825,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 13.28771060617907,
+                "50_bus_rural_reference_grid": 7.9200931935261405,
+                "56_bus_semi_urban_reference_grid": 12.92244882800143,
+                "80_bus_rural_reference_grid": 10.53609941382791,
+                "norway_industrial_mvlv": 3.8790196350253785
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 13.28771060617907,
+                "50_bus_rural_reference_grid": 7.9200931935261405,
+                "56_bus_semi_urban_reference_grid": 12.92244882800143,
+                "80_bus_rural_reference_grid": 10.53609941382791
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 23.038692474365234,
+                "50_bus_rural_reference_grid": 19.874614715576172,
+                "56_bus_semi_urban_reference_grid": 23.198875427246094,
+                "80_bus_rural_reference_grid": 14.322735786437988,
+                "norway_industrial_mvlv": 2.586151123046875
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -0.4133423003343574,
+                "50_bus_rural_reference_grid": -0.20907317152370708,
+                "56_bus_semi_urban_reference_grid": -0.3947434605005524,
+                "80_bus_rural_reference_grid": -0.4727626797465865,
+                "norway_industrial_mvlv": -0.044148685619785556
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -0.4133423003343574,
+                "50_bus_rural_reference_grid": -0.20907317152370708,
+                "56_bus_semi_urban_reference_grid": -0.3947434605005524,
+                "80_bus_rural_reference_grid": -0.4727626797465865
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {},
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 0,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": true
+            }
+          }
+        },
+        {
+          "round": 9,
+          "peer_weights": {
+            "39_bus_semi_urban_reference_grid": {
+              "39_bus_semi_urban_reference_grid": 1.0
+            },
+            "50_bus_rural_reference_grid": {},
+            "56_bus_semi_urban_reference_grid": {
+              "56_bus_semi_urban_reference_grid": 1.0
+            },
+            "80_bus_rural_reference_grid": {},
+            "norway_industrial_mvlv": {}
+          },
+          "diagnostics": {
+            "39_bus_semi_urban_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.0003562896999642901,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0003545870490677034,
+                "50_bus_rural_reference_grid": 0.0003918687508583492,
+                "56_bus_semi_urban_reference_grid": 0.00036002401177363,
+                "80_bus_rural_reference_grid": 0.00039029768817863746,
+                "norway_industrial_mvlv": 0.0004415338915110414
+              },
+              "peer_calibration_loss_by_donor": {
+                "50_bus_rural_reference_grid": 0.0003918687508583492,
+                "56_bus_semi_urban_reference_grid": 0.00036002401177363,
+                "80_bus_rural_reference_grid": 0.00039029768817863746,
+                "norway_industrial_mvlv": 0.0004415338915110414
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 2.5729610919952393,
+                "50_bus_rural_reference_grid": 22.30625343322754,
+                "56_bus_semi_urban_reference_grid": 12.851957321166992,
+                "80_bus_rural_reference_grid": 19.433231353759766,
+                "norway_industrial_mvlv": 23.698823928833008
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 6.617476268425402e-07,
+                "50_bus_rural_reference_grid": -1.5950258523046597e-06,
+                "56_bus_semi_urban_reference_grid": -2.905636640412141e-07,
+                "80_bus_rural_reference_grid": -1.7499914242396972e-06,
+                "norway_industrial_mvlv": -3.5969798249370485e-06
+              },
+              "raw_weight_by_donor": {
+                "50_bus_rural_reference_grid": -1.5950258523046597e-06,
+                "56_bus_semi_urban_reference_grid": -2.905636640412141e-07,
+                "80_bus_rural_reference_grid": -1.7499914242396972e-06,
+                "norway_industrial_mvlv": -3.5969798249370485e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 6.617476268425402e-07,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 1.0
+              },
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 1,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": false
+            },
+            "50_bus_rural_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.0002952126538566926,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0003743363804546074,
+                "50_bus_rural_reference_grid": 0.00029783585304805096,
+                "56_bus_semi_urban_reference_grid": 0.0003546693521136535,
+                "80_bus_rural_reference_grid": 0.00031387976915846346,
+                "norway_industrial_mvlv": 0.0003496933404182928
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.0003743363804546074,
+                "56_bus_semi_urban_reference_grid": 0.0003546693521136535,
+                "80_bus_rural_reference_grid": 0.00031387976915846346,
+                "norway_industrial_mvlv": 0.0003496933404182928
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 22.33768081665039,
+                "50_bus_rural_reference_grid": 3.071307420730591,
+                "56_bus_semi_urban_reference_grid": 22.39210319519043,
+                "80_bus_rural_reference_grid": 14.631694793701172,
+                "norway_industrial_mvlv": 19.328468322753906
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -3.5421638999753667e-06,
+                "50_bus_rural_reference_grid": -8.540985424160293e-07,
+                "56_bus_semi_urban_reference_grid": -2.655252958539817e-06,
+                "80_bus_rural_reference_grid": -1.2757999373938318e-06,
+                "norway_industrial_mvlv": -2.818675833586956e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -3.5421638999753667e-06,
+                "56_bus_semi_urban_reference_grid": -2.655252958539817e-06,
+                "80_bus_rural_reference_grid": -1.2757999373938318e-06,
+                "norway_industrial_mvlv": -2.818675833586956e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {},
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 0,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": true
+            },
+            "56_bus_semi_urban_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.0003951153143027717,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00039932920811185227,
+                "50_bus_rural_reference_grid": 0.00043266217330534517,
+                "56_bus_semi_urban_reference_grid": 0.0003941637352748793,
+                "80_bus_rural_reference_grid": 0.00043189632918782123,
+                "norway_industrial_mvlv": 0.00047831269615748794
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.00039932920811185227,
+                "50_bus_rural_reference_grid": 0.00043266217330534517,
+                "80_bus_rural_reference_grid": 0.00043189632918782123,
+                "norway_industrial_mvlv": 0.00047831269615748794
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 12.798160552978516,
+                "50_bus_rural_reference_grid": 22.16221809387207,
+                "56_bus_semi_urban_reference_grid": 2.6252188682556152,
+                "80_bus_rural_reference_grid": 19.445476531982422,
+                "norway_industrial_mvlv": 23.88642692565918
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -3.2925777041447734e-07,
+                "50_bus_rural_reference_grid": -1.6941832646685126e-06,
+                "56_bus_semi_urban_reference_grid": 3.624760736709036e-07,
+                "80_bus_rural_reference_grid": -1.891494652987961e-06,
+                "norway_industrial_mvlv": -3.483040059262308e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -3.2925777041447734e-07,
+                "50_bus_rural_reference_grid": -1.6941832646685126e-06,
+                "80_bus_rural_reference_grid": -1.891494652987961e-06,
+                "norway_industrial_mvlv": -3.483040059262308e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 3.624760736709036e-07,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "56_bus_semi_urban_reference_grid": 1.0
+              },
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 1,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": false
+            },
+            "80_bus_rural_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.00028672353070940547,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0002911817893719669,
+                "50_bus_rural_reference_grid": 0.00032140608105770514,
+                "56_bus_semi_urban_reference_grid": 0.00029758370505974597,
+                "80_bus_rural_reference_grid": 0.0002878754194316932,
+                "norway_industrial_mvlv": 0.00032209386617515934
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.0002911817893719669,
+                "50_bus_rural_reference_grid": 0.00032140608105770514,
+                "56_bus_semi_urban_reference_grid": 0.00029758370505974597,
+                "norway_industrial_mvlv": 0.00032209386617515934
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 20.63553810119629,
+                "50_bus_rural_reference_grid": 16.811298370361328,
+                "56_bus_semi_urban_reference_grid": 20.813621520996094,
+                "80_bus_rural_reference_grid": 6.391883850097656,
+                "norway_industrial_mvlv": 13.570451736450195
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -2.1604760877559772e-07,
+                "50_bus_rural_reference_grid": -2.0630500740765906e-06,
+                "56_bus_semi_urban_reference_grid": -5.217820617802908e-07,
+                "80_bus_rural_reference_grid": -1.8021114733959822e-07,
+                "norway_industrial_mvlv": -2.6064228481611e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -2.1604760877559772e-07,
+                "50_bus_rural_reference_grid": -2.0630500740765906e-06,
+                "56_bus_semi_urban_reference_grid": -5.217820617802908e-07,
+                "norway_industrial_mvlv": -2.6064228481611e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {},
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 0,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": true
+            },
+            "norway_industrial_mvlv": {
+              "is_scarce_target": true,
+              "baseline_self_calibration_loss": 3.7648444621286825,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 12.805768504767133,
+                "50_bus_rural_reference_grid": 7.9200931935261405,
+                "56_bus_semi_urban_reference_grid": 12.748779455065028,
+                "80_bus_rural_reference_grid": 10.53609941382791,
+                "norway_industrial_mvlv": 3.8790196350253785
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 12.805768504767133,
+                "50_bus_rural_reference_grid": 7.9200931935261405,
+                "56_bus_semi_urban_reference_grid": 12.748779455065028,
+                "80_bus_rural_reference_grid": 10.53609941382791
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 23.954071044921875,
+                "50_bus_rural_reference_grid": 19.874614715576172,
+                "56_bus_semi_urban_reference_grid": 24.277685165405273,
+                "80_bus_rural_reference_grid": 14.322735786437988,
+                "norway_industrial_mvlv": 2.586151123046875
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -0.3774274538003718,
+                "50_bus_rural_reference_grid": -0.20907317152370708,
+                "56_bus_semi_urban_reference_grid": -0.37004907723812663,
+                "80_bus_rural_reference_grid": -0.4727626797465865,
+                "norway_industrial_mvlv": -0.044148685619785556
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -0.3774274538003718,
+                "50_bus_rural_reference_grid": -0.20907317152370708,
+                "56_bus_semi_urban_reference_grid": -0.37004907723812663,
+                "80_bus_rural_reference_grid": -0.4727626797465865
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {},
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 0,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": true
+            }
+          }
+        },
+        {
+          "round": 10,
+          "peer_weights": {
+            "39_bus_semi_urban_reference_grid": {
+              "39_bus_semi_urban_reference_grid": 1.0
+            },
+            "50_bus_rural_reference_grid": {},
+            "56_bus_semi_urban_reference_grid": {
+              "56_bus_semi_urban_reference_grid": 1.0
+            },
+            "80_bus_rural_reference_grid": {},
+            "norway_industrial_mvlv": {}
+          },
+          "diagnostics": {
+            "39_bus_semi_urban_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.00035458704832397195,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00035339584154249465,
+                "50_bus_rural_reference_grid": 0.0003918687508583492,
+                "56_bus_semi_urban_reference_grid": 0.00035942073763924406,
+                "80_bus_rural_reference_grid": 0.00039029768817863746,
+                "norway_industrial_mvlv": 0.0004415338915110414
+              },
+              "peer_calibration_loss_by_donor": {
+                "50_bus_rural_reference_grid": 0.0003918687508583492,
+                "56_bus_semi_urban_reference_grid": 0.00035942073763924406,
+                "80_bus_rural_reference_grid": 0.00039029768817863746,
+                "norway_industrial_mvlv": 0.0004415338915110414
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 2.428368330001831,
+                "50_bus_rural_reference_grid": 23.184656143188477,
+                "56_bus_semi_urban_reference_grid": 14.542142868041992,
+                "80_bus_rural_reference_grid": 20.45923614501953,
+                "norway_industrial_mvlv": 24.5766544342041
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 4.905379331297367e-07,
+                "50_bus_rural_reference_grid": -1.6080334469540455e-06,
+                "56_bus_semi_urban_reference_grid": -3.3239181867029783e-07,
+                "80_bus_rural_reference_grid": -1.7454532320531886e-06,
+                "norway_industrial_mvlv": -3.537781898664745e-06
+              },
+              "raw_weight_by_donor": {
+                "50_bus_rural_reference_grid": -1.6080334469540455e-06,
+                "56_bus_semi_urban_reference_grid": -3.3239181867029783e-07,
+                "80_bus_rural_reference_grid": -1.7454532320531886e-06,
+                "norway_industrial_mvlv": -3.537781898664745e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 4.905379331297367e-07,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 1.0
+              },
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 1,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": false
+            },
+            "50_bus_rural_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.0002952126538566926,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0003687976951225043,
+                "50_bus_rural_reference_grid": 0.00029783585304805096,
+                "56_bus_semi_urban_reference_grid": 0.0003554333402018362,
+                "80_bus_rural_reference_grid": 0.00031387976915846346,
+                "norway_industrial_mvlv": 0.0003496933404182928
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.0003687976951225043,
+                "56_bus_semi_urban_reference_grid": 0.0003554333402018362,
+                "80_bus_rural_reference_grid": 0.00031387976915846346,
+                "norway_industrial_mvlv": 0.0003496933404182928
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 23.24447250366211,
+                "50_bus_rural_reference_grid": 3.071307420730591,
+                "56_bus_semi_urban_reference_grid": 23.40656852722168,
+                "80_bus_rural_reference_grid": 14.631694793701172,
+                "norway_industrial_mvlv": 19.328468322753906
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -3.165700630729108e-06,
+                "50_bus_rural_reference_grid": -8.540985424160293e-07,
+                "56_bus_semi_urban_reference_grid": -2.57281140014628e-06,
+                "80_bus_rural_reference_grid": -1.2757999373938318e-06,
+                "norway_industrial_mvlv": -2.818675833586956e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -3.165700630729108e-06,
+                "56_bus_semi_urban_reference_grid": -2.57281140014628e-06,
+                "80_bus_rural_reference_grid": -1.2757999373938318e-06,
+                "norway_industrial_mvlv": -2.818675833586956e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {},
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 0,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": true
+            },
+            "56_bus_semi_urban_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.00039416373464355275,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.00039859630080170573,
+                "50_bus_rural_reference_grid": 0.00043266217330534517,
+                "56_bus_semi_urban_reference_grid": 0.00039359081288601396,
+                "80_bus_rural_reference_grid": 0.00043189632918782123,
+                "norway_industrial_mvlv": 0.00047831269615748794
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.00039859630080170573,
+                "50_bus_rural_reference_grid": 0.00043266217330534517,
+                "80_bus_rural_reference_grid": 0.00043189632918782123,
+                "norway_industrial_mvlv": 0.00047831269615748794
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 14.440914154052734,
+                "50_bus_rural_reference_grid": 23.170753479003906,
+                "56_bus_semi_urban_reference_grid": 2.591191053390503,
+                "80_bus_rural_reference_grid": 20.679317474365234,
+                "norway_industrial_mvlv": 24.933406829833984
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -3.069449835977805e-07,
+                "50_bus_rural_reference_grid": -1.6615100021100298e-06,
+                "56_bus_semi_urban_reference_grid": 2.211036337088768e-07,
+                "80_bus_rural_reference_grid": -1.8246537677581106e-06,
+                "norway_industrial_mvlv": -3.37494840108427e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -3.069449835977805e-07,
+                "50_bus_rural_reference_grid": -1.6615100021100298e-06,
+                "80_bus_rural_reference_grid": -1.8246537677581106e-06,
+                "norway_industrial_mvlv": -3.37494840108427e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 2.211036337088768e-07,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {
+                "56_bus_semi_urban_reference_grid": 1.0
+              },
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 1,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": false
+            },
+            "80_bus_rural_reference_grid": {
+              "is_scarce_target": false,
+              "baseline_self_calibration_loss": 0.00028672353070940547,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0002905993508043494,
+                "50_bus_rural_reference_grid": 0.00032140608105770514,
+                "56_bus_semi_urban_reference_grid": 0.00029794895302818266,
+                "80_bus_rural_reference_grid": 0.0002878754194316932,
+                "norway_industrial_mvlv": 0.00032209386617515934
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 0.0002905993508043494,
+                "50_bus_rural_reference_grid": 0.00032140608105770514,
+                "56_bus_semi_urban_reference_grid": 0.00029794895302818266,
+                "norway_industrial_mvlv": 0.00032209386617515934
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 21.668712615966797,
+                "50_bus_rural_reference_grid": 16.811298370361328,
+                "56_bus_semi_urban_reference_grid": 21.96894645690918,
+                "80_bus_rural_reference_grid": 6.391883850097656,
+                "norway_industrial_mvlv": 13.570451736450195
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -1.7886711424137853e-07,
+                "50_bus_rural_reference_grid": -2.0630500740765906e-06,
+                "56_bus_semi_urban_reference_grid": -5.109677125753251e-07,
+                "80_bus_rural_reference_grid": -1.8021114733959822e-07,
+                "norway_industrial_mvlv": -2.6064228481611e-06
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -1.7886711424137853e-07,
+                "50_bus_rural_reference_grid": -2.0630500740765906e-06,
+                "56_bus_semi_urban_reference_grid": -5.109677125753251e-07,
+                "norway_industrial_mvlv": -2.6064228481611e-06
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {},
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 0,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": true
+            },
+            "norway_industrial_mvlv": {
+              "is_scarce_target": true,
+              "baseline_self_calibration_loss": 3.7648444621286825,
+              "candidate_calibration_loss_by_client": {
+                "39_bus_semi_urban_reference_grid": 12.519051140695806,
+                "50_bus_rural_reference_grid": 7.9200931935261405,
+                "56_bus_semi_urban_reference_grid": 12.899506382767008,
+                "80_bus_rural_reference_grid": 10.53609941382791,
+                "norway_industrial_mvlv": 3.8790196350253785
+              },
+              "peer_calibration_loss_by_donor": {
+                "39_bus_semi_urban_reference_grid": 12.519051140695806,
+                "50_bus_rural_reference_grid": 7.9200931935261405,
+                "56_bus_semi_urban_reference_grid": 12.899506382767008,
+                "80_bus_rural_reference_grid": 10.53609941382791
+              },
+              "trainable_parameter_l2_distance_by_client": {
+                "39_bus_semi_urban_reference_grid": 24.84571075439453,
+                "50_bus_rural_reference_grid": 19.874614715576172,
+                "56_bus_semi_urban_reference_grid": 25.2541446685791,
+                "80_bus_rural_reference_grid": 14.322735786437988,
+                "norway_industrial_mvlv": 2.586151123046875
+              },
+              "raw_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": -0.35234277518176416,
+                "50_bus_rural_reference_grid": -0.20907317152370708,
+                "56_bus_semi_urban_reference_grid": -0.361709416039071,
+                "80_bus_rural_reference_grid": -0.4727626797465865,
+                "norway_industrial_mvlv": -0.044148685619785556
+              },
+              "raw_weight_by_donor": {
+                "39_bus_semi_urban_reference_grid": -0.35234277518176416,
+                "50_bus_rural_reference_grid": -0.20907317152370708,
+                "56_bus_semi_urban_reference_grid": -0.361709416039071,
+                "80_bus_rural_reference_grid": -0.4727626797465865
+              },
+              "positive_clipped_weight_by_client": {
+                "39_bus_semi_urban_reference_grid": 0.0,
+                "50_bus_rural_reference_grid": 0.0,
+                "56_bus_semi_urban_reference_grid": 0.0,
+                "80_bus_rural_reference_grid": 0.0,
+                "norway_industrial_mvlv": 0.0
+              },
+              "normalized_weight_by_client": {},
+              "normalized_weight_by_donor": {},
+              "positive_candidate_count": 0,
+              "peer_only_positive_count": 0,
+              "no_positive_candidate_fallback": true
+            }
+          }
+        }
+      ],
+      "final_round_peer_weights": {
+        "39_bus_semi_urban_reference_grid": {
+          "39_bus_semi_urban_reference_grid": 1.0
+        },
+        "50_bus_rural_reference_grid": {},
+        "56_bus_semi_urban_reference_grid": {
+          "56_bus_semi_urban_reference_grid": 1.0
+        },
+        "80_bus_rural_reference_grid": {},
+        "norway_industrial_mvlv": {}
+      },
+      "metadata": {
+        "scarce_target": "norway_industrial_mvlv",
+        "validation_used_for_peer_weighting": false,
+        "audit_used_for_peer_weighting": false,
+        "test_evaluated": false,
+        "communication_round_selection": "fixed_final_round",
+        "industrial_test_locked": true,
+        "industrial_test_evaluated": false,
+        "reference_grid_tests_evaluated": false,
+        "target_graph_is_local": true
+      }
+    }
+  },
+  "industrial_target_macro": {
+    "fedfomo_style": {
+      "audit": {
+        "node_macro": {
+          "mae": 4.4239147979596956,
+          "rmse": 8.945456040481323,
+          "wape_pct": 54.47233950648888,
+          "smape_pct": 51.23669145401666
+        },
+        "grid_aggregate": {
+          "mae": 107.63595275308013,
+          "rmse": 186.04918773156214,
+          "wape_pct": 4.837052384813774,
+          "smape_pct": 4.728190303907796
+        }
+      },
+      "validation": {
+        "node_macro": {
+          "mae": 4.515427162130938,
+          "rmse": 8.989353449759493,
+          "wape_pct": 48.68844468946559,
+          "smape_pct": 45.37669429949141
+        },
+        "grid_aggregate": {
+          "mae": 108.40778238589316,
+          "rmse": 189.0656054736708,
+          "wape_pct": 4.797294857749333,
+          "smape_pct": 4.791854213987782
+        }
+      }
+    }
+  },
+  "reproducibility": {
+    "seed": 2026,
+    "python_version": "3.13.7",
+    "torch_version": "2.11.0+cu128",
+    "cuda_available": true,
+    "cuda_device_name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "device": "cuda",
+    "deterministic_algorithms": false,
+    "cudnn_deterministic": false,
+    "cudnn_benchmark": false
+  },
+  "run_mode": "real"
+}

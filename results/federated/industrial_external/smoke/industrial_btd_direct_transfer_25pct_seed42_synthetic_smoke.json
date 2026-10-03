@@ -1,0 +1,258 @@
+{
+  "experiment": "industrial_btd_direct_transfer",
+  "artifact_type": "industrial_btd_direct_transfer",
+  "method_name": "industrial_btd_direct_transfer",
+  "methods": [
+    "btd_fl_direct_transfer"
+  ],
+  "client_grid_names": [
+    "39_bus_semi_urban_reference_grid",
+    "50_bus_rural_reference_grid",
+    "56_bus_semi_urban_reference_grid",
+    "80_bus_rural_reference_grid",
+    "norway_industrial_mvlv"
+  ],
+  "primary_targets": [
+    "norway_industrial_mvlv"
+  ],
+  "rounds": 0,
+  "local_epochs": 0,
+  "max_epochs": 1,
+  "batch_size": 256,
+  "learning_rate": 0.001,
+  "patience": 8,
+  "seed": 42,
+  "history_fraction": 0.25,
+  "train_calibration_audit_split": "60/20/20 industrial scarce target; full-history donor train-internal fit/calibration",
+  "validation_used_for_selection": false,
+  "audit_used_for_selection": false,
+  "test_evaluated": false,
+  "industrial_test_locked": true,
+  "industrial_test_evaluated": false,
+  "reference_grid_tests_evaluated": false,
+  "communication_round_selection": "fixed_final_round",
+  "canonical_validation_evaluated_during_training": false,
+  "scenarios": {
+    "norway_industrial_mvlv": {
+      "metrics": {
+        "audit": {
+          "node_macro": {
+            "mae": 0.7835286932242562,
+            "rmse": 0.9975650512319089,
+            "wape_pct": 100.07358343433926,
+            "smape_pct": 187.69629120455656
+          },
+          "grid_aggregate": {
+            "mae": 1.68328962413194,
+            "rmse": 2.138864840102997,
+            "wape_pct": 100.19295822631969,
+            "smape_pct": 186.81503511298777
+          },
+          "node_count": 5,
+          "sample_count": 273
+        },
+        "validation": {
+          "node_macro": {
+            "mae": 0.7743963278699527,
+            "rmse": 0.9676538858772261,
+            "wape_pct": 99.88983423414939,
+            "smape_pct": 187.06227359519718
+          },
+          "grid_aggregate": {
+            "mae": 1.7597052765645829,
+            "rmse": 2.140909828840998,
+            "wape_pct": 99.98942931203905,
+            "smape_pct": 188.96096351176823
+          },
+          "node_count": 5,
+          "sample_count": 118
+        }
+      },
+      "metadata": {
+        "target": "norway_industrial_mvlv",
+        "history_fraction": 0.25,
+        "candidate_donors": [
+          "39_bus_semi_urban_reference_grid",
+          "50_bus_rural_reference_grid",
+          "56_bus_semi_urban_reference_grid",
+          "80_bus_rural_reference_grid"
+        ],
+        "calibration_benefit_by_donor": {
+          "39_bus_semi_urban_reference_grid": 0.0017928212768156626,
+          "50_bus_rural_reference_grid": 0.0019014893197323364,
+          "56_bus_semi_urban_reference_grid": 0.00229902096292471,
+          "80_bus_rural_reference_grid": 0.0024514840661879196
+        },
+        "selected_donor": "80_bus_rural_reference_grid",
+        "selected_calibration_benefit": 0.0024514840661879196,
+        "positive_benefit_count": 4,
+        "non_positive_benefit_count": 0,
+        "zero_transfer_fallback": false,
+        "donor_proxy_metadata_by_grid": {
+          "39_bus_semi_urban_reference_grid": {
+            "fit_target_count": 4771,
+            "calibration_target_count": 1193,
+            "best_calibration_node_mae": 0.7903602852446828,
+            "epochs_run": 1
+          },
+          "50_bus_rural_reference_grid": {
+            "fit_target_count": 4771,
+            "calibration_target_count": 1193,
+            "best_calibration_node_mae": 0.8077379713211618,
+            "epochs_run": 1
+          },
+          "56_bus_semi_urban_reference_grid": {
+            "fit_target_count": 4771,
+            "calibration_target_count": 1193,
+            "best_calibration_node_mae": 0.7967448372647057,
+            "epochs_run": 1
+          },
+          "80_bus_rural_reference_grid": {
+            "fit_target_count": 4771,
+            "calibration_target_count": 1193,
+            "best_calibration_node_mae": 0.8010687588245686,
+            "epochs_run": 1
+          }
+        },
+        "benefit_probe_metadata_by_donor": {
+          "39_bus_semi_urban_reference_grid": {
+            "adapted_calibration_node_mae": 0.7824123619260066,
+            "training": {
+              "best_calibration_node_mae": 0.7824123619260066,
+              "epochs_run": 1
+            }
+          },
+          "50_bus_rural_reference_grid": {
+            "adapted_calibration_node_mae": 0.782327186000671,
+            "training": {
+              "best_calibration_node_mae": 0.782327186000671,
+              "epochs_run": 1
+            }
+          },
+          "56_bus_semi_urban_reference_grid": {
+            "adapted_calibration_node_mae": 0.7820155936994728,
+            "training": {
+              "best_calibration_node_mae": 0.7820155936994728,
+              "epochs_run": 1
+            }
+          },
+          "80_bus_rural_reference_grid": {
+            "adapted_calibration_node_mae": 0.7818960904347463,
+            "training": {
+              "best_calibration_node_mae": 0.7818960904347463,
+              "epochs_run": 1
+            }
+          }
+        },
+        "adapted_probe_states_used_for_final_initialization": false,
+        "raw_selected_donor_temporal_state_used": true,
+        "transferred_parameter_names": [
+          "gru.bias_hh_l0",
+          "gru.bias_ih_l0",
+          "gru.weight_hh_l0",
+          "gru.weight_ih_l0",
+          "gru_head.bias",
+          "gru_head.weight",
+          "temporal_correction.0.bias",
+          "temporal_correction.0.weight",
+          "temporal_correction.2.bias",
+          "temporal_correction.2.weight",
+          "temporal_gate.0.bias",
+          "temporal_gate.0.weight",
+          "temporal_gate.2.bias",
+          "temporal_gate.2.weight",
+          "temporal_key.bias",
+          "temporal_key.weight",
+          "temporal_query.bias",
+          "temporal_query.weight",
+          "temporal_score.weight"
+        ],
+        "target_graph_metadata": {
+          "graph_fit_target_count": 546,
+          "graph_selection_target_count": 273,
+          "graph_uses_target_fit_only": true,
+          "graph_uses_calibration": false,
+          "graph_uses_audit": false,
+          "graph_uses_validation": false,
+          "graph_uses_test": false,
+          "selected_edge_count": 3,
+          "targets_with_selected_neighbors": {
+            "0": 2,
+            "1": 3,
+            "2": 0,
+            "3": 0
+          },
+          "graph_fit_first_target_index": 4767,
+          "graph_fit_last_target_index": 5312,
+          "graph_selection_first_target_index": 5313,
+          "graph_selection_last_target_index": 5585,
+          "graph_top_k": 3,
+          "graph_positive_only": true
+        },
+        "target_scaler_fit_start_index": 4599,
+        "target_scaler_fit_end_index": 5586,
+        "target_scaler_fit_timestamp_end": "2020-08-20 17:00:00",
+        "available_raw_hours": 1533,
+        "eligible_target_count": 1365,
+        "fit_target_count": 819,
+        "calibration_target_count": 273,
+        "audit_target_count": 273,
+        "target_full_model_training": {
+          "best_calibration_node_mae": 0.781898961738012,
+          "epochs_run": 1
+        },
+        "industrial_test_locked": true,
+        "industrial_test_evaluated": false,
+        "reference_grid_tests_evaluated": false,
+        "validation_used_for_selection": false,
+        "audit_used_for_selection": false,
+        "test_evaluated": false
+      }
+    }
+  },
+  "industrial_target_macro": {
+    "btd_fl_direct_transfer": {
+      "audit": {
+        "node_macro": {
+          "mae": 0.7835286932242562,
+          "rmse": 0.9975650512319089,
+          "wape_pct": 100.07358343433926,
+          "smape_pct": 187.69629120455656
+        },
+        "grid_aggregate": {
+          "mae": 1.68328962413194,
+          "rmse": 2.138864840102997,
+          "wape_pct": 100.19295822631969,
+          "smape_pct": 186.81503511298777
+        }
+      },
+      "validation": {
+        "node_macro": {
+          "mae": 0.7743963278699527,
+          "rmse": 0.9676538858772261,
+          "wape_pct": 99.88983423414939,
+          "smape_pct": 187.06227359519718
+        },
+        "grid_aggregate": {
+          "mae": 1.7597052765645829,
+          "rmse": 2.140909828840998,
+          "wape_pct": 99.98942931203905,
+          "smape_pct": 188.96096351176823
+        }
+      }
+    }
+  },
+  "reproducibility": {
+    "seed": 42,
+    "python_version": "3.13.7",
+    "torch_version": "2.11.0+cu128",
+    "cuda_available": true,
+    "cuda_device_name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "device": "cpu",
+    "deterministic_algorithms": false,
+    "cudnn_deterministic": false,
+    "cudnn_benchmark": false
+  },
+  "btd_variant": "btd_fl_direct_transfer",
+  "run_mode": "synthetic_smoke"
+}
