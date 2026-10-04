@@ -1,0 +1,9 @@
+Ablation,Who/what transferred,Adapted probe reused,Split,Node MAE,Source,Relative difference vs final BTD
+Final BTD direct temporal transfer,positive-benefit donor,no; raw donor temporal state,audit,0.00031355852,results/federated/formal_25pct/btd_fl_direct_transfer_25pct_seed42.json,0
+Final BTD direct temporal transfer,positive-benefit donor,no; raw donor temporal state,validation,0.00034376809,results/federated/formal_25pct/btd_fl_direct_transfer_25pct_seed42.json,0
+No benefit selection,fixed donor,no,audit,0.00031670133,btd_no_benefit_selection_25pct_seed42.json,0.010023041
+No benefit selection,fixed donor,no,validation,0.0003483163,btd_no_benefit_selection_25pct_seed42.json,0.013230442
+Full-model transfer,full trainable state,probe-specific,audit,0.00031857846,btd_full_model_transfer_25pct_seed42.json,0.01600959
+Full-model transfer,full trainable state,probe-specific,validation,0.00034676605,btd_full_model_transfer_25pct_seed42.json,0.0087208555
+No target adaptation,raw temporal state,no,audit,0.00031355852,btd_no_target_adaptation_25pct_seed42.json,0
+No target adaptation,raw temporal state,no,validation,0.00034376809,btd_no_target_adaptation_25pct_seed42.json,0
