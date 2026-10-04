@@ -1,0 +1,32 @@
+[
+  {
+    "row": "42 / 25%",
+    "selected_donor": "56_bus_semi_urban_reference_grid",
+    "selected_column": 2
+  },
+  {
+    "row": "123 / 25%",
+    "selected_donor": "56_bus_semi_urban_reference_grid",
+    "selected_column": 2
+  },
+  {
+    "row": "2026 / 25%",
+    "selected_donor": "56_bus_semi_urban_reference_grid",
+    "selected_column": 2
+  },
+  {
+    "row": "42 / 50%",
+    "selected_donor": "39_bus_semi_urban_reference_grid",
+    "selected_column": 0
+  },
+  {
+    "row": "123 / 50%",
+    "selected_donor": "39_bus_semi_urban_reference_grid",
+    "selected_column": 0
+  },
+  {
+    "row": "2026 / 50%",
+    "selected_donor": "56_bus_semi_urban_reference_grid",
+    "selected_column": 2
+  }
+]

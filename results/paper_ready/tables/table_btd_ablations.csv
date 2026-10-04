@@ -1,9 +1,5 @@
-Ablation,Who/what transferred,Adapted probe reused,Split,Node MAE,Source,Relative difference vs final BTD
-Final BTD direct temporal transfer,positive-benefit donor,no; raw donor temporal state,audit,0.00031355852,results/federated/formal_25pct/btd_fl_direct_transfer_25pct_seed42.json,0
-Final BTD direct temporal transfer,positive-benefit donor,no; raw donor temporal state,validation,0.00034376809,results/federated/formal_25pct/btd_fl_direct_transfer_25pct_seed42.json,0
-No benefit selection,fixed donor,no,audit,0.00031670133,btd_no_benefit_selection_25pct_seed42.json,0.010023041
-No benefit selection,fixed donor,no,validation,0.0003483163,btd_no_benefit_selection_25pct_seed42.json,0.013230442
-Full-model transfer,full trainable state,probe-specific,audit,0.00031857846,btd_full_model_transfer_25pct_seed42.json,0.01600959
-Full-model transfer,full trainable state,probe-specific,validation,0.00034676605,btd_full_model_transfer_25pct_seed42.json,0.0087208555
-No target adaptation,raw temporal state,no,audit,0.00031355852,btd_no_target_adaptation_25pct_seed42.json,0
-No target adaptation,raw temporal state,no,validation,0.00034376809,btd_no_target_adaptation_25pct_seed42.json,0
+Method,WHO selection,WHAT state transferred,Probe adapted state reused in final initialization?,Audit node-MAE,Audit relative difference vs final direct BTD,Validation node-MAE,Validation relative difference vs final direct BTD,Source artifact
+Final BTD direct raw temporal transfer,benefit-selected current-run positive argmax,raw donor temporal state,no,0.00031355851678525095,0,0.0003437680937597074,0,results/federated/formal_25pct/btd_fl_direct_transfer_25pct_seed42.json
+No benefit selection,fixed lexicographic donor,target-adapted donor temporal state,yes,0.00031670132664370478,0.01002304096433222,0.00034831629772866598,0.0132304424160369,results/federated/formal_25pct/ablations/btd_no_benefit_selection_25pct_seed42.json
+Full-model transfer,benefit-selected donor frozen from accepted BTD,raw full trainable donor state,no,0.00031857846012325056,0.016009590137963471,0.00034676604563052874,0.0087208554989309049,results/federated/formal_25pct/ablations/btd_full_model_transfer_25pct_seed42.json
+Historical adapted-state BTD,benefit-selected current-run positive argmax,target-adapted donor temporal state,yes,0.00031339215603752189,-0.00053055726068190518,0.00034481940069838762,0.0030581864860764981,results/federated/formal_25pct/btd_fl_25pct_seed42.json
