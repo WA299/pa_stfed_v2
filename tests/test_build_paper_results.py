@@ -71,6 +71,65 @@ def test_manifest_paths_and_json_keys_resolve(package):
     builder.validate_manifest_entries(ROOT, manifest["entries"])
 
 
+def test_centralized_provenance_does_not_claim_federated_seed_scope(package):
+    manifest = json.loads((OUT / "manifests/paper_results_manifest.json").read_text(encoding="utf-8"))
+    centralized = [
+        entry for entry in manifest["entries"]
+        if entry["output_artifact"] == "tables/table_centralized_main.csv"
+    ]
+    assert centralized
+    assert all(
+        entry["seed_scope"] == "unweighted macro across four reference grids; seed not encoded in source artifact"
+        for entry in centralized
+    )
+    assert not any("seeds 42/123/2026" in entry["seed_scope"] for entry in centralized)
+
+
+def test_manifest_test_guardrail_is_fail_closed_for_known_schemas():
+    with pytest.raises(ValueError, match="not false"):
+        builder.validate_source_test_guardrail(
+            Path("centralized_validation_summary.json"), {"metadata": {"test_evaluated": True}}
+        )
+    with pytest.raises(ValueError, match="not false"):
+        builder.validate_source_test_guardrail(
+            Path("puc_rstattn_v2_ablation_summary.json"), {"metadata": {"test_evaluated": True}}
+        )
+
+
+def test_protocol_declares_checkpoint_strategy_and_180_cells(package):
+    protocol = (OUT / "test_opening_protocol.md").read_text(encoding="utf-8")
+    assert "persisted accepted checkpoints" in protocol
+    assert "reconstruct every checkpoint" in protocol
+    assert "TEST outcomes may never cause a new training run" in protocol
+    assert "144 method-target evaluations" in protocol
+    assert "36 evaluations" in protocol
+    assert "180 cells" in protocol
+    assert "protocol-lock commit" in protocol
+
+
+def test_marker_entries_match_frozen_selected_donors(package):
+    marker_data = json.loads(
+        (OUT / "figures/fig_industrial_benefit_matrix_marker_data.json").read_text(encoding="utf-8")
+    )
+    assert len(marker_data) == 6
+    for entry in marker_data:
+        seed, fraction_label = entry["row"].split(" / ")
+        fraction = 0.25 if fraction_label == "25%" else 0.50
+        source = ROOT / f"results/federated/industrial_external/industrial_external_{int(fraction * 100)}pct_summary.json"
+        data = json.loads(source.read_text(encoding="utf-8"))
+        assert entry["selected_donor"] == data["btd_donor_behavior"]["by_seed"][seed]["selected_donor"]
+
+
+def test_manifest_excludes_test_metrics(package):
+    manifest = json.loads((OUT / "manifests/paper_results_manifest.json").read_text(encoding="utf-8"))
+    assert manifest["canonical_test_metrics_included"] is False
+    generated = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in (OUT / "tables").glob("*.csv")
+    ) + (OUT / "paper_results_summary.md").read_text(encoding="utf-8")
+    assert "test metric" not in generated.lower()
+
+
 def test_missing_test_guardrail_fails_closed():
     path = Path("centralized_validation_summary.json")
     with pytest.raises(ValueError, match="missing TEST guardrail"):
