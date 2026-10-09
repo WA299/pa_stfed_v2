@@ -217,6 +217,8 @@ def load_checkpoint(path: Path, expected: Mapping[str, Any] | None = None, *, pr
     if not path.is_file() or not sidecar_path.is_file():
         raise FileNotFoundError(f"checkpoint and sidecar are both required: {path}")
     metadata = json.loads(sidecar_path.read_text(encoding="utf-8"))
+    if not isinstance(metadata, Mapping):
+        raise ValueError("checkpoint sidecar must be a JSON object")
     if metadata.get("sha256") != sha256_file(path) or metadata.get("file_size_bytes") != path.stat().st_size:
         raise ValueError(f"checkpoint hash/size mismatch: {path}")
     if metadata.get("checkpoint_path") is not None and Path(str(metadata["checkpoint_path"])).resolve() != path.resolve():
@@ -236,6 +238,84 @@ def load_checkpoint(path: Path, expected: Mapping[str, Any] | None = None, *, pr
     if production:
         validate_production_checkpoint_metadata(metadata, state)
     return dict(state), metadata
+
+
+def replay_checkpoint(
+    path: Path,
+    model: Any,
+    *,
+    cell: Mapping[str, Any] | None = None,
+    grid: Any | None = None,
+    scaler: Any | None = None,
+) -> dict[str, Any]:
+    """Safely reload a selected production checkpoint into its exact model.
+
+    This is deliberately a post-export operation.  It does not train, select,
+    or alter a checkpoint; it verifies the tensor-only file, restores it with
+    ``strict=True`` into the already-constructed frozen model, and checks the
+    target-local node/scaler identity used for replay inference.
+    """
+    if model.__class__.__name__ != FROZEN_MODEL_CLASS:
+        raise ValueError("checkpoint replay requires the frozen production model")
+    expected = {
+        "test_accessed": False,
+        "test_evaluated": False,
+        "industrial_test_evaluated": False,
+        "reference_grid_tests_evaluated": False,
+    }
+    state, metadata = load_checkpoint(Path(path), expected=expected, production=True)
+    if cell is not None:
+        validate_matrix_identity(metadata, cell)
+    constructor = metadata.get("constructor", {})
+    if constructor.get("num_nodes") != int(getattr(model, "num_nodes", -1)):
+        raise ValueError("checkpoint constructor node count does not match replay model")
+    if constructor.get("input_size") != int(getattr(model, "input_size", -1)) or constructor.get("hidden_size") != int(getattr(model, "hidden_size", -1)):
+        raise ValueError("checkpoint constructor feature/hidden configuration does not match replay model")
+    runtime_buffers_for_config = dict(model.named_buffers())
+    if constructor.get("utility_edge_shape") != list(runtime_buffers_for_config.get("utility_edge_index", np.empty((0, 0))).shape):
+        raise ValueError("checkpoint utility-edge constructor identity does not match replay model")
+    if constructor.get("relation_feature_shape") != list(runtime_buffers_for_config.get("physical_relation_features", np.empty((0, 0))).shape):
+        raise ValueError("checkpoint relation-feature constructor identity does not match replay model")
+
+    if grid is not None:
+        expected_nodes = [str(item) for item in getattr(grid, "node_ids", range(grid.num_nodes))]
+        if metadata.get("target_node_order") != expected_nodes:
+            raise ValueError("checkpoint target node order does not match replay grid")
+        expected_mask = np.asarray(grid.load_bus_mask, dtype=bool).tolist()
+        if metadata.get("target_load_bus_mask") != expected_mask:
+            raise ValueError("checkpoint target load-bus mask does not match replay grid")
+        if constructor.get("num_nodes") != int(grid.num_nodes):
+            raise ValueError("checkpoint constructor node count does not match replay grid")
+        # Compare topology tensors before loading parameters.  The checkpoint
+        # may not silently replace a target-local graph with a donor graph.
+        runtime_buffers = dict(model.named_buffers())
+        for name in TOPOLOGY_BUFFERS:
+            if name not in runtime_buffers or name not in state:
+                raise ValueError(f"replay topology buffer is missing: {name}")
+            if not bool(__import__("torch").equal(runtime_buffers[name].detach().cpu(), state[name].detach().cpu())):
+                raise ValueError(f"checkpoint topology buffer does not match replay target graph: {name}")
+
+    if scaler is not None:
+        recorded = metadata.get("target_scaler", {})
+        for name in (
+            "fit_start_index", "fit_end_index", "fit_split", "fit_timestamp_end",
+            "fit_load_bus_count", "fit_value_count",
+        ):
+            if recorded.get(name) != getattr(scaler, name, None):
+                raise ValueError(f"checkpoint scaler {name} does not match replay scaler")
+        for name in ("p_mean", "p_scale", "q_mean", "q_scale"):
+            recorded_value = recorded.get(name)
+            runtime_value = getattr(scaler, f"{name}_", None)
+            if runtime_value is None:
+                if recorded_value is not None:
+                    raise ValueError(f"checkpoint scaler {name} is not reproducible")
+            elif not np.allclose(np.asarray(recorded_value, dtype=float), np.asarray(runtime_value, dtype=float), rtol=0.0, atol=0.0):
+                raise ValueError(f"checkpoint scaler {name} does not match replay scaler")
+
+    missing, unexpected = model.load_state_dict(state, strict=True)
+    if missing or unexpected:
+        raise ValueError(f"strict checkpoint replay mismatch: missing={missing}, unexpected={unexpected}")
+    return dict(metadata)
 
 
 def build_metadata(*, cell: Mapping[str, Any], model: Any, grid: Any, scaler: Any,
@@ -527,5 +607,5 @@ def export_model_checkpoint(*, root: Path, cell: Mapping[str, Any], model: Any, 
 __all__ = [
     "SEEDS", "HISTORY_FRACTIONS", "PUBLIC_METHODS", "REFERENCE_TARGETS", "INDUSTRIAL_TARGET",
     "canonical_method", "matrix_cells", "checkpoint_path", "sha256_file", "export_checkpoint",
-    "load_checkpoint", "build_metadata", "validate_production_checkpoint_metadata", "validate_matrix_identity", "compare_metric_trees", "export_model_checkpoint", "FROZEN_FEATURE_INDICES", "FROZEN_COMMITS",
+    "load_checkpoint", "replay_checkpoint", "build_metadata", "validate_production_checkpoint_metadata", "validate_matrix_identity", "compare_metric_trees", "export_model_checkpoint", "FROZEN_FEATURE_INDICES", "FROZEN_COMMITS",
 ]

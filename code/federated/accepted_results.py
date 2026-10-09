@@ -19,6 +19,19 @@ from code.federated.checkpointing import (
 ROOT = Path(__file__).resolve().parents[2]
 
 
+def direct_transfer_reference_input(*, history_fraction: float, seed: int) -> Path | None:
+    """Return the historical BTD *input* reference for direct-transfer runs.
+
+    The seed-42/25% direct-transfer reconstruction consumes the accepted
+    ``btd_fl`` report because ``load_frozen_reference`` intentionally validates
+    that schema.  The direct-transfer report remains the separate per-cell
+    parity source resolved by :func:`resolve_accepted_result`.
+    """
+    if abs(float(history_fraction) - 0.25) < 1e-12 and int(seed) == 42:
+        return ROOT / "results" / "federated" / "formal_25pct" / "btd_fl_25pct_seed42.json"
+    return None
+
+
 def _source_for(cell: Mapping[str, Any]) -> Path:
     pct = int(round(float(cell["history_fraction"]) * 100))
     seed = int(cell["seed"])
@@ -146,4 +159,4 @@ def resolve_all_accepted_results() -> dict[str, dict[str, Any]]:
     return resolved
 
 
-__all__ = ["resolve_accepted_result", "resolve_all_accepted_results"]
+__all__ = ["direct_transfer_reference_input", "resolve_accepted_result", "resolve_all_accepted_results"]

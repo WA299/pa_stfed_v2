@@ -13,7 +13,7 @@ from code.audits.federated_transfer_benefit import IndexDataset, _evaluate, dono
 from code.data.forecast_dataset import ForecastFeatureScaler
 from code.federated.trainer import FederatedClient, FederatedTrainer
 from code.federated.parameter_groups import parameter_groups
-from code.federated.checkpointing import export_model_checkpoint, matrix_cells
+from code.federated.checkpointing import checkpoint_path, export_model_checkpoint, matrix_cells, replay_checkpoint
 from code.federated.seeding import reproducibility_metadata, set_global_seed
 from code.models.puc_rstattn_v2_conditional_utility import PUCRSTAttnV2ConditionalUtility, build_conditional_utility_graph
 
@@ -172,6 +172,10 @@ def _run_federated(grids: dict[str, Any], target: str, method: str, device: str,
     if checkpoint_root is not None:
         cell = next(item for item in matrix_cells() if item["domain"] == "reference_grid" and item["target"] == target and item["seed"] == seed and item["history_fraction"] == history_fraction and item["method"] == method)
         export_model_checkpoint(root=checkpoint_root, cell=cell, model=target_client.model, grid=grids[target], scaler=target_client.scaler, graph_metadata=graph_metadata[target], source_artifact=source_artifact, frozen_commits=frozen_commits or {}, final_round=rounds)
+        replay_checkpoint(checkpoint_path(checkpoint_root, cell), target_client.model, cell=cell, grid=grids[target], scaler=target_client.scaler)
+        # The parity observation must come from the tensor file just loaded,
+        # not from the pre-export in-memory model.
+        metrics = _method_metrics(target_client.model, grids[target], split, target_client.scaler, device, batch_size)
     counts, weights = report["local_sample_counts"], report["round_history"][-1]["aggregation_weights"]
     total = float(sum(counts.values()))
     expected = {name: counts[name] / total for name in counts}
@@ -219,6 +223,8 @@ def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str |
         if checkpoint_root is not None:
             local_cell = next(item for item in matrix_cells() if item["domain"] == "reference_grid" and item["target"] == target and item["seed"] == seed and item["history_fraction"] == history_fraction and item["method"] == "local")
             export_model_checkpoint(root=checkpoint_root, cell=local_cell, model=local_model, grid=grid, scaler=scaler, graph_metadata=graph.diagnostics, source_artifact=source_artifact, frozen_commits=frozen_commits or {}, selected_epoch=local_full_training.get("selected_epoch"), epochs_run=local_full_training.get("epochs_run"))
+            replay_checkpoint(checkpoint_path(checkpoint_root, local_cell), local_model, cell=local_cell, grid=grid, scaler=scaler)
+            local_metrics = _method_metrics(local_model, grid, split, scaler, device, batch_size)
         if fallback:
             btd_metrics, btd_training = copy.deepcopy(local_metrics), {"fallback_exact_local": True, "full": copy.deepcopy(local_full_training)}
         elif btd_variant == "btd_full_model_transfer":
@@ -312,6 +318,7 @@ def run_formal_baselines(grids: dict[str, Any], device: str = "cpu", rounds: int
         if checkpoint_root is not None:
             local_cell = next(item for item in matrix_cells() if item["domain"] == "reference_grid" and item["target"] == target and item["seed"] == seed and item["history_fraction"] == history_fraction and item["method"] == "local")
             export_model_checkpoint(root=checkpoint_root, cell=local_cell, model=local_model, grid=grid, scaler=scaler, graph_metadata=graph.diagnostics, source_artifact=source_artifact, frozen_commits=frozen_commits or {}, selected_epoch=local_training.get("selected_epoch"), epochs_run=local_training.get("epochs_run"))
+            replay_checkpoint(checkpoint_path(checkpoint_root, local_cell), local_model, cell=local_cell, grid=grid, scaler=scaler)
         methods = {"scarce_local": _method_metrics(local_model, grid, split, scaler, device, batch_size)}
         federated: dict[str, Any] = {}
         for method in ("fedavg", "fedprox", "fedper"):

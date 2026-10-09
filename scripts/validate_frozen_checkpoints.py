@@ -11,7 +11,7 @@ from typing import Any, Mapping
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from code.federated.checkpointing import checkpoint_path, load_checkpoint, matrix_cells, validate_matrix_identity
+from code.federated.checkpointing import checkpoint_path, load_checkpoint, matrix_cells, sha256_file, validate_matrix_identity
 from code.federated.accepted_results import resolve_accepted_result
 DEFAULT_ROOT = ROOT / "artifacts" / "frozen_pretest_checkpoints"
 
@@ -41,7 +41,9 @@ def expected_cell_map() -> dict[str, dict[str, Any]]:
     return {str(cell["cell_id"]): cell for cell in cells}
 
 
-def _validate_parity_report(parity_path: Path | None) -> tuple[dict[str, Any] | None, list[str]]:
+def _validate_parity_report(
+    parity_path: Path | None, checkpoint_root: Path | None = None,
+) -> tuple[dict[str, Any] | None, list[str]]:
     """Validate every parity identity and every numerical comparison.
 
     A top-level success flag is never trusted.  The report must be explicit,
@@ -59,7 +61,14 @@ def _validate_parity_report(parity_path: Path | None) -> tuple[dict[str, Any] | 
         return None, [f"malformed parity report: {exc}"]
     if not isinstance(parity, Mapping):
         return None, ["parity report must be a JSON object"]
-    if parity.get("test_accessed") is not False or parity.get("test_evaluated") is not False:
+    if parity.get("schema_version") != 2:
+        failures.append("parity report schema_version is not 2")
+    if parity.get("accepted_result_mapping_coverage") != 180:
+        failures.append("parity report accepted-result mapping coverage is not 180")
+    if any(parity.get(flag) is not False for flag in (
+        "test_accessed", "test_evaluated", "industrial_test_evaluated",
+        "reference_grid_tests_evaluated",
+    )):
         failures.append("parity report TEST guardrails are not explicitly false")
     if parity.get("parity_passed") is not True:
         failures.append("parity report top-level parity_passed is not true")
@@ -100,6 +109,37 @@ def _validate_parity_report(parity_path: Path | None) -> tuple[dict[str, Any] | 
                 failures.append(f"{prefix}.{key} identity mismatch")
         if item.get("parity_passed") is not True or item.get("test_accessed") is not False or item.get("test_evaluated") is not False:
             failures.append(f"{prefix} is not an explicit passed pre-TEST cell")
+        checkpoint_value = item.get("checkpoint_path")
+        checkpoint_digest = item.get("checkpoint_sha256")
+        expected_checkpoint = checkpoint_path(checkpoint_root, cell).resolve() if checkpoint_root is not None else None
+        if not isinstance(checkpoint_value, str) or not checkpoint_value:
+            failures.append(f"{prefix} lacks checkpoint_path")
+            checkpoint_file = None
+        else:
+            checkpoint_file = Path(checkpoint_value)
+            if not checkpoint_file.is_absolute():
+                checkpoint_file = (parity_path.parent / checkpoint_file).resolve()
+            else:
+                checkpoint_file = checkpoint_file.resolve()
+            if expected_checkpoint is not None and checkpoint_file != expected_checkpoint:
+                failures.append(f"{prefix} checkpoint_path does not match matrix checkpoint path")
+        if checkpoint_file is None or not checkpoint_file.is_file():
+            failures.append(f"{prefix} checkpoint file is missing")
+        elif not isinstance(checkpoint_digest, str) or checkpoint_digest != sha256_file(checkpoint_file):
+            failures.append(f"{prefix} checkpoint_sha256 does not match the checkpoint file")
+        if item.get("checkpoint_replay_error") is not None:
+            failures.append(f"{prefix} checkpoint replay failed: {item.get('checkpoint_replay_error')}")
+        observed_tree = item.get("observed_metrics")
+        if not isinstance(observed_tree, Mapping) or not _finite(observed_tree):
+            failures.append(f"{prefix} lacks finite observed replay metrics")
+        else:
+            for split, scope, metric in EXPECTED_METRICS:
+                try:
+                    value = observed_tree[split][scope][metric]
+                    if not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(float(value)):
+                        raise ValueError
+                except (KeyError, TypeError, ValueError):
+                    failures.append(f"{prefix} observed replay metric missing/non-finite: {split}/{scope}/{metric}")
         if not isinstance(item.get("accepted_artifact"), str) or item.get("accepted_artifact") != accepted_path or not isinstance(item.get("accepted_json_keys"), Mapping) or dict(item.get("accepted_json_keys", {})) != dict(accepted_keys):
             failures.append(f"{prefix} lacks accepted artifact/key provenance")
         comparisons = item.get("metric_comparisons")
@@ -175,7 +215,7 @@ def validate_frozen_checkpoints(root: Path = DEFAULT_ROOT, parity_path: Path | N
                 raise ValueError("checkpoint metadata is non-finite")
         except Exception as exc:  # fail closed, report every cell
             invalid.append({"cell_id": cell["cell_id"], "error": str(exc)})
-    parity, parity_failures = _validate_parity_report(parity_path)
+    parity, parity_failures = _validate_parity_report(parity_path, root)
     ready = not missing and not invalid and not parity_failures
     return {
         "schema_version": 1,

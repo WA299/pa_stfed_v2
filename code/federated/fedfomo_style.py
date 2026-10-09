@@ -12,7 +12,7 @@ from code.audits.btd_full_backbone_bridge import build_scarce_target_graph, full
 from code.audits.federated_transfer_benefit import _evaluate, donor_split, fit_fit_only_scaler, scarce_split
 from code.federated.formal_btd import CLIENT_NAMES, _validation_indices, _make_client
 from code.federated.formal_btd_ablations import load_frozen_reference
-from code.federated.checkpointing import export_model_checkpoint, matrix_cells
+from code.federated.checkpointing import checkpoint_path, export_model_checkpoint, matrix_cells, replay_checkpoint
 from code.federated.seeding import reproducibility_metadata, set_global_seed
 from code.models.centralized_gru import masked_scaled_mae
 from scripts.run_puc_rstattn_v2 import _batch_indices, _to_batch
@@ -151,6 +151,14 @@ def run_fedfomo_scenario(grids: Mapping[str, Any], scarce_target: str, rounds: i
             public_target = scarce_target
         cell = next(item for item in matrix_cells() if item["domain"] == checkpoint_domain and item["target"] == public_target and item["seed"] == seed and item["history_fraction"] == history_fraction and item["method"] == "fedfomo_style")
         export_model_checkpoint(root=checkpoint_root, cell=cell, model=target_client.model, grid=grids[scarce_target], scaler=target_client.scaler, graph_metadata=target_client.graph.diagnostics, source_artifact=source_artifact, frozen_commits=frozen_commits or {}, final_round=rounds)
+        replay_checkpoint(
+            checkpoint_path(Path(checkpoint_root), cell), target_client.model,
+            cell=cell, grid=grids[scarce_target], scaler=target_client.scaler,
+        )
+        primary = {
+            "audit": _evaluate(target_client.model, grids[scarce_target], split.audit_indices, target_client.scaler, device, split.available_start, batch_size),
+            "validation": _evaluate(target_client.model, grids[scarce_target], _validation_indices(grids[scarce_target]), target_client.scaler, device, None, batch_size),
+        }
     return {"scarce_target_metrics": primary, "round_history": history, "final_round_peer_weights": history[-1]["peer_weights"], "metadata": {"scarce_target": scarce_target, "validation_used_for_peer_weighting": False, "audit_used_for_peer_weighting": False, "test_evaluated": False, "communication_round_selection": "fixed_final_round"}}
 
 

@@ -33,7 +33,7 @@ from code.audits.federated_transfer_benefit import (
 from code.data.industrial_mvlv_loader import load_industrial_mvlv
 from code.data.lv_grid_loader import LVGridLoader
 from code.federated.parameter_groups import parameter_groups
-from code.federated.checkpointing import export_model_checkpoint, matrix_cells
+from code.federated.checkpointing import checkpoint_path, export_model_checkpoint, matrix_cells, replay_checkpoint
 from code.federated.trainer import FederatedTrainer
 from code.models.puc_rstattn_v2_conditional_utility import build_conditional_utility_graph
 
@@ -215,6 +215,7 @@ def _local_target(
         seed=seed,
     )
     model.load_state_dict(best_state)
+    metrics = _target_metrics(model, grid, split, scaler, device, batch_size)
     if checkpoint_export is not None:
         export_model_checkpoint(
             root=Path(checkpoint_export["root"]), cell=checkpoint_export["cell"], model=model,
@@ -223,7 +224,12 @@ def _local_target(
             frozen_commits=checkpoint_export.get("frozen_commits", {}),
             selected_epoch=full_training.get("selected_epoch"), epochs_run=full_training.get("epochs_run"),
         )
-    return _target_metrics(model, grid, split, scaler, device, batch_size), {
+        replay_checkpoint(
+            checkpoint_path(Path(checkpoint_export["root"]), checkpoint_export["cell"]),
+            model, cell=checkpoint_export["cell"], grid=grid, scaler=scaler,
+        )
+        metrics = _target_metrics(model, grid, split, scaler, device, batch_size)
+    return metrics, {
         "proxy_training": proxy_training,
         "full_model_training": full_training,
         "scaler_fit_start_index": int(scaler.fit_start_index),
@@ -271,6 +277,11 @@ def _run_federated(
             graph_metadata=graph_metadata[INDUSTRIAL_TARGET], source_artifact=source_artifact,
             frozen_commits=frozen_commits or {}, final_round=rounds,
         )
+        replay_checkpoint(
+            checkpoint_path(Path(checkpoint_root), cell), target_client.model,
+            cell=cell, grid=grids[INDUSTRIAL_TARGET], scaler=target_client.scaler,
+        )
+        metrics = _target_metrics(target_client.model, grids[INDUSTRIAL_TARGET], split, target_client.scaler, device, batch_size)
     counts = report["local_sample_counts"]
     weights = report["round_history"][-1]["aggregation_weights"]
     expected = {name: count / float(sum(counts.values())) for name, count in counts.items()}
@@ -491,6 +502,11 @@ def run_external_btd(
                 "transferred_parameter_names": transferred_names,
             },
         )
+        replay_checkpoint(
+            checkpoint_path(Path(checkpoint_root), cell), final_model,
+            cell=cell, grid=target_grid, scaler=target_scaler,
+        )
+        metrics = _target_metrics(final_model, target_grid, target_split, target_scaler, device, batch_size)
     scenario = {
         "metrics": metrics,
         "metadata": {

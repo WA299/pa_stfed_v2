@@ -29,7 +29,7 @@ from code.federated.formal_btd import (
 )
 from code.federated.formal_btd_ablations import load_frozen_reference, _frozen_selected_donors
 from code.federated.parameter_groups import parameter_groups
-from code.federated.checkpointing import export_model_checkpoint, matrix_cells
+from code.federated.checkpointing import checkpoint_path, export_model_checkpoint, matrix_cells, replay_checkpoint
 from code.federated.seeding import reproducibility_metadata, set_global_seed
 from code.models.puc_rstattn_v2_conditional_utility import build_conditional_utility_graph
 
@@ -241,6 +241,10 @@ def run_direct_transfer(
                     "transferred_parameter_names": training.get("transferred_parameter_names", []),
                 },
             )
+            replay_checkpoint(checkpoint_path(checkpoint_root, cell), model, cell=cell, grid=grid, scaler=scaler)
+            # Replay from the serialized tensor-only checkpoint before the
+            # metrics enter the parity report.
+            metrics = _method_metrics(model, grid, split, scaler, device, batch_size)
         if frozen is not None and abs(history_fraction - 0.25) < 1e-9:
             scenario_payload["frozen_comparator_metrics"] = {
                 name: main_target[name] for name in ("scarce_local", "fedavg", "fedprox", "fedper", "btd_fl")
@@ -302,6 +306,12 @@ def run_direct_transfer(
         "four_target_unweighted_macro": macro,
         "reproducibility": reproducibility_metadata(seed, device),
     }
+    if reference is not None:
+        result["frozen_reference_contract"] = {
+            "load_frozen_reference_input": str(reference) if not isinstance(reference, Mapping) else "in_memory_reference",
+            "accepted_result_parity_artifact": str(source_artifact),
+            "input_and_parity_sources_are_distinct": str(reference) != str(source_artifact),
+        }
     if frozen is not None and abs(history_fraction - 0.25) < 1e-9:
         result["selection_matches_previous_formal_run_by_target"] = {
             target: scenarios[target]["metadata"]["selection_matches_previous_formal_run"]
