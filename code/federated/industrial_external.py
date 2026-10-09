@@ -221,7 +221,7 @@ def _local_target(
             grid=grid, scaler=scaler, graph_metadata=graph.diagnostics,
             source_artifact=checkpoint_export["source_artifact"],
             frozen_commits=checkpoint_export.get("frozen_commits", {}),
-            selected_epoch=full_training.get("epochs_run"),
+            selected_epoch=full_training.get("selected_epoch"), epochs_run=full_training.get("epochs_run"),
         )
     return _target_metrics(model, grid, split, scaler, device, batch_size), {
         "proxy_training": proxy_training,
@@ -481,7 +481,7 @@ def run_external_btd(
             root=Path(checkpoint_root), cell=cell, model=final_model, grid=target_grid,
             scaler=target_scaler, graph_metadata=target_graph.diagnostics,
             source_artifact=source_artifact, frozen_commits=frozen_commits or {},
-            selected_epoch=full_training.get("epochs_run"),
+            selected_epoch=full_training.get("selected_epoch"), epochs_run=full_training.get("epochs_run"),
             selection={
                 "selected_donor": selected_donor,
                 "selected_calibration_benefit": float(maximum_benefit),

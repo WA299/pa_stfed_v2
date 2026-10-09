@@ -218,7 +218,7 @@ def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str |
         local_state, local_full_training = train_full_model(local_model, grid, split.fit_indices, split.calibration_indices, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed); local_model.load_state_dict(local_state); local_metrics = _method_metrics(local_model, grid, split, scaler, device, batch_size)
         if checkpoint_root is not None:
             local_cell = next(item for item in matrix_cells() if item["domain"] == "reference_grid" and item["target"] == target and item["seed"] == seed and item["history_fraction"] == history_fraction and item["method"] == "local")
-            export_model_checkpoint(root=checkpoint_root, cell=local_cell, model=local_model, grid=grid, scaler=scaler, graph_metadata=graph.diagnostics, source_artifact=source_artifact, frozen_commits=frozen_commits or {}, selected_epoch=local_full_training.get("epochs_run"))
+            export_model_checkpoint(root=checkpoint_root, cell=local_cell, model=local_model, grid=grid, scaler=scaler, graph_metadata=graph.diagnostics, source_artifact=source_artifact, frozen_commits=frozen_commits or {}, selected_epoch=local_full_training.get("selected_epoch"), epochs_run=local_full_training.get("epochs_run"))
         if fallback:
             btd_metrics, btd_training = copy.deepcopy(local_metrics), {"fallback_exact_local": True, "full": copy.deepcopy(local_full_training)}
         elif btd_variant == "btd_full_model_transfer":
@@ -311,7 +311,7 @@ def run_formal_baselines(grids: dict[str, Any], device: str = "cpu", rounds: int
         local_model.load_state_dict(local_state)
         if checkpoint_root is not None:
             local_cell = next(item for item in matrix_cells() if item["domain"] == "reference_grid" and item["target"] == target and item["seed"] == seed and item["history_fraction"] == history_fraction and item["method"] == "local")
-            export_model_checkpoint(root=checkpoint_root, cell=local_cell, model=local_model, grid=grid, scaler=scaler, graph_metadata=graph.diagnostics, source_artifact=source_artifact, frozen_commits=frozen_commits or {}, selected_epoch=local_training.get("epochs_run"))
+            export_model_checkpoint(root=checkpoint_root, cell=local_cell, model=local_model, grid=grid, scaler=scaler, graph_metadata=graph.diagnostics, source_artifact=source_artifact, frozen_commits=frozen_commits or {}, selected_epoch=local_training.get("selected_epoch"), epochs_run=local_training.get("epochs_run"))
         methods = {"scarce_local": _method_metrics(local_model, grid, split, scaler, device, batch_size)}
         federated: dict[str, Any] = {}
         for method in ("fedavg", "fedprox", "fedper"):

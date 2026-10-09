@@ -127,18 +127,18 @@ def train_proxy(grid: Any, fit_indices: np.ndarray, calibration_indices: np.ndar
     import torch
     model = make_proxy(grid, seed=seed).to(device)
     if initial_state is not None: model.load_state_dict(copy.deepcopy(initial_state))
-    fit_ds = IndexDataset(grid, fit_indices, history_start_index); optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE); load_mask = torch.as_tensor(grid.load_bus_mask, dtype=torch.bool, device=device); best_state, best_mae, stale = None, float("inf"), 0
+    fit_ds = IndexDataset(grid, fit_indices, history_start_index); optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE); load_mask = torch.as_tensor(grid.load_bus_mask, dtype=torch.bool, device=device); best_state, best_mae, stale, selected_epoch = None, float("inf"), 0, None
     for epoch in range(1, max_epochs + 1):
         model.train()
         for batch in _batch_indices(len(fit_ds), batch_size):
             x, y = _to_batch(fit_ds, scaler, batch); optimizer.zero_grad(set_to_none=True); final, _, details = model(torch.from_numpy(x).to(device), return_details=True); target = torch.from_numpy(y).to(device); loss = masked_scaled_mae(final, target, load_mask) + ANCHOR_WEIGHT * masked_scaled_mae(details["y_gru"], target, load_mask); loss.backward(); optimizer.step()
         current = _evaluate(model, grid, calibration_indices, scaler, device, history_start_index, batch_size)["node_macro"]["mae"]
-        if current < best_mae: best_mae = current; best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}; stale = 0
+        if current < best_mae: best_mae = current; best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}; selected_epoch = int(epoch); stale = 0
         else:
             stale += 1
             if stale >= patience: break
     if best_state is not None: model.load_state_dict(best_state)
-    return model, {"best_calibration_node_mae": float(best_mae), "epochs_run": epoch}
+    return model, {"best_calibration_node_mae": float(best_mae), "epochs_run": epoch, "selected_epoch": selected_epoch}
 
 
 __all__ = ["HISTORY", "HISTORY_FRACTION", "MAX_EPOCHS", "PATIENCE", "BATCH_SIZE", "LEARNING_RATE", "SEED", "ScarceSplit", "IndexDataset", "scarce_split", "donor_split", "fit_fit_only_scaler", "benefit", "select_donor", "transfer_temporal_parameters", "make_proxy", "train_proxy", "_evaluate"]

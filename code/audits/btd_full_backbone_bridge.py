@@ -109,7 +109,7 @@ def train_full_model(model: Any, grid: Any, fit_indices: np.ndarray, calibration
     fit_ds = IndexDataset(grid, fit_indices)
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
     mask = torch.as_tensor(grid.load_bus_mask, dtype=torch.bool, device=device)
-    best_state, best_mae, stale = None, float("inf"), 0
+    best_state, best_mae, stale, selected_epoch = None, float("inf"), 0, None
     for epoch in range(1, max_epochs + 1):
         model.train()
         for batch in __import__("scripts.run_puc_rstattn_v2", fromlist=["_batch_indices"])._batch_indices(len(fit_ds), batch_size):
@@ -122,13 +122,13 @@ def train_full_model(model: Any, grid: Any, fit_indices: np.ndarray, calibration
         calibration = _evaluate(model, grid, calibration_indices, scaler, device, batch_size=batch_size)
         current = calibration["node_macro"]["mae"]
         if current < best_mae:
-            best_mae = current; best_state = {key: value.detach().cpu().clone() for key, value in model.state_dict().items()}; stale = 0
+            best_mae = current; best_state = {key: value.detach().cpu().clone() for key, value in model.state_dict().items()}; selected_epoch = int(epoch); stale = 0
         else:
             stale += 1
             if stale >= patience: break
     if best_state is None: raise RuntimeError("full model did not produce a checkpoint")
     model.load_state_dict(best_state)
-    return best_state, {"best_calibration_node_mae": float(best_mae), "epochs_run": int(epoch)}
+    return best_state, {"best_calibration_node_mae": float(best_mae), "epochs_run": int(epoch), "selected_epoch": selected_epoch}
 
 
 def relative_improvement(local: Mapping[str, Any], transferred: Mapping[str, Any]) -> float:

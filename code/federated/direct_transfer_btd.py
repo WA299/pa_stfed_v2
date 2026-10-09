@@ -102,7 +102,7 @@ def _snapshot_non_temporal(model: Any) -> dict[str, Any]:
 
 
 def run_direct_transfer(
-    grids: Mapping[str, Any], reference: Path | str | Mapping[str, Any],
+    grids: Mapping[str, Any], reference: Path | str | Mapping[str, Any] | None = None,
     device: str = "cpu", max_epochs: int = 50, batch_size: int = 32, seed: int = 42,
     history_fraction: float = 0.25,
     checkpoint_root: Path | None = None,
@@ -115,8 +115,11 @@ def run_direct_transfer(
     # seeds are reset at the run boundary for reproducibility.
     if int(seed) != 42:
         set_global_seed(seed)
-    frozen = load_frozen_reference(reference)
-    old_selected = _frozen_selected_donors(frozen)
+    # The historical seed-42 reference is optional for reconstruction.  It
+    # is used only for reporting the accepted comparator/selection audit, not
+    # for current-run donor selection or model training.
+    frozen = load_frozen_reference(reference) if reference is not None else None
+    old_selected = _frozen_selected_donors(frozen) if frozen is not None else {}
     donor_states, donor_metadata = _train_full_history_donors(
         grids, device, max_epochs, batch_size, seed
     )
@@ -191,7 +194,7 @@ def run_direct_transfer(
             metrics = _method_metrics(model, grid, split, scaler, device, batch_size)
             training = {"full": full_training, "transferred_parameter_names": list(transferred_names)}
 
-        main_target = frozen["scenarios"][target]["methods"]
+        main_target = frozen["scenarios"][target]["methods"] if frozen is not None else None
         scenario_metadata = {
                 "candidate_donors": [name for name in CLIENT_NAMES if name != target],
                 "local_proxy_training": local_training,
@@ -202,8 +205,8 @@ def run_direct_transfer(
                 "selected_calibration_benefit": float(selected_benefit),
                 "zero_transfer_fallback": bool(fallback),
                 "selection_rule": selection_rule,
-                "matches_historical_seed42_selection": selected == old_selected[target],
-                "historical_25pct_seed42_donor": old_selected[target],
+                "matches_historical_seed42_selection": (selected == old_selected[target]) if target in old_selected else None,
+                "historical_25pct_seed42_donor": old_selected.get(target),
                 "raw_donor_temporal_source": (
                     donor_metadata[selected]["source"] if selected is not None else None
                 ),
@@ -221,7 +224,7 @@ def run_direct_transfer(
                 "audit_used_for_selection": False,
                 "test_evaluated": False,
         }
-        if abs(history_fraction - 0.25) < 1e-9:
+        if frozen is not None and abs(history_fraction - 0.25) < 1e-9:
             scenario_metadata["selection_matches_previous_formal_run"] = selected == old_selected[target]
         scenario_payload = {"metrics": metrics, "metadata": scenario_metadata}
         if checkpoint_root is not None:
@@ -229,7 +232,7 @@ def run_direct_transfer(
             export_model_checkpoint(
                 root=checkpoint_root, cell=cell, model=model, grid=grid, scaler=scaler,
                 graph_metadata=graph.diagnostics, source_artifact=source_artifact,
-                frozen_commits=frozen_commits or {}, selected_epoch=training["full"].get("epochs_run"),
+                frozen_commits=frozen_commits or {}, selected_epoch=training["full"].get("selected_epoch"), epochs_run=training["full"].get("epochs_run"),
                 selection={
                     "selected_donor": selected, "selected_calibration_benefit": float(selected_benefit),
                     "zero_transfer_fallback": bool(fallback),
@@ -238,7 +241,7 @@ def run_direct_transfer(
                     "transferred_parameter_names": training.get("transferred_parameter_names", []),
                 },
             )
-        if abs(history_fraction - 0.25) < 1e-9:
+        if frozen is not None and abs(history_fraction - 0.25) < 1e-9:
             scenario_payload["frozen_comparator_metrics"] = {
                 name: main_target[name] for name in ("scarce_local", "fedavg", "fedprox", "fedper", "btd_fl")
             }
@@ -261,7 +264,7 @@ def run_direct_transfer(
     }
     comparisons = {}
     win_counts = {}
-    if abs(history_fraction - 0.25) < 1e-9:
+    if frozen is not None and abs(history_fraction - 0.25) < 1e-9:
         for comparator in ("scarce_local", "fedavg", "fedprox", "fedper", "btd_fl"):
             comparisons[comparator] = {}
             for split_name in ("audit", "validation"):
@@ -299,7 +302,7 @@ def run_direct_transfer(
         "four_target_unweighted_macro": macro,
         "reproducibility": reproducibility_metadata(seed, device),
     }
-    if abs(history_fraction - 0.25) < 1e-9:
+    if frozen is not None and abs(history_fraction - 0.25) < 1e-9:
         result["selection_matches_previous_formal_run_by_target"] = {
             target: scenarios[target]["metadata"]["selection_matches_previous_formal_run"]
             for target in CLIENT_NAMES

@@ -16,8 +16,9 @@ from code.federated.checkpointing import (
     load_checkpoint,
     matrix_cells,
 )
-from scripts.reconstruct_frozen_checkpoints import build_reconstruction_plan
-from scripts.validate_frozen_checkpoints import validate_frozen_checkpoints
+from code.federated.accepted_results import resolve_all_accepted_results
+from scripts.reconstruct_frozen_checkpoints import build_reconstruction_plan, execute_reconstruction
+from scripts.validate_frozen_checkpoints import expected_cell_map, validate_frozen_checkpoints
 
 
 def test_exact_180_matrix_and_aliases():
@@ -102,3 +103,51 @@ def test_reconstruction_plan_is_plan_only():
     assert plan["test_accessed"] is False
     assert plan["reconstruction_executed"] is False
     assert plan["parity_required_before_test_unlock"] is True
+
+
+def test_accepted_result_mapping_has_exact_180_per_seed_cells():
+    mapping = resolve_all_accepted_results()
+    assert len(mapping) == 180
+    assert set(mapping) == set(expected_cell_map())
+    assert all(item["source_artifact"].is_file() for item in mapping.values())
+    assert all(set(item["source_json_key"]) == {"audit", "validation"} for item in mapping.values())
+
+
+def test_parity_is_mandatory_and_top_level_flag_is_not_sufficient():
+    tmp_path = Path(".checkpoint_parity_contract_tmp")
+    tmp_path.mkdir(exist_ok=True)
+    root = tmp_path / "checkpoints"
+    root.mkdir()
+    report = tmp_path / "parity.json"
+    report.write_text(json.dumps({"parity_passed": True, "test_accessed": False, "test_evaluated": False, "reconstruction_executed": True, "historical_artifacts_modified": False, "cells": []}), encoding="utf-8")
+    result = validate_frozen_checkpoints(root, report)
+    assert result["test_unlock_ready"] is False
+    assert any("missing cells" in item or "expected 180" in item for item in result["parity_failures"])
+    assert validate_frozen_checkpoints(root)["test_unlock_ready"] is False
+    for item in tmp_path.rglob("*"):
+        if item.is_file(): item.unlink()
+    root.rmdir(); tmp_path.rmdir()
+
+
+def test_duplicate_and_extra_parity_cell_ids_fail_closed():
+    tmp_path = Path(".checkpoint_parity_duplicate_tmp")
+    tmp_path.mkdir(exist_ok=True)
+    root = tmp_path / "checkpoints"
+    root.mkdir()
+    cell = matrix_cells()[0]
+    item = {**cell, "test_accessed": False, "test_evaluated": False, "parity_passed": True, "metric_comparisons": []}
+    report = tmp_path / "parity.json"
+    report.write_text(json.dumps({"parity_passed": True, "test_accessed": False, "test_evaluated": False, "reconstruction_executed": True, "historical_artifacts_modified": False, "cells": [item, item]}), encoding="utf-8")
+    result = validate_frozen_checkpoints(root, report)
+    assert result["test_unlock_ready"] is False
+    assert any("duplicate" in item for item in result["parity_failures"])
+    for item in tmp_path.rglob("*"):
+        if item.is_file(): item.unlink()
+    root.rmdir(); tmp_path.rmdir()
+
+
+def test_reconstruction_authorization_is_separate_from_test_and_output_isolated():
+    with pytest.raises(PermissionError):
+        execute_reconstruction(Path("artifacts/frozen_pretest_checkpoints/test"), authorize_reconstruction=False, cell_runner=lambda *_: {})
+    with pytest.raises(PermissionError):
+        execute_reconstruction(Path("artifacts/frozen_pretest_checkpoints/test"), authorize_reconstruction=True, authorize_test=True, cell_runner=lambda *_: {})

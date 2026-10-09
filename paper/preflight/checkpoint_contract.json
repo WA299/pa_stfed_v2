@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "checkpoint_format": "torch tensor-only state_dict .pt plus .pt.json sidecar",
   "model_class": "PUCRSTAttnV2ConditionalUtility",
   "feature_indices": [0, 2, 3, 4, 5, 6],
@@ -10,8 +10,9 @@
   "seeds": [42, 123, 2026],
   "history_fractions": [0.25, 0.5],
   "required_test_flags": {"test_accessed": false, "test_evaluated": false, "industrial_test_evaluated": false, "reference_grid_tests_evaluated": false},
+  "required_provenance": ["constructor_identity", "state_dict_complete", "state_dict_tensor_specs", "local_graph_topology_identity", "target_node_order", "target_load_bus_mask", "target_scaler", "source_artifact_identity", "frozen_commits.scientific_method", "frozen_commits.accepted_results", "frozen_commits.paper_ready_reporting", "frozen_commits.reconstruction_code", "selected_training_state_identity", "selected_epoch", "epochs_run"],
   "selection_points": {"local": "best_calibration_full_model", "btd_fl_direct_transfer": "final_best_full_model", "fedavg": "fixed_final_round_10", "fedprox": "fixed_final_round_10", "fedper": "fixed_final_round_10", "fedfomo_style": "fixed_final_round_10"},
   "atomic_write": true,
   "safe_deserialization": "torch.load(weights_only=True, map_location=cpu); tensor values only",
-  "test_unlock_requires": ["all_180_sidecars_verified", "all_180_hashes_verified", "all_audit_validation_parity_passed", "no_test_access"]
+  "test_unlock_requires": ["all_180_sidecars_verified", "all_180_hashes_verified", "all_audit_validation_parity_passed", "complete_per_cell_parity_evidence", "no_test_access"]
 }
