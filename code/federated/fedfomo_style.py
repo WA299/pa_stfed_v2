@@ -12,6 +12,7 @@ from code.audits.btd_full_backbone_bridge import build_scarce_target_graph, full
 from code.audits.federated_transfer_benefit import _evaluate, donor_split, fit_fit_only_scaler, scarce_split
 from code.federated.formal_btd import CLIENT_NAMES, _validation_indices, _make_client
 from code.federated.formal_btd_ablations import load_frozen_reference
+from code.federated.checkpointing import export_model_checkpoint, matrix_cells
 from code.federated.seeding import reproducibility_metadata, set_global_seed
 from code.models.centralized_gru import masked_scaled_mae
 from scripts.run_puc_rstattn_v2 import _batch_indices, _to_batch
@@ -81,7 +82,7 @@ def _evaluate_candidate(client: Any, state: Mapping[str, torch.Tensor], batch_si
     return float(_evaluate(model, client.grid, client.calibration_indices, client.scaler, device, client.history_start, batch_size)["node_macro"]["mae"])
 
 
-def run_fedfomo_scenario(grids: Mapping[str, Any], scarce_target: str, rounds: int, local_epochs: int, batch_size: int, device: str, epsilon: float, seed: int = 42, history_fraction: float = 0.25, client_names: tuple[str, ...] | None = None) -> dict[str, Any]:
+def run_fedfomo_scenario(grids: Mapping[str, Any], scarce_target: str, rounds: int, local_epochs: int, batch_size: int, device: str, epsilon: float, seed: int = 42, history_fraction: float = 0.25, client_names: tuple[str, ...] | None = None, checkpoint_root: Path | None = None, checkpoint_domain: str = "reference_grid", source_artifact: str = "fedfomo_runner", frozen_commits: Mapping[str, str] | None = None) -> dict[str, Any]:
     names = tuple(CLIENT_NAMES if client_names is None else client_names)
     if scarce_target not in names or set(names) != set(grids):
         raise ValueError("FedFomo client_names must exactly match grids and include the scarce target")
@@ -144,6 +145,12 @@ def run_fedfomo_scenario(grids: Mapping[str, Any], scarce_target: str, rounds: i
     split = scarce_split(grids[scarce_target], history_fraction)
     target_client = next(client for client in clients if client.grid_name == scarce_target)
     primary = {"audit": _evaluate(target_client.model, grids[scarce_target], split.audit_indices, target_client.scaler, device, split.available_start, batch_size), "validation": _evaluate(target_client.model, grids[scarce_target], _validation_indices(grids[scarce_target]), target_client.scaler, device, None, batch_size)}
+    if checkpoint_root is not None:
+        public_target = scarce_target
+        if checkpoint_domain == "industrial_external":
+            public_target = scarce_target
+        cell = next(item for item in matrix_cells() if item["domain"] == checkpoint_domain and item["target"] == public_target and item["seed"] == seed and item["history_fraction"] == history_fraction and item["method"] == "fedfomo_style")
+        export_model_checkpoint(root=checkpoint_root, cell=cell, model=target_client.model, grid=grids[scarce_target], scaler=target_client.scaler, graph_metadata=target_client.graph.diagnostics, source_artifact=source_artifact, frozen_commits=frozen_commits or {}, final_round=rounds)
     return {"scarce_target_metrics": primary, "round_history": history, "final_round_peer_weights": history[-1]["peer_weights"], "metadata": {"scarce_target": scarce_target, "validation_used_for_peer_weighting": False, "audit_used_for_peer_weighting": False, "test_evaluated": False, "communication_round_selection": "fixed_final_round"}}
 
 
@@ -152,12 +159,12 @@ def _macro_from_metrics(metrics_by_target: Mapping[str, Any], target_names: tupl
     return {split: {scope: {metric: float(np.mean([metrics_by_target[target][split][scope][metric] for target in names])) for metric in ("mae", "rmse", "wape_pct", "smape_pct")} for scope in ("node_macro", "grid_aggregate")} for split in ("audit", "validation")}
 
 
-def run_fedfomo(grids: Mapping[str, Any], reference: Path | str | Mapping[str, Any], rounds: int = 10, local_epochs: int = 5, batch_size: int = 32, device: str = "cpu", epsilon: float = EPSILON, direct_transfer_reference: Path | str | Mapping[str, Any] | None = None, seed: int = 42, baseline_reference: Path | str | Mapping[str, Any] | None = None, history_fraction: float = 0.25, client_names: tuple[str, ...] | None = None, primary_targets: tuple[str, ...] | None = None) -> dict[str, Any]:
+def run_fedfomo(grids: Mapping[str, Any], reference: Path | str | Mapping[str, Any], rounds: int = 10, local_epochs: int = 5, batch_size: int = 32, device: str = "cpu", epsilon: float = EPSILON, direct_transfer_reference: Path | str | Mapping[str, Any] | None = None, seed: int = 42, baseline_reference: Path | str | Mapping[str, Any] | None = None, history_fraction: float = 0.25, client_names: tuple[str, ...] | None = None, primary_targets: tuple[str, ...] | None = None, checkpoint_root: Path | None = None, checkpoint_domain: str = "reference_grid", source_artifact: str = "fedfomo_runner", frozen_commits: Mapping[str, str] | None = None) -> dict[str, Any]:
     set_global_seed(seed)
     frozen = load_frozen_reference(reference)
     names = tuple(CLIENT_NAMES if client_names is None else client_names)
     targets = tuple(names if primary_targets is None else primary_targets)
-    scenarios = {target: run_fedfomo_scenario(grids, target, rounds, local_epochs, batch_size, device, epsilon, seed, history_fraction, names) for target in targets}
+    scenarios = {target: run_fedfomo_scenario(grids, target, rounds, local_epochs, batch_size, device, epsilon, seed, history_fraction, names, checkpoint_root, checkpoint_domain, source_artifact, frozen_commits) for target in targets}
     primary = {target: scenarios[target]["scarce_target_metrics"] for target in targets}
     macro = _macro_from_metrics(primary, targets)
     comparisons, wins = {}, {}

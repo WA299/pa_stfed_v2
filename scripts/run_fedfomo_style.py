@@ -91,6 +91,7 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--history-fraction", type=float, default=0.25)
     parser.add_argument("--force", action="store_true")
+    parser.add_argument("--checkpoint-root", type=Path, default=None, help="opt-in tensor-only pre-TEST export root")
     args = parser.parse_args()
     run_mode = "synthetic_smoke" if args.synthetic_smoke else "real"
     historical_25pct = is_historical_25pct(args.seed, args.history_fraction)
@@ -140,7 +141,7 @@ def main() -> None:
     set_global_seed(args.seed)
     if historical_25pct and args.baseline_json is not None:
         baseline_reference = json.loads(args.baseline_json.read_text(encoding="utf-8"))
-    report = run_fedfomo(grids, reference, args.rounds, args.local_epochs, batch_size, args.device, direct_transfer_reference=direct, baseline_reference=baseline_reference, seed=args.seed, history_fraction=args.history_fraction)
+    report = run_fedfomo(grids, reference, args.rounds, args.local_epochs, batch_size, args.device, direct_transfer_reference=direct, baseline_reference=baseline_reference, seed=args.seed, history_fraction=args.history_fraction, checkpoint_root=args.checkpoint_root)
     report["frozen_direct_transfer_metrics"] = {target: direct["scenarios"][target]["metrics"] for target in CLIENT_NAMES}
     report["run_mode"] = run_mode
     report["artifact_type"] = "fedfomo_style"

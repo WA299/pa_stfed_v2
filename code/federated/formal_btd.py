@@ -13,6 +13,7 @@ from code.audits.federated_transfer_benefit import IndexDataset, _evaluate, dono
 from code.data.forecast_dataset import ForecastFeatureScaler
 from code.federated.trainer import FederatedClient, FederatedTrainer
 from code.federated.parameter_groups import parameter_groups
+from code.federated.checkpointing import export_model_checkpoint, matrix_cells
 from code.federated.seeding import reproducibility_metadata, set_global_seed
 from code.models.puc_rstattn_v2_conditional_utility import PUCRSTAttnV2ConditionalUtility, build_conditional_utility_graph
 
@@ -162,12 +163,15 @@ def _copy_compatible_trainables(model: Any, donor_state: Mapping[str, Any]) -> t
     return tuple(sorted(copied))
 
 
-def _run_federated(grids: dict[str, Any], target: str, method: str, device: str, rounds: int, local_epochs: int, batch_size: int, seed: int = 42, history_fraction: float = 0.25) -> tuple[dict[str, Any], dict[str, Any]]:
+def _run_federated(grids: dict[str, Any], target: str, method: str, device: str, rounds: int, local_epochs: int, batch_size: int, seed: int = 42, history_fraction: float = 0.25, checkpoint_root: Path | None = None, source_artifact: str = "formal_federated_runner", frozen_commits: Mapping[str, str] | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
     clients, split, _graph, graph_metadata = prepare_scenario_clients(grids, target, device, seed, history_fraction)
     algorithm = {"fedavg": "standard", "fedprox": "fedprox", "fedper": "fedper"}[method]
     report = FederatedTrainer(clients, "fedavg_all", rounds=rounds, local_epochs=local_epochs, batch_size=batch_size, learning_rate=1e-3, seed=seed, device=device, algorithm=algorithm, evaluate_validation_during_training=False).run()
     target_client = next(client for client in clients if client.grid_name == target)
     metrics = _method_metrics(target_client.model, grids[target], split, target_client.scaler, device, batch_size)
+    if checkpoint_root is not None:
+        cell = next(item for item in matrix_cells() if item["domain"] == "reference_grid" and item["target"] == target and item["seed"] == seed and item["history_fraction"] == history_fraction and item["method"] == method)
+        export_model_checkpoint(root=checkpoint_root, cell=cell, model=target_client.model, grid=grids[target], scaler=target_client.scaler, graph_metadata=graph_metadata[target], source_artifact=source_artifact, frozen_commits=frozen_commits or {}, final_round=rounds)
     counts, weights = report["local_sample_counts"], report["round_history"][-1]["aggregation_weights"]
     total = float(sum(counts.values()))
     expected = {name: counts[name] / total for name in counts}
@@ -176,7 +180,7 @@ def _run_federated(grids: dict[str, Any], target: str, method: str, device: str,
     return metrics, {"federated_report": report, "local_sample_counts": counts, "aggregation_weights": weights, "graph_metadata": graph_metadata}
 
 
-def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str | None] | None = None, device: str = "cpu", rounds: int = 10, local_epochs: int = 5, max_epochs: int = 50, btd_variant: str = "btd_fl", batch_size: int = 32, selection_metadata: dict[str, Any] | None = None, seed: int = 42, history_fraction: float = 0.25) -> dict[str, Any]:
+def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str | None] | None = None, device: str = "cpu", rounds: int = 10, local_epochs: int = 5, max_epochs: int = 50, btd_variant: str = "btd_fl", batch_size: int = 32, selection_metadata: dict[str, Any] | None = None, seed: int = 42, history_fraction: float = 0.25, checkpoint_root: Path | None = None, source_artifact: str = "formal_btd_runner", frozen_commits: Mapping[str, str] | None = None) -> dict[str, Any]:
     set_global_seed(seed)
     variants = {"btd_fl", "btd_no_benefit_selection", "btd_no_zero_transfer", "btd_full_model_transfer"}
     if btd_variant not in variants:
@@ -212,6 +216,9 @@ def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str |
 
         local_model = full_model(grid, graph, device, seed=seed); local_spatial = _spatial_buffer_snapshot(local_model); inject_temporal_state(local_model, {name: value for name, value in local_proxy_state.items() if name in parameter_groups(local_model)["temporal"]})
         local_state, local_full_training = train_full_model(local_model, grid, split.fit_indices, split.calibration_indices, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed); local_model.load_state_dict(local_state); local_metrics = _method_metrics(local_model, grid, split, scaler, device, batch_size)
+        if checkpoint_root is not None:
+            local_cell = next(item for item in matrix_cells() if item["domain"] == "reference_grid" and item["target"] == target and item["seed"] == seed and item["history_fraction"] == history_fraction and item["method"] == "local")
+            export_model_checkpoint(root=checkpoint_root, cell=local_cell, model=local_model, grid=grid, scaler=scaler, graph_metadata=graph.diagnostics, source_artifact=source_artifact, frozen_commits=frozen_commits or {}, selected_epoch=local_full_training.get("epochs_run"))
         if fallback:
             btd_metrics, btd_training = copy.deepcopy(local_metrics), {"fallback_exact_local": True, "full": copy.deepcopy(local_full_training)}
         elif btd_variant == "btd_full_model_transfer":
@@ -222,7 +229,7 @@ def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str |
             inject_temporal_state(btd_model, {name: value for name, value in adapted_by_donor[selected_donor]["state"].items() if name in parameter_groups(btd_model)["temporal"]}); state, training = train_full_model(btd_model, grid, split.fit_indices, split.calibration_indices, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed); btd_model.load_state_dict(state); btd_metrics = _method_metrics(btd_model, grid, split, scaler, device, batch_size); btd_training = {"adaptation": adapted_by_donor[selected_donor]["training"], "full": training, "transferred_parameter_names": list(parameter_groups(btd_model)["temporal"])}; del btd_model
         methods = {"scarce_local": local_metrics}; federated = {}
         for method in ("fedavg", "fedprox", "fedper"):
-            methods[method], federated[method] = _run_federated(grids, target, method, device, rounds, local_epochs, batch_size, seed, history_fraction)
+            methods[method], federated[method] = _run_federated(grids, target, method, device, rounds, local_epochs, batch_size, seed, history_fraction, checkpoint_root, source_artifact, frozen_commits)
         methods["btd_fl"] = btd_metrics
         selected_adaptation = adapted_by_donor.get(selected_donor)
         train = grid.splits["train"]
@@ -277,7 +284,9 @@ def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str |
 def run_formal_baselines(grids: dict[str, Any], device: str = "cpu", rounds: int = 10,
                          local_epochs: int = 5, max_epochs: int = 50,
                          batch_size: int = 32, seed: int = 42,
-                         history_fraction: float = 0.25) -> dict[str, Any]:
+                         history_fraction: float = 0.25, checkpoint_root: Path | None = None,
+                         source_artifact: str = "formal_baselines_runner",
+                         frozen_commits: Mapping[str, str] | None = None) -> dict[str, Any]:
     """Run only scarce-local and the three accepted fixed-round FL baselines."""
     set_global_seed(seed)
     scenarios: dict[str, Any] = {}
@@ -300,12 +309,16 @@ def run_formal_baselines(grids: dict[str, Any], device: str = "cpu", rounds: int
             device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed,
         )
         local_model.load_state_dict(local_state)
+        if checkpoint_root is not None:
+            local_cell = next(item for item in matrix_cells() if item["domain"] == "reference_grid" and item["target"] == target and item["seed"] == seed and item["history_fraction"] == history_fraction and item["method"] == "local")
+            export_model_checkpoint(root=checkpoint_root, cell=local_cell, model=local_model, grid=grid, scaler=scaler, graph_metadata=graph.diagnostics, source_artifact=source_artifact, frozen_commits=frozen_commits or {}, selected_epoch=local_training.get("epochs_run"))
         methods = {"scarce_local": _method_metrics(local_model, grid, split, scaler, device, batch_size)}
         federated: dict[str, Any] = {}
         for method in ("fedavg", "fedprox", "fedper"):
             methods[method], federated[method] = _run_federated(
                 grids, target, method, device, rounds, local_epochs, batch_size, seed,
                 history_fraction,
+                checkpoint_root, source_artifact, frozen_commits,
             )
         scenarios[target] = {
             "methods": methods,

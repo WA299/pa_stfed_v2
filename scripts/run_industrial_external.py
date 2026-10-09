@@ -85,6 +85,7 @@ def main() -> None:
     parser.add_argument("--synthetic-smoke", action="store_true")
     parser.add_argument("--method", choices=("baselines", "btd", "fedfomo", "all"), default="all")
     parser.add_argument("--force", action="store_true")
+    parser.add_argument("--checkpoint-root", type=Path, default=None, help="opt-in tensor-only pre-TEST export root")
     args = parser.parse_args()
     if args.synthetic_smoke:
         output_dir = args.output_dir / "smoke"
@@ -128,13 +129,13 @@ def main() -> None:
 
     if args.method in ("baselines", "all"):
         if should_run("industrial_baselines", "industrial_baselines", rounds, local_epochs):
-            reports.append(("industrial_baselines", run_external_baselines(grids, args.history_fraction, rounds, local_epochs, max_epochs, batch_size, args.device, args.seed)))
+            reports.append(("industrial_baselines", run_external_baselines(grids, args.history_fraction, rounds, local_epochs, max_epochs, batch_size, args.device, args.seed, args.checkpoint_root)))
     if args.method in ("btd", "all"):
         if should_run("industrial_btd_direct_transfer", "industrial_btd_direct_transfer", 0, 0):
-            reports.append(("industrial_btd_direct_transfer", run_external_btd(grids, args.history_fraction, max_epochs, batch_size, args.device, args.seed)))
+            reports.append(("industrial_btd_direct_transfer", run_external_btd(grids, args.history_fraction, max_epochs, batch_size, args.device, args.seed, args.checkpoint_root)))
     if args.method in ("fedfomo", "all"):
         if should_run("industrial_fedfomo_style", "industrial_fedfomo_style", rounds, local_epochs):
-            reports.append(("industrial_fedfomo_style", run_external_fedfomo(grids, args.history_fraction, rounds, local_epochs, batch_size, args.device, args.seed, max_epochs_metadata=max_epochs)))
+            reports.append(("industrial_fedfomo_style", run_external_fedfomo(grids, args.history_fraction, rounds, local_epochs, batch_size, args.device, args.seed, max_epochs_metadata=max_epochs, checkpoint_root=args.checkpoint_root, checkpoint_domain="industrial_external")))
     output_dir.mkdir(parents=True, exist_ok=True)
     for stem, report in reports:
         report["run_mode"] = run_mode

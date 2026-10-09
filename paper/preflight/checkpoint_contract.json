@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "checkpoint_format": "torch tensor-only state_dict .pt plus .pt.json sidecar",
+  "model_class": "PUCRSTAttnV2ConditionalUtility",
+  "feature_indices": [0, 2, 3, 4, 5, 6],
+  "history_length": 168,
+  "forecast_horizon": 1,
+  "methods": ["local", "fedavg", "fedprox", "fedper", "fedfomo_style", "btd_fl_direct_transfer"],
+  "local_aliases": {"reference_grid": "scarce_local", "industrial_external": "industrial_scarce_local"},
+  "seeds": [42, 123, 2026],
+  "history_fractions": [0.25, 0.5],
+  "required_test_flags": {"test_accessed": false, "test_evaluated": false, "industrial_test_evaluated": false, "reference_grid_tests_evaluated": false},
+  "selection_points": {"local": "best_calibration_full_model", "btd_fl_direct_transfer": "final_best_full_model", "fedavg": "fixed_final_round_10", "fedprox": "fixed_final_round_10", "fedper": "fixed_final_round_10", "fedfomo_style": "fixed_final_round_10"},
+  "atomic_write": true,
+  "safe_deserialization": "torch.load(weights_only=True, map_location=cpu); tensor values only",
+  "test_unlock_requires": ["all_180_sidecars_verified", "all_180_hashes_verified", "all_audit_validation_parity_passed", "no_test_access"]
+}

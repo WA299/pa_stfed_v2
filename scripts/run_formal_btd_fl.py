@@ -108,6 +108,7 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--history-fraction", type=float, default=0.25)
     parser.add_argument("--force", action="store_true")
+    parser.add_argument("--checkpoint-root", type=Path, default=None, help="opt-in tensor-only pre-TEST export root")
     parser.add_argument("--baseline-only", action="store_true", help="write the seed-specific formal baseline artifact")
     args = parser.parse_args()
     run_mode = "synthetic_smoke" if args.synthetic_smoke else "real"
@@ -138,9 +139,9 @@ def main() -> None:
     donors = load_selected_donors(args.audit_json) if args.audit_json.exists() else None
     smoke_batch_size = 256 if args.synthetic_smoke else 32
     if args.baseline_only:
-        report = run_formal_baselines(grids, args.device, args.rounds, args.local_epochs, args.max_epochs, smoke_batch_size, seed=args.seed, history_fraction=args.history_fraction)
+        report = run_formal_baselines(grids, args.device, args.rounds, args.local_epochs, args.max_epochs, smoke_batch_size, seed=args.seed, history_fraction=args.history_fraction, checkpoint_root=args.checkpoint_root)
     else:
-        report = run_formal_benchmark(grids, donors, args.device, args.rounds, args.local_epochs, args.max_epochs, args.btd_variant, smoke_batch_size, seed=args.seed, history_fraction=args.history_fraction)
+        report = run_formal_benchmark(grids, donors, args.device, args.rounds, args.local_epochs, args.max_epochs, args.btd_variant, smoke_batch_size, seed=args.seed, history_fraction=args.history_fraction, checkpoint_root=args.checkpoint_root)
     report["run_mode"] = run_mode
     report["artifact_type"] = "formal_baselines" if args.baseline_only else "formal_btd"
     output.write_text(json.dumps(report, indent=2, default=lambda value: value.tolist() if isinstance(value, np.ndarray) else value) + "\n", encoding="utf-8")

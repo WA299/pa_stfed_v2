@@ -29,6 +29,7 @@ from code.federated.formal_btd import (
 )
 from code.federated.formal_btd_ablations import load_frozen_reference, _frozen_selected_donors
 from code.federated.parameter_groups import parameter_groups
+from code.federated.checkpointing import export_model_checkpoint, matrix_cells
 from code.federated.seeding import reproducibility_metadata, set_global_seed
 from code.models.puc_rstattn_v2_conditional_utility import build_conditional_utility_graph
 
@@ -104,6 +105,9 @@ def run_direct_transfer(
     grids: Mapping[str, Any], reference: Path | str | Mapping[str, Any],
     device: str = "cpu", max_epochs: int = 50, batch_size: int = 32, seed: int = 42,
     history_fraction: float = 0.25,
+    checkpoint_root: Path | None = None,
+    source_artifact: str = "formal_btd_direct_transfer_runner",
+    frozen_commits: Mapping[str, str] | None = None,
 ) -> dict[str, Any]:
     """Recompute benefit probes and train only revised BTD target models."""
     # Historical seed-42 synthetic callers relied on the pre-existing process
@@ -220,6 +224,20 @@ def run_direct_transfer(
         if abs(history_fraction - 0.25) < 1e-9:
             scenario_metadata["selection_matches_previous_formal_run"] = selected == old_selected[target]
         scenario_payload = {"metrics": metrics, "metadata": scenario_metadata}
+        if checkpoint_root is not None:
+            cell = next(item for item in matrix_cells() if item["domain"] == "reference_grid" and item["target"] == target and item["seed"] == seed and item["history_fraction"] == history_fraction and item["method"] == "btd_fl_direct_transfer")
+            export_model_checkpoint(
+                root=checkpoint_root, cell=cell, model=model, grid=grid, scaler=scaler,
+                graph_metadata=graph.diagnostics, source_artifact=source_artifact,
+                frozen_commits=frozen_commits or {}, selected_epoch=training["full"].get("epochs_run"),
+                selection={
+                    "selected_donor": selected, "selected_calibration_benefit": float(selected_benefit),
+                    "zero_transfer_fallback": bool(fallback),
+                    "adapted_probe_states_used_for_final_initialization": False,
+                    "raw_selected_donor_temporal_state_used": not fallback,
+                    "transferred_parameter_names": training.get("transferred_parameter_names", []),
+                },
+            )
         if abs(history_fraction - 0.25) < 1e-9:
             scenario_payload["frozen_comparator_metrics"] = {
                 name: main_target[name] for name in ("scarce_local", "fedavg", "fedprox", "fedper", "btd_fl")

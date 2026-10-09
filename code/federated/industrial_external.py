@@ -33,6 +33,7 @@ from code.audits.federated_transfer_benefit import (
 from code.data.industrial_mvlv_loader import load_industrial_mvlv
 from code.data.lv_grid_loader import LVGridLoader
 from code.federated.parameter_groups import parameter_groups
+from code.federated.checkpointing import export_model_checkpoint, matrix_cells
 from code.federated.trainer import FederatedTrainer
 from code.models.puc_rstattn_v2_conditional_utility import build_conditional_utility_graph
 
@@ -194,6 +195,7 @@ def _local_target(
     max_epochs: int,
     batch_size: int,
     seed: int,
+    checkpoint_export: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     scaler = fit_fit_only_scaler(grid, split.fit_indices, split.available_start)
     local_proxy_state, proxy_training = _train_proxy_state(
@@ -213,6 +215,14 @@ def _local_target(
         seed=seed,
     )
     model.load_state_dict(best_state)
+    if checkpoint_export is not None:
+        export_model_checkpoint(
+            root=Path(checkpoint_export["root"]), cell=checkpoint_export["cell"], model=model,
+            grid=grid, scaler=scaler, graph_metadata=graph.diagnostics,
+            source_artifact=checkpoint_export["source_artifact"],
+            frozen_commits=checkpoint_export.get("frozen_commits", {}),
+            selected_epoch=full_training.get("epochs_run"),
+        )
     return _target_metrics(model, grid, split, scaler, device, batch_size), {
         "proxy_training": proxy_training,
         "full_model_training": full_training,
@@ -232,6 +242,9 @@ def _run_federated(
     batch_size: int,
     device: str,
     seed: int,
+    checkpoint_root: Path | None = None,
+    source_artifact: str = "industrial_external_runner",
+    frozen_commits: Mapping[str, str] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     clients, split, _graph, graph_metadata = _client_bundle(grids, history_fraction, device, seed)
     algorithm = {"fedavg": "standard", "fedprox": "fedprox", "fedper": "fedper"}[method]
@@ -250,6 +263,14 @@ def _run_federated(
     ).run()
     target_client = next(client for client in clients if client.grid_name == INDUSTRIAL_TARGET)
     metrics = _target_metrics(target_client.model, grids[INDUSTRIAL_TARGET], split, target_client.scaler, device, batch_size)
+    if checkpoint_root is not None:
+        cell = next(item for item in matrix_cells() if item["domain"] == "industrial_external" and item["seed"] == seed and item["history_fraction"] == history_fraction and item["method"] == method)
+        export_model_checkpoint(
+            root=checkpoint_root, cell=cell, model=target_client.model,
+            grid=grids[INDUSTRIAL_TARGET], scaler=target_client.scaler,
+            graph_metadata=graph_metadata[INDUSTRIAL_TARGET], source_artifact=source_artifact,
+            frozen_commits=frozen_commits or {}, final_round=rounds,
+        )
     counts = report["local_sample_counts"]
     weights = report["round_history"][-1]["aggregation_weights"]
     expected = {name: count / float(sum(counts.values())) for name, count in counts.items()}
@@ -294,6 +315,9 @@ def run_external_baselines(
     batch_size: int = 32,
     device: str = "cpu",
     seed: int = 42,
+    checkpoint_root: str | Path | None = None,
+    source_artifact: str = "industrial_external_baselines",
+    frozen_commits: Mapping[str, str] | None = None,
 ) -> dict[str, Any]:
     _, set_global_seed = _seed_helpers()
     set_global_seed(seed)
@@ -302,12 +326,17 @@ def run_external_baselines(
     graph = build_scarce_target_graph(grid, split)
     scaler = fit_fit_only_scaler(grid, split.fit_indices, split.available_start)
     methods: dict[str, Any] = {}
-    local_metrics, local_training = _local_target(grid, split, graph, device, max_epochs, batch_size, seed)
+    local_cell = next(item for item in matrix_cells() if item["domain"] == "industrial_external" and item["seed"] == seed and item["history_fraction"] == history_fraction and item["method"] == "local")
+    local_metrics, local_training = _local_target(
+        grid, split, graph, device, max_epochs, batch_size, seed,
+        {"root": checkpoint_root, "cell": local_cell, "source_artifact": source_artifact, "frozen_commits": frozen_commits or {}} if checkpoint_root is not None else None,
+    )
     methods["industrial_scarce_local"] = local_metrics
     federated: dict[str, Any] = {}
     for method in ("fedavg", "fedprox", "fedper"):
         methods[method], federated[method] = _run_federated(
-            grids, method, history_fraction, rounds, local_epochs, batch_size, device, seed
+            grids, method, history_fraction, rounds, local_epochs, batch_size, device, seed,
+            Path(checkpoint_root) if checkpoint_root is not None else None, source_artifact, frozen_commits,
         )
     scenario = {
         "methods": methods,
@@ -352,6 +381,9 @@ def run_external_btd(
     batch_size: int = 32,
     device: str = "cpu",
     seed: int = 42,
+    checkpoint_root: str | Path | None = None,
+    source_artifact: str = "industrial_external_btd",
+    frozen_commits: Mapping[str, str] | None = None,
 ) -> dict[str, Any]:
     _, set_global_seed = _seed_helpers()
     set_global_seed(seed)
@@ -425,6 +457,7 @@ def run_external_btd(
         metrics = copy.deepcopy(local_metrics)
         full_training = {"fallback_exact_local": True, **local_full_training}
         transferred_names: list[str] = []
+        final_model = local_model
     else:
         model = full_model(target_grid, target_graph, device, seed=seed)
         transferred_names = list(inject_temporal_state(model, donor_states[selected_donor]))
@@ -441,6 +474,23 @@ def run_external_btd(
         )
         model.load_state_dict(best_state)
         metrics = _target_metrics(model, target_grid, target_split, target_scaler, device, batch_size)
+        final_model = model
+    if checkpoint_root is not None:
+        cell = next(item for item in matrix_cells() if item["domain"] == "industrial_external" and item["seed"] == seed and item["history_fraction"] == history_fraction and item["method"] == "btd_fl_direct_transfer")
+        export_model_checkpoint(
+            root=Path(checkpoint_root), cell=cell, model=final_model, grid=target_grid,
+            scaler=target_scaler, graph_metadata=target_graph.diagnostics,
+            source_artifact=source_artifact, frozen_commits=frozen_commits or {},
+            selected_epoch=full_training.get("epochs_run"),
+            selection={
+                "selected_donor": selected_donor,
+                "selected_calibration_benefit": float(maximum_benefit),
+                "zero_transfer_fallback": bool(fallback),
+                "raw_selected_donor_temporal_state_used": not fallback,
+                "adapted_probe_states_used_for_final_initialization": False,
+                "transferred_parameter_names": transferred_names,
+            },
+        )
     scenario = {
         "metrics": metrics,
         "metadata": {
@@ -501,6 +551,10 @@ def run_external_fedfomo(
     device: str = "cpu",
     seed: int = 42,
     max_epochs_metadata: int = 50,
+    checkpoint_root: str | Path | None = None,
+    checkpoint_domain: str = "industrial_external",
+    source_artifact: str = "industrial_external_fedfomo",
+    frozen_commits: Mapping[str, str] | None = None,
 ) -> dict[str, Any]:
     from code.federated.fedfomo_style import run_fedfomo_scenario
 
@@ -517,6 +571,10 @@ def run_external_fedfomo(
         seed,
         history_fraction,
         EXTERNAL_CLIENT_NAMES,
+        checkpoint_root=Path(checkpoint_root) if checkpoint_root is not None else None,
+        checkpoint_domain=checkpoint_domain,
+        source_artifact=source_artifact,
+        frozen_commits=frozen_commits,
     )
     scenario["metadata"].update(
         {
