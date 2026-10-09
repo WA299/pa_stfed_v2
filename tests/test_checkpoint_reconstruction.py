@@ -22,7 +22,11 @@ from code.federated.checkpointing import (
 from code.federated.accepted_results import resolve_all_accepted_results
 from code.federated.accepted_results import direct_transfer_reference_input, resolve_accepted_result
 from code.federated.parameter_groups import FROZEN_TEMPORAL_PARAMETER_NAMES
-from scripts.reconstruct_frozen_checkpoints import build_reconstruction_plan, execute_reconstruction
+from scripts.reconstruct_frozen_checkpoints import (
+    _accepted_source_path,
+    build_reconstruction_plan,
+    execute_reconstruction,
+)
 from scripts.validate_frozen_checkpoints import expected_cell_map, validate_frozen_checkpoints
 
 
@@ -193,6 +197,21 @@ def test_seed42_direct_transfer_uses_formal_btd_input_but_direct_artifact_for_pa
     parity_source = resolve_accepted_result(direct_cell)["source_artifact"]
     assert parity_source.name == "btd_fl_direct_transfer_25pct_seed42.json"
     assert parity_source != reference
+
+
+def test_reconstruction_runner_uses_cell_id_for_accepted_source_lookup():
+    mapping = resolve_all_accepted_results()
+    cell = next(
+        item for item in matrix_cells()
+        if item["domain"] == "reference_grid"
+        and item["target"] == REFERENCE_TARGETS[0]
+        and item["seed"] == 42
+        and item["history_fraction"] == 0.25
+        and item["method"] == "btd_fl_direct_transfer"
+    )
+    source = _accepted_source_path(mapping, cell)
+    assert source.name == "btd_fl_direct_transfer_25pct_seed42.json"
+    assert source == resolve_accepted_result(cell)["source_artifact"]
 
 
 def test_parity_record_without_reloaded_checkpoint_cannot_pass():

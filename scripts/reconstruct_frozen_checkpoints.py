@@ -85,6 +85,24 @@ def _assert_isolated_output(output: Path) -> None:
         raise ValueError("reconstruction output cannot be a historical result directory")
 
 
+def _accepted_source_path(mapping: Mapping[str, Mapping[str, Any]], cell: Mapping[str, Any]) -> Path:
+    """Return the exact accepted artifact for one matrix cell.
+
+    ``resolve_all_accepted_results`` is keyed by ``cell_id``.  Keep this
+    lookup explicit so the reconstruction runner never confuses a cell
+    mapping (a dict) with its string identity.
+    """
+    cell_id = str(cell["cell_id"])
+    try:
+        resolved = mapping[cell_id]
+    except KeyError as exc:
+        raise KeyError(f"accepted-result mapping is missing {cell_id}") from exc
+    source = resolved.get("source_artifact")
+    if not isinstance(source, Path):
+        source = Path(str(source))
+    return source
+
+
 def build_parity_cell(
     cell: Mapping[str, Any], observed_metrics: Mapping[str, Any],
     checkpoint: Path | None = None,
@@ -280,28 +298,32 @@ def run_frozen_reconstruction(
     replay_reference_grids: dict[str, Any] = {}
     replay_industrial_grids: dict[str, Any] = {}
     loader = LVGridLoader(data_root, mapping_json)
+
     for fraction in (0.25, 0.50):
         for seed in (42, 123, 2026):
             references = {name: loader.load(name) for name in CLIENT_NAMES}
             replay_reference_grids = references
+            local_cell = next(item for item in matrix_cells() if item["domain"] == "reference_grid" and item["seed"] == seed and item["history_fraction"] == fraction and item["method"] == "local")
             baseline = run_formal_baselines(
                 references, device=device, rounds=10, local_epochs=5, max_epochs=50,
                 batch_size=32, seed=seed, history_fraction=fraction,
                 checkpoint_root=output, frozen_commits=FROZEN_COMMITS,
-                source_artifact=str(mapping[next(item for item in matrix_cells() if item["domain"] == "reference_grid" and item["seed"] == seed and item["history_fraction"] == fraction and item["method"] == "local")]["source_artifact"]),
+                source_artifact=str(_accepted_source_path(mapping, local_cell)),
             )
             _record_report_metrics(observed, baseline, domain="reference_grid", fraction=fraction, seed=seed, family="baseline")
             # ``reference`` is the historical formal BTD input consumed by
             # load_frozen_reference; ``source_artifact`` remains the exact
             # direct-transfer artifact used for final per-cell parity.
-            reference_source = mapping[next(item for item in matrix_cells() if item["domain"] == "reference_grid" and item["seed"] == seed and item["history_fraction"] == fraction and item["method"] == "btd_fl_direct_transfer")]["source_artifact"]
+            reference_cell = next(item for item in matrix_cells() if item["domain"] == "reference_grid" and item["seed"] == seed and item["history_fraction"] == fraction and item["method"] == "btd_fl_direct_transfer")
+            reference_source = _accepted_source_path(mapping, reference_cell)
             btd_reference_input = direct_transfer_reference_input(history_fraction=fraction, seed=seed)
             if btd_reference_input is not None:
                 # Fail before training if the historical input is missing or
                 # no longer satisfies the frozen load_frozen_reference schema.
                 from code.federated.formal_btd_ablations import load_frozen_reference
                 load_frozen_reference(btd_reference_input)
-            reference_fomo_source = mapping[next(item for item in matrix_cells() if item["domain"] == "reference_grid" and item["seed"] == seed and item["history_fraction"] == fraction and item["method"] == "fedfomo_style")]["source_artifact"]
+            reference_fomo_cell = next(item for item in matrix_cells() if item["domain"] == "reference_grid" and item["seed"] == seed and item["history_fraction"] == fraction and item["method"] == "fedfomo_style")
+            reference_fomo_source = _accepted_source_path(mapping, reference_fomo_cell)
             direct = run_direct_transfer(
                 references, btd_reference_input, device=device, max_epochs=50, batch_size=32,
                 seed=seed, history_fraction=fraction, checkpoint_root=output,
@@ -320,7 +342,8 @@ def run_frozen_reconstruction(
 
             grids = load_external_grids(data_root, mapping_json)
             replay_industrial_grids = grids
-            industrial_source = mapping[next(item for item in matrix_cells() if item["domain"] == "industrial_external" and item["seed"] == seed and item["history_fraction"] == fraction and item["method"] == "local")]["source_artifact"]
+            industrial_cell = next(item for item in matrix_cells() if item["domain"] == "industrial_external" and item["seed"] == seed and item["history_fraction"] == fraction and item["method"] == "local")
+            industrial_source = _accepted_source_path(mapping, industrial_cell)
             ext_baseline = run_external_baselines(
                 grids, history_fraction=fraction, rounds=10, local_epochs=5, max_epochs=50,
                 batch_size=32, device=device, seed=seed, checkpoint_root=output,
@@ -330,11 +353,11 @@ def run_frozen_reconstruction(
             ext_btd = run_external_btd(
                 grids, history_fraction=fraction, max_epochs=50, batch_size=32,
                 device=device, seed=seed, checkpoint_root=output,
-                source_artifact=str(mapping[next(item for item in matrix_cells() if item["domain"] == "industrial_external" and item["seed"] == seed and item["history_fraction"] == fraction and item["method"] == "btd_fl_direct_transfer")]["source_artifact"]),
+                source_artifact=str(_accepted_source_path(mapping, next(item for item in matrix_cells() if item["domain"] == "industrial_external" and item["seed"] == seed and item["history_fraction"] == fraction and item["method"] == "btd_fl_direct_transfer"))),
                 frozen_commits=FROZEN_COMMITS,
             )
             _record_report_metrics(observed, ext_btd, domain="industrial_external", fraction=fraction, seed=seed, family="btd")
-            industrial_fomo_source = mapping[next(item for item in matrix_cells() if item["domain"] == "industrial_external" and item["seed"] == seed and item["history_fraction"] == fraction and item["method"] == "fedfomo_style")]["source_artifact"]
+            industrial_fomo_source = _accepted_source_path(mapping, next(item for item in matrix_cells() if item["domain"] == "industrial_external" and item["seed"] == seed and item["history_fraction"] == fraction and item["method"] == "fedfomo_style"))
             ext_fomo = run_external_fedfomo(
                 grids, history_fraction=fraction, rounds=10, local_epochs=5, batch_size=32,
                 device=device, seed=seed, max_epochs_metadata=50, checkpoint_root=output,
