@@ -24,10 +24,14 @@ from code.federated.accepted_results import direct_transfer_reference_input, res
 from code.federated.parameter_groups import FROZEN_TEMPORAL_PARAMETER_NAMES
 from scripts.reconstruct_frozen_checkpoints import (
     _accepted_source_path,
+    _block_ready,
+    _write_progress,
     build_reconstruction_plan,
     execute_reconstruction,
 )
 from scripts.validate_frozen_checkpoints import expected_cell_map, validate_frozen_checkpoints
+from scripts.run_final_test_once import preflight as final_test_preflight
+from scripts.run_graduation_experiment import status as launcher_status
 
 
 def test_exact_180_matrix_and_aliases():
@@ -155,6 +159,15 @@ def test_duplicate_and_extra_parity_cell_ids_fail_closed():
     root.rmdir(); tmp_path.rmdir()
 
 
+def test_extra_checkpoint_file_fails_closed(tmp_path):
+    root = tmp_path / "checkpoints"
+    root.mkdir()
+    (root / "unexpected.pt").write_bytes(b"not a matrix checkpoint")
+    result = validate_frozen_checkpoints(root)
+    assert result["test_unlock_ready"] is False
+    assert len(result["extra_checkpoints"]) == 1
+
+
 def test_reconstruction_authorization_is_separate_from_test_and_output_isolated():
     with pytest.raises(PermissionError):
         execute_reconstruction(Path("artifacts/frozen_pretest_checkpoints/test"), authorize_reconstruction=False, cell_runner=lambda *_: {})
@@ -212,6 +225,23 @@ def test_reconstruction_runner_uses_cell_id_for_accepted_source_lookup():
     source = _accepted_source_path(mapping, cell)
     assert source.name == "btd_fl_direct_transfer_25pct_seed42.json"
     assert source == resolve_accepted_result(cell)["source_artifact"]
+
+
+def test_resume_never_skips_missing_or_incomplete_checkpoint_block(tmp_path):
+    cells = [
+        item for item in matrix_cells()
+        if item["domain"] == "reference_grid"
+        and item["seed"] == 42
+        and item["history_fraction"] == 0.25
+        and item["method"] in {"local", "fedavg", "fedprox", "fedper"}
+    ]
+    ready, failures = _block_ready(tmp_path, cells)
+    assert ready is False
+    assert len(failures) == 16
+    progress = _write_progress(tmp_path, mapping_coverage=180, started_at="start")
+    assert progress["completed_cells"] == 0
+    assert progress["test_accessed"] is False
+    assert json.loads((tmp_path / "reconstruction_progress.json").read_text())["completed_cells"] == 0
 
 
 def test_parity_record_without_reloaded_checkpoint_cannot_pass():
@@ -299,3 +329,23 @@ def test_actual_frozen_model_checkpoint_replay_and_temporal_only_transfer():
             elif item.is_dir():
                 item.rmdir()
         tmp_path.rmdir()
+
+
+def test_final_test_entrypoint_is_locked_before_any_grid_loading(tmp_path):
+    """Authorization alone cannot open TEST without a protocol lock."""
+    with pytest.raises(RuntimeError, match="protocol-lock file is missing"):
+        final_test_preflight(
+            tmp_path / "checkpoints",
+            tmp_path / "parity_report.json",
+            tmp_path / "test_protocol_lock.json",
+            authorize_test=True,
+        )
+
+
+def test_unified_launcher_status_is_read_only_and_reports_180_cell_contract(tmp_path):
+    report = launcher_status(tmp_path / "checkpoints", tmp_path / "test_output")
+    assert report["phase"] == "not_started"
+    assert report["completed_cells"] == 0
+    assert report["total_cells"] == 180
+    assert report["test_accessed"] is False
+    assert report["test_evaluated"] is False

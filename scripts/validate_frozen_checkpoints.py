@@ -199,6 +199,11 @@ def validate_frozen_checkpoints(root: Path = DEFAULT_ROOT, parity_path: Path | N
         parity_path = Path(parity_path)
     cells = matrix_cells()
     missing, invalid = [], []
+    expected_paths = {checkpoint_path(root, cell).resolve() for cell in cells}
+    extra_checkpoints = sorted(
+        str(path.resolve()) for path in root.rglob("*.pt")
+        if path.resolve() not in expected_paths
+    ) if root.is_dir() else []
     for cell in cells:
         path = checkpoint_path(root, cell)
         if not path.is_file() or not path.with_suffix(path.suffix + ".json").is_file():
@@ -211,6 +216,18 @@ def validate_frozen_checkpoints(root: Path = DEFAULT_ROOT, parity_path: Path | N
                 "reference_grid_tests_evaluated": False,
             }, production=True)
             validate_matrix_identity(metadata, cell)
+            # A production checkpoint is resumable only when its sidecar is
+            # bound to the exact frozen per-cell artifact/key mapping.  The
+            # model file must never be accepted merely because it has a valid
+            # tensor hash and a plausible matrix identity.
+            accepted = resolve_accepted_result(cell)
+            accepted_path = str(accepted["source_artifact"].resolve())
+            if metadata.get("source_artifact") != accepted_path:
+                raise ValueError("checkpoint source_artifact is not the exact accepted per-cell artifact")
+            if metadata.get("accepted_result_artifact") != accepted_path:
+                raise ValueError("checkpoint accepted_result_artifact is inconsistent with accepted mapping")
+            if dict(metadata.get("accepted_result_json_keys", {})) != dict(accepted["source_json_key"]):
+                raise ValueError("checkpoint accepted_result_json_keys are inconsistent with accepted mapping")
             if not _finite(metadata):
                 raise ValueError("checkpoint metadata is non-finite")
         except Exception as exc:  # fail closed, report every cell
@@ -222,11 +239,12 @@ def validate_frozen_checkpoints(root: Path = DEFAULT_ROOT, parity_path: Path | N
         "total_cells": len(cells),
         "missing_cells": missing,
         "invalid_cells": invalid,
+        "extra_checkpoints": extra_checkpoints,
         "parity_failures": parity_failures,
         "parity_report_present": parity is not None,
         "test_accessed": False,
-        "test_unlock_ready": ready,
-        "reconstruction_required": bool(missing or invalid or parity_failures),
+        "test_unlock_ready": ready and not extra_checkpoints,
+        "reconstruction_required": bool(missing or invalid or extra_checkpoints or parity_failures),
     }
 
 

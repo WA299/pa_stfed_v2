@@ -12,6 +12,7 @@ import math
 import os
 import sys
 import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Mapping
 
@@ -25,6 +26,9 @@ from code.federated.accepted_results import (
 )
 from code.federated.checkpointing import checkpoint_path, load_checkpoint, matrix_cells, sha256_file, validate_matrix_identity
 DEFAULT_OUTPUT = ROOT / "artifacts" / "frozen_pretest_checkpoints"
+PROGRESS_NAME = "reconstruction_progress.json"
+LOG_NAME = "reconstruction.log"
+MAPPING_NAME = "accepted_result_mapping_manifest.json"
 
 
 def _atomic_json(path: Path, payload: Mapping[str, Any]) -> None:
@@ -40,6 +44,125 @@ def _atomic_json(path: Path, payload: Mapping[str, Any]) -> None:
     finally:
         if os.path.exists(temporary):
             os.unlink(temporary)
+
+
+def _utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _append_log(output: Path, message: str) -> None:
+    """Persist a human-readable progress line immediately and atomically enough.
+
+    The log is diagnostic only; all resumability decisions use validated
+    tensor/sidecar pairs and never rely on log text.
+    """
+    output.mkdir(parents=True, exist_ok=True)
+    with (output / LOG_NAME).open("a", encoding="utf-8", newline="\n") as handle:
+        handle.write(f"{_utc_now()} {message}\n")
+        handle.flush()
+        os.fsync(handle.fileno())
+
+
+def _checkpoint_valid_for_cell(output: Path, cell: Mapping[str, Any]) -> tuple[bool, str | None]:
+    """Validate one complete checkpoint before allowing resume to skip it."""
+    path = checkpoint_path(output, cell)
+    try:
+        _state, metadata = load_checkpoint(
+            path,
+            expected={
+                "test_accessed": False,
+                "test_evaluated": False,
+                "industrial_test_evaluated": False,
+                "reference_grid_tests_evaluated": False,
+            },
+            production=True,
+        )
+        validate_matrix_identity(metadata, cell)
+        accepted = resolve_accepted_result(cell)
+        accepted_path = str(accepted["source_artifact"].resolve())
+        if metadata.get("source_artifact") != accepted_path:
+            raise ValueError("checkpoint source artifact is not the accepted per-cell artifact")
+        if metadata.get("accepted_result_artifact") != accepted_path:
+            raise ValueError("checkpoint accepted-result identity is inconsistent")
+        if dict(metadata.get("accepted_result_json_keys", {})) != dict(accepted["source_json_key"]):
+            raise ValueError("checkpoint accepted-result JSON keys are inconsistent")
+        return True, None
+    except Exception as exc:
+        return False, str(exc)
+
+
+def _block_cells(*, domain: str, seed: int, fraction: float, methods: tuple[str, ...]) -> list[dict[str, Any]]:
+    return [
+        cell for cell in matrix_cells()
+        if cell["domain"] == domain
+        and int(cell["seed"]) == int(seed)
+        and float(cell["history_fraction"]) == float(fraction)
+        and cell["method"] in methods
+    ]
+
+
+def _block_ready(output: Path, cells: list[Mapping[str, Any]]) -> tuple[bool, list[str]]:
+    failures: list[str] = []
+    for cell in cells:
+        valid, error = _checkpoint_valid_for_cell(output, cell)
+        if not valid:
+            failures.append(f"{cell['cell_id']}: {error}")
+    return not failures, failures
+
+
+def _write_progress(
+    output: Path, *, mapping_coverage: int, started_at: str,
+    current: Mapping[str, Any] | None = None, status: str = "running",
+) -> dict[str, Any]:
+    cells = matrix_cells()
+    completed: list[str] = []
+    invalid: dict[str, str] = {}
+    for cell in cells:
+        valid, error = _checkpoint_valid_for_cell(output, cell)
+        if valid:
+            completed.append(cell["cell_id"])
+        elif error:
+            invalid[cell["cell_id"]] = error
+    payload = {
+        "schema_version": 1,
+        "status": status,
+        "started_at_utc": started_at,
+        "updated_at_utc": _utc_now(),
+        "total_cells": len(cells),
+        "completed_cells": len(completed),
+        "completed_cell_ids": completed,
+        "invalid_or_incomplete_cells": invalid,
+        "current": dict(current) if current is not None else None,
+        "accepted_result_mapping_coverage": int(mapping_coverage),
+        "test_accessed": False,
+        "test_evaluated": False,
+        "industrial_test_evaluated": False,
+        "reference_grid_tests_evaluated": False,
+        "historical_artifacts_modified": False,
+    }
+    _atomic_json(output / PROGRESS_NAME, payload)
+    return payload
+
+
+def _write_mapping_manifest(output: Path, mapping: Mapping[str, Mapping[str, Any]]) -> None:
+    entries = []
+    for cell in matrix_cells():
+        resolved = mapping[cell["cell_id"]]
+        source = Path(resolved["source_artifact"]).resolve()
+        entries.append({
+            "cell_id": cell["cell_id"],
+            "source_artifact": str(source),
+            "source_sha256": sha256_file(source),
+            "source_json_key": dict(resolved["source_json_key"]),
+            "test_evaluated": False,
+        })
+    _atomic_json(output / MAPPING_NAME, {
+        "schema_version": 1,
+        "cell_count": len(entries),
+        "entries": entries,
+        "test_accessed": False,
+        "test_evaluated": False,
+    })
 
 
 def build_reconstruction_plan(output: Path = DEFAULT_OUTPUT) -> dict:
@@ -266,6 +389,7 @@ def replay_target_checkpoint_metrics(
 def run_frozen_reconstruction(
     output: Path = DEFAULT_OUTPUT, *, data_root: Path, mapping_json: Path,
     device: str = "cuda", authorize_reconstruction: bool = False,
+    resume: bool = False,
 ) -> dict[str, Any]:
     """Reconstruct all 180 cells with the existing frozen runners.
 
@@ -291,6 +415,10 @@ def run_frozen_reconstruction(
     from code.federated.checkpointing import FROZEN_COMMITS
 
     output.mkdir(parents=True, exist_ok=True)
+    started_at = _utc_now()
+    _write_mapping_manifest(output, mapping)
+    _write_progress(output, mapping_coverage=len(mapping), started_at=started_at, status="running")
+    _append_log(output, f"reconstruction started; mapping coverage={len(mapping)}/180; resume={resume}")
     observed: dict[str, Mapping[str, Any]] = {}
     # Kept separate by role: this is the historical BTD input required by
     # load_frozen_reference, while final parity maps to the direct-transfer
@@ -301,16 +429,34 @@ def run_frozen_reconstruction(
 
     for fraction in (0.25, 0.50):
         for seed in (42, 123, 2026):
+            _write_progress(
+                output, mapping_coverage=len(mapping), started_at=started_at,
+                current={"seed": seed, "history_fraction": fraction, "stage": "load_reference_grids"},
+            )
             references = {name: loader.load(name) for name in CLIENT_NAMES}
             replay_reference_grids = references
             local_cell = next(item for item in matrix_cells() if item["domain"] == "reference_grid" and item["seed"] == seed and item["history_fraction"] == fraction and item["method"] == "local")
-            baseline = run_formal_baselines(
-                references, device=device, rounds=10, local_epochs=5, max_epochs=50,
-                batch_size=32, seed=seed, history_fraction=fraction,
-                checkpoint_root=output, frozen_commits=FROZEN_COMMITS,
-                source_artifact=str(_accepted_source_path(mapping, local_cell)),
+            baseline_cells = _block_cells(
+                domain="reference_grid", seed=seed, fraction=fraction,
+                methods=("local", "fedavg", "fedprox", "fedper"),
             )
-            _record_report_metrics(observed, baseline, domain="reference_grid", fraction=fraction, seed=seed, family="baseline")
+            baseline_ready, baseline_failures = _block_ready(output, baseline_cells)
+            if resume and baseline_ready:
+                _append_log(output, f"skip valid reference baseline block seed={seed} fraction={fraction}")
+            else:
+                if resume and baseline_failures:
+                    _append_log(output, f"rerun incomplete reference baseline block seed={seed} fraction={fraction}: {baseline_failures[0]}")
+                baseline = run_formal_baselines(
+                    references, device=device, rounds=10, local_epochs=5, max_epochs=50,
+                    batch_size=32, seed=seed, history_fraction=fraction,
+                    checkpoint_root=output, frozen_commits=FROZEN_COMMITS,
+                    source_artifact=str(_accepted_source_path(mapping, local_cell)),
+                )
+                _record_report_metrics(observed, baseline, domain="reference_grid", fraction=fraction, seed=seed, family="baseline")
+            _write_progress(
+                output, mapping_coverage=len(mapping), started_at=started_at,
+                current={"seed": seed, "history_fraction": fraction, "stage": "reference_baselines"},
+            )
             # ``reference`` is the historical formal BTD input consumed by
             # load_frozen_reference; ``source_artifact`` remains the exact
             # direct-transfer artifact used for final per-cell parity.
@@ -324,48 +470,107 @@ def run_frozen_reconstruction(
                 load_frozen_reference(btd_reference_input)
             reference_fomo_cell = next(item for item in matrix_cells() if item["domain"] == "reference_grid" and item["seed"] == seed and item["history_fraction"] == fraction and item["method"] == "fedfomo_style")
             reference_fomo_source = _accepted_source_path(mapping, reference_fomo_cell)
-            direct = run_direct_transfer(
-                references, btd_reference_input, device=device, max_epochs=50, batch_size=32,
-                seed=seed, history_fraction=fraction, checkpoint_root=output,
-                source_artifact=str(reference_source), frozen_commits=FROZEN_COMMITS,
+            btd_cells = _block_cells(
+                domain="reference_grid", seed=seed, fraction=fraction,
+                methods=("btd_fl_direct_transfer",),
             )
-            _record_report_metrics(observed, direct, domain="reference_grid", fraction=fraction, seed=seed, family="btd")
-            fomo_scenarios = {
-                target: run_fedfomo_scenario(
-                    references, target, 10, 5, 32, device, 1e-12, seed, fraction,
-                    CLIENT_NAMES, checkpoint_root=output, checkpoint_domain="reference_grid",
-                    source_artifact=str(reference_fomo_source), frozen_commits=FROZEN_COMMITS,
-                ) for target in CLIENT_NAMES
-            }
-            fomo = {"scenarios": fomo_scenarios}
-            _record_report_metrics(observed, fomo, domain="reference_grid", fraction=fraction, seed=seed, family="fedfomo")
+            btd_ready, btd_failures = _block_ready(output, btd_cells)
+            if resume and btd_ready:
+                _append_log(output, f"skip valid reference BTD block seed={seed} fraction={fraction}")
+            else:
+                if resume and btd_failures:
+                    _append_log(output, f"rerun incomplete reference BTD block seed={seed} fraction={fraction}: {btd_failures[0]}")
+                direct = run_direct_transfer(
+                    references, btd_reference_input, device=device, max_epochs=50, batch_size=32,
+                    seed=seed, history_fraction=fraction, checkpoint_root=output,
+                    source_artifact=str(reference_source), frozen_commits=FROZEN_COMMITS,
+                )
+                _record_report_metrics(observed, direct, domain="reference_grid", fraction=fraction, seed=seed, family="btd")
+            fomo_cells = _block_cells(
+                domain="reference_grid", seed=seed, fraction=fraction,
+                methods=("fedfomo_style",),
+            )
+            fomo_ready, fomo_failures = _block_ready(output, fomo_cells)
+            if resume and fomo_ready:
+                _append_log(output, f"skip valid reference FedFomo block seed={seed} fraction={fraction}")
+            else:
+                if resume and fomo_failures:
+                    _append_log(output, f"rerun incomplete reference FedFomo block seed={seed} fraction={fraction}: {fomo_failures[0]}")
+                fomo_scenarios = {
+                    target: run_fedfomo_scenario(
+                        references, target, 10, 5, 32, device, 1e-12, seed, fraction,
+                        CLIENT_NAMES, checkpoint_root=output, checkpoint_domain="reference_grid",
+                        source_artifact=str(reference_fomo_source), frozen_commits=FROZEN_COMMITS,
+                    ) for target in CLIENT_NAMES
+                }
+                fomo = {"scenarios": fomo_scenarios}
+                _record_report_metrics(observed, fomo, domain="reference_grid", fraction=fraction, seed=seed, family="fedfomo")
 
             grids = load_external_grids(data_root, mapping_json)
             replay_industrial_grids = grids
             industrial_cell = next(item for item in matrix_cells() if item["domain"] == "industrial_external" and item["seed"] == seed and item["history_fraction"] == fraction and item["method"] == "local")
             industrial_source = _accepted_source_path(mapping, industrial_cell)
-            ext_baseline = run_external_baselines(
-                grids, history_fraction=fraction, rounds=10, local_epochs=5, max_epochs=50,
-                batch_size=32, device=device, seed=seed, checkpoint_root=output,
-                source_artifact=str(industrial_source), frozen_commits=FROZEN_COMMITS,
+            industrial_baseline_cells = _block_cells(
+                domain="industrial_external", seed=seed, fraction=fraction,
+                methods=("local", "fedavg", "fedprox", "fedper"),
             )
-            _record_report_metrics(observed, ext_baseline, domain="industrial_external", fraction=fraction, seed=seed, family="baseline")
-            ext_btd = run_external_btd(
-                grids, history_fraction=fraction, max_epochs=50, batch_size=32,
-                device=device, seed=seed, checkpoint_root=output,
-                source_artifact=str(_accepted_source_path(mapping, next(item for item in matrix_cells() if item["domain"] == "industrial_external" and item["seed"] == seed and item["history_fraction"] == fraction and item["method"] == "btd_fl_direct_transfer"))),
-                frozen_commits=FROZEN_COMMITS,
+            industrial_baseline_ready, industrial_baseline_failures = _block_ready(output, industrial_baseline_cells)
+            if resume and industrial_baseline_ready:
+                _append_log(output, f"skip valid industrial baseline block seed={seed} fraction={fraction}")
+            else:
+                if resume and industrial_baseline_failures:
+                    _append_log(output, f"rerun incomplete industrial baseline block seed={seed} fraction={fraction}: {industrial_baseline_failures[0]}")
+                ext_baseline = run_external_baselines(
+                    grids, history_fraction=fraction, rounds=10, local_epochs=5, max_epochs=50,
+                    batch_size=32, device=device, seed=seed, checkpoint_root=output,
+                    source_artifact=str(industrial_source), frozen_commits=FROZEN_COMMITS,
+                )
+                _record_report_metrics(observed, ext_baseline, domain="industrial_external", fraction=fraction, seed=seed, family="baseline")
+            industrial_btd_cell = _block_cells(
+                domain="industrial_external", seed=seed, fraction=fraction,
+                methods=("btd_fl_direct_transfer",),
             )
-            _record_report_metrics(observed, ext_btd, domain="industrial_external", fraction=fraction, seed=seed, family="btd")
+            industrial_btd_ready, industrial_btd_failures = _block_ready(output, industrial_btd_cell)
+            if resume and industrial_btd_ready:
+                _append_log(output, f"skip valid industrial BTD block seed={seed} fraction={fraction}")
+            else:
+                if resume and industrial_btd_failures:
+                    _append_log(output, f"rerun incomplete industrial BTD block seed={seed} fraction={fraction}: {industrial_btd_failures[0]}")
+                ext_btd = run_external_btd(
+                    grids, history_fraction=fraction, max_epochs=50, batch_size=32,
+                    device=device, seed=seed, checkpoint_root=output,
+                    source_artifact=str(_accepted_source_path(mapping, next(item for item in matrix_cells() if item["domain"] == "industrial_external" and item["seed"] == seed and item["history_fraction"] == fraction and item["method"] == "btd_fl_direct_transfer"))),
+                    frozen_commits=FROZEN_COMMITS,
+                )
+                _record_report_metrics(observed, ext_btd, domain="industrial_external", fraction=fraction, seed=seed, family="btd")
             industrial_fomo_source = _accepted_source_path(mapping, next(item for item in matrix_cells() if item["domain"] == "industrial_external" and item["seed"] == seed and item["history_fraction"] == fraction and item["method"] == "fedfomo_style"))
-            ext_fomo = run_external_fedfomo(
-                grids, history_fraction=fraction, rounds=10, local_epochs=5, batch_size=32,
-                device=device, seed=seed, max_epochs_metadata=50, checkpoint_root=output,
-                checkpoint_domain="industrial_external", source_artifact=str(industrial_fomo_source),
-                frozen_commits=FROZEN_COMMITS,
+            industrial_fomo_cells = _block_cells(
+                domain="industrial_external", seed=seed, fraction=fraction,
+                methods=("fedfomo_style",),
             )
-            _record_report_metrics(observed, ext_fomo, domain="industrial_external", fraction=fraction, seed=seed, family="fedfomo")
+            industrial_fomo_ready, industrial_fomo_failures = _block_ready(output, industrial_fomo_cells)
+            if resume and industrial_fomo_ready:
+                _append_log(output, f"skip valid industrial FedFomo block seed={seed} fraction={fraction}")
+            else:
+                if resume and industrial_fomo_failures:
+                    _append_log(output, f"rerun incomplete industrial FedFomo block seed={seed} fraction={fraction}: {industrial_fomo_failures[0]}")
+                ext_fomo = run_external_fedfomo(
+                    grids, history_fraction=fraction, rounds=10, local_epochs=5, batch_size=32,
+                    device=device, seed=seed, max_epochs_metadata=50, checkpoint_root=output,
+                    checkpoint_domain="industrial_external", source_artifact=str(industrial_fomo_source),
+                    frozen_commits=FROZEN_COMMITS,
+                )
+                _record_report_metrics(observed, ext_fomo, domain="industrial_external", fraction=fraction, seed=seed, family="fedfomo")
+            _write_progress(
+                output, mapping_coverage=len(mapping), started_at=started_at,
+                current={"seed": seed, "history_fraction": fraction, "stage": "target_blocks_complete"},
+            )
 
+    _append_log(output, "all training blocks complete; starting serialized checkpoint replay")
+    _write_progress(
+        output, mapping_coverage=len(mapping), started_at=started_at,
+        current={"stage": "serialized_checkpoint_replay"},
+    )
     # Discard all in-memory runner metrics as parity evidence.  Reconstruct
     # the exact target graph/scaler from permitted data and infer from every
     # serialized checkpoint after a verified weights_only reload.
@@ -404,6 +609,11 @@ def run_frozen_reconstruction(
               "cells": records, "accepted_result_mapping_coverage": len(mapping),
               "reconstruction_executed": True, "historical_artifacts_modified": False}
     _atomic_json(output / "parity_report.json", parity)
+    _write_progress(
+        output, mapping_coverage=len(mapping), started_at=started_at,
+        current={"stage": "complete"}, status="complete" if parity["parity_passed"] else "parity_failed",
+    )
+    _append_log(output, f"reconstruction finished; parity_passed={parity['parity_passed']}")
     return parity
 
 
@@ -418,6 +628,7 @@ def main() -> None:
     parser.add_argument("--data-root", type=Path, default=ROOT.parent / "pa_stfed_data_v2" / "raw")
     parser.add_argument("--mapping-json", type=Path, default=ROOT / "results" / "audits" / "v2_schema_mapping.json")
     parser.add_argument("--device", default="cuda")
+    parser.add_argument("--resume", action="store_true", help="resume only from complete, source-verified checkpoint blocks")
     parser.add_argument("--force", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()
     _assert_isolated_output(args.output_root.resolve())
@@ -428,6 +639,7 @@ def main() -> None:
             args.output_root.resolve(), data_root=args.data_root.resolve(),
             mapping_json=args.mapping_json.resolve(), device=args.device,
             authorize_reconstruction=args.authorize_reconstruction,
+            resume=args.resume,
         )
         print(json.dumps({"parity_report": str(args.output_root.resolve() / "parity_report.json"), "cells": len(report["cells"]), "test_accessed": False}, indent=2))
         return
