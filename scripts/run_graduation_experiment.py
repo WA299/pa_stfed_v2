@@ -38,6 +38,7 @@ from scripts.run_final_test_once import (
     run_once,
 )
 from scripts.validate_frozen_checkpoints import validate_frozen_checkpoints
+from scripts.manage_test_protocol_lock import create_protocol_lock, check_protocol_lock
 
 DEFAULT_DATA_ROOT = ROOT.parent / "pa_stfed_data_v2" / "raw"
 DEFAULT_MAPPING = ROOT / "results" / "audits" / "v2_schema_mapping.json"
@@ -85,7 +86,7 @@ def status(checkpoint_root: Path, test_output: Path) -> dict[str, Any]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--phase", choices=("status", "preflight", "reconstruct", "validate", "test"), default="status")
+    parser.add_argument("--phase", choices=("status", "preflight", "reconstruct", "validate", "protocol-lock-create", "protocol-lock-check", "test"), default="status")
     parser.add_argument("--authorize-reconstruction", action="store_true")
     parser.add_argument("--authorize-test", action="store_true")
     parser.add_argument("--resume", action="store_true", help="skip only complete, source-verified reconstruction/test cells")
@@ -119,6 +120,20 @@ def main() -> None:
         print(json.dumps(report, ensure_ascii=False, indent=2))
         if not report["test_unlock_ready"]:
             raise SystemExit(1)
+        return
+    if args.phase == "protocol-lock-create":
+        report = create_protocol_lock(
+            args.protocol_lock.resolve(), checkpoint_root=checkpoint_root,
+            parity_report=args.parity_report.resolve(),
+        )
+        print(json.dumps({"phase": "protocol-lock-create", **report}, ensure_ascii=False, indent=2))
+        return
+    if args.phase == "protocol-lock-check":
+        report = check_protocol_lock(
+            args.protocol_lock.resolve(), checkpoint_root=checkpoint_root,
+            parity_report=args.parity_report.resolve(),
+        )
+        print(json.dumps({"phase": "protocol-lock-check", **report}, ensure_ascii=False, indent=2))
         return
     if args.phase == "reconstruct":
         report = run_frozen_reconstruction(

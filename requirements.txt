@@ -3,3 +3,9 @@ pandas
 scipy
 networkx
 pyyaml
+scikit-learn
+matplotlib
+pytest
+# Install a CUDA-compatible PyTorch build separately if this default index
+# does not match the local NVIDIA/CUDA environment.
+torch

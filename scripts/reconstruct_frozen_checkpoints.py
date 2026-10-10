@@ -10,6 +10,7 @@ import argparse
 import json
 import math
 import os
+import shutil
 import sys
 import tempfile
 from datetime import datetime, timezone
@@ -108,6 +109,65 @@ def _block_ready(output: Path, cells: list[Mapping[str, Any]]) -> tuple[bool, li
         if not valid:
             failures.append(f"{cell['cell_id']}: {error}")
     return not failures, failures
+
+
+def _atomic_copy_checkpoint(source: Path, destination: Path) -> None:
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(prefix=f".{destination.name}.", dir=str(destination.parent))
+    try:
+        with source.open("rb") as input_handle, os.fdopen(fd, "wb") as output_handle:
+            shutil.copyfileobj(input_handle, output_handle, length=1024 * 1024)
+            output_handle.flush()
+            os.fsync(output_handle.fileno())
+        os.replace(temporary, destination)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+def _promote_staged_block(staging: Path, output: Path, cells: list[Mapping[str, Any]]) -> list[str]:
+    """Promote only invalid/missing cells; never replace a validated checkpoint."""
+    promote: list[Mapping[str, Any]] = []
+    for cell in cells:
+        current_valid, _ = _checkpoint_valid_for_cell(output, cell)
+        if current_valid:
+            continue
+        staged_valid, staged_error = _checkpoint_valid_for_cell(staging, cell)
+        if not staged_valid:
+            raise RuntimeError(f"staged checkpoint failed provenance validation for {cell['cell_id']}: {staged_error}")
+        promote.append(cell)
+    promoted: list[str] = []
+    for cell in promote:
+        source_path = checkpoint_path(staging, cell)
+        destination_path = checkpoint_path(output, cell)
+        _atomic_copy_checkpoint(source_path, destination_path)
+        sidecar = json.loads(source_path.with_suffix(source_path.suffix + ".json").read_text(encoding="utf-8"))
+        sidecar["checkpoint_path"] = destination_path.as_posix()
+        sidecar["sha256"] = sha256_file(destination_path)
+        sidecar["file_size_bytes"] = int(destination_path.stat().st_size)
+        _atomic_json(destination_path.with_suffix(destination_path.suffix + ".json"), sidecar)
+        promoted.append(str(cell["cell_id"]))
+    ready, failures = _block_ready(output, cells)
+    if not ready:
+        raise RuntimeError("promoted checkpoint block is incomplete: " + "; ".join(failures))
+    return promoted
+
+
+def _run_protected_block(
+    output: Path, cells: list[Mapping[str, Any]], run: Callable[[Path], Any], label: str,
+) -> Any | None:
+    """Run one frozen group in staging, preserving every already-valid weight."""
+    ready, failures = _block_ready(output, cells)
+    if ready:
+        _append_log(output, f"skip validated checkpoint block {label}")
+        return None
+    _append_log(output, f"rebuild checkpoint block {label}; valid existing cells will be protected; first issue={failures[0] if failures else 'unknown'}")
+    with tempfile.TemporaryDirectory(prefix=".checkpoint-stage-", dir=str(output)) as staging_name:
+        staging = Path(staging_name)
+        report = run(staging)
+        promoted = _promote_staged_block(staging, output, cells)
+    _append_log(output, f"checkpoint block {label} complete; promoted={len(promoted)}; preserved={len(cells) - len(promoted)}")
+    return report
 
 
 def _write_progress(
@@ -440,18 +500,16 @@ def run_frozen_reconstruction(
                 domain="reference_grid", seed=seed, fraction=fraction,
                 methods=("local", "fedavg", "fedprox", "fedper"),
             )
-            baseline_ready, baseline_failures = _block_ready(output, baseline_cells)
-            if resume and baseline_ready:
-                _append_log(output, f"skip valid reference baseline block seed={seed} fraction={fraction}")
-            else:
-                if resume and baseline_failures:
-                    _append_log(output, f"rerun incomplete reference baseline block seed={seed} fraction={fraction}: {baseline_failures[0]}")
-                baseline = run_formal_baselines(
+            baseline = _run_protected_block(
+                output, baseline_cells,
+                lambda staging: run_formal_baselines(
                     references, device=device, rounds=10, local_epochs=5, max_epochs=50,
                     batch_size=32, seed=seed, history_fraction=fraction,
-                    checkpoint_root=output, frozen_commits=FROZEN_COMMITS,
+                    checkpoint_root=staging, frozen_commits=FROZEN_COMMITS,
                     source_artifact=str(_accepted_source_path(mapping, local_cell)),
-                )
+                ), f"reference baseline seed={seed} fraction={fraction}",
+            )
+            if baseline is not None:
                 _record_report_metrics(observed, baseline, domain="reference_grid", fraction=fraction, seed=seed, family="baseline")
             _write_progress(
                 output, mapping_coverage=len(mapping), started_at=started_at,
@@ -474,36 +532,31 @@ def run_frozen_reconstruction(
                 domain="reference_grid", seed=seed, fraction=fraction,
                 methods=("btd_fl_direct_transfer",),
             )
-            btd_ready, btd_failures = _block_ready(output, btd_cells)
-            if resume and btd_ready:
-                _append_log(output, f"skip valid reference BTD block seed={seed} fraction={fraction}")
-            else:
-                if resume and btd_failures:
-                    _append_log(output, f"rerun incomplete reference BTD block seed={seed} fraction={fraction}: {btd_failures[0]}")
-                direct = run_direct_transfer(
+            direct = _run_protected_block(
+                output, btd_cells,
+                lambda staging: run_direct_transfer(
                     references, btd_reference_input, device=device, max_epochs=50, batch_size=32,
-                    seed=seed, history_fraction=fraction, checkpoint_root=output,
+                    seed=seed, history_fraction=fraction, checkpoint_root=staging,
                     source_artifact=str(reference_source), frozen_commits=FROZEN_COMMITS,
-                )
+                ), f"reference BTD seed={seed} fraction={fraction}",
+            )
+            if direct is not None:
                 _record_report_metrics(observed, direct, domain="reference_grid", fraction=fraction, seed=seed, family="btd")
             fomo_cells = _block_cells(
                 domain="reference_grid", seed=seed, fraction=fraction,
                 methods=("fedfomo_style",),
             )
-            fomo_ready, fomo_failures = _block_ready(output, fomo_cells)
-            if resume and fomo_ready:
-                _append_log(output, f"skip valid reference FedFomo block seed={seed} fraction={fraction}")
-            else:
-                if resume and fomo_failures:
-                    _append_log(output, f"rerun incomplete reference FedFomo block seed={seed} fraction={fraction}: {fomo_failures[0]}")
-                fomo_scenarios = {
+            fomo = _run_protected_block(
+                output, fomo_cells,
+                lambda staging: {"scenarios": {
                     target: run_fedfomo_scenario(
                         references, target, 10, 5, 32, device, 1e-12, seed, fraction,
-                        CLIENT_NAMES, checkpoint_root=output, checkpoint_domain="reference_grid",
+                        CLIENT_NAMES, checkpoint_root=staging, checkpoint_domain="reference_grid",
                         source_artifact=str(reference_fomo_source), frozen_commits=FROZEN_COMMITS,
                     ) for target in CLIENT_NAMES
-                }
-                fomo = {"scenarios": fomo_scenarios}
+                }}, f"reference FedFomo seed={seed} fraction={fraction}",
+            )
+            if fomo is not None:
                 _record_report_metrics(observed, fomo, domain="reference_grid", fraction=fraction, seed=seed, family="fedfomo")
 
             grids = load_external_grids(data_root, mapping_json)
@@ -514,52 +567,46 @@ def run_frozen_reconstruction(
                 domain="industrial_external", seed=seed, fraction=fraction,
                 methods=("local", "fedavg", "fedprox", "fedper"),
             )
-            industrial_baseline_ready, industrial_baseline_failures = _block_ready(output, industrial_baseline_cells)
-            if resume and industrial_baseline_ready:
-                _append_log(output, f"skip valid industrial baseline block seed={seed} fraction={fraction}")
-            else:
-                if resume and industrial_baseline_failures:
-                    _append_log(output, f"rerun incomplete industrial baseline block seed={seed} fraction={fraction}: {industrial_baseline_failures[0]}")
-                ext_baseline = run_external_baselines(
+            ext_baseline = _run_protected_block(
+                output, industrial_baseline_cells,
+                lambda staging: run_external_baselines(
                     grids, history_fraction=fraction, rounds=10, local_epochs=5, max_epochs=50,
-                    batch_size=32, device=device, seed=seed, checkpoint_root=output,
+                    batch_size=32, device=device, seed=seed, checkpoint_root=staging,
                     source_artifact=str(industrial_source), frozen_commits=FROZEN_COMMITS,
-                )
+                ), f"industrial baseline seed={seed} fraction={fraction}",
+            )
+            if ext_baseline is not None:
                 _record_report_metrics(observed, ext_baseline, domain="industrial_external", fraction=fraction, seed=seed, family="baseline")
             industrial_btd_cell = _block_cells(
                 domain="industrial_external", seed=seed, fraction=fraction,
                 methods=("btd_fl_direct_transfer",),
             )
-            industrial_btd_ready, industrial_btd_failures = _block_ready(output, industrial_btd_cell)
-            if resume and industrial_btd_ready:
-                _append_log(output, f"skip valid industrial BTD block seed={seed} fraction={fraction}")
-            else:
-                if resume and industrial_btd_failures:
-                    _append_log(output, f"rerun incomplete industrial BTD block seed={seed} fraction={fraction}: {industrial_btd_failures[0]}")
-                ext_btd = run_external_btd(
+            ext_btd = _run_protected_block(
+                output, industrial_btd_cell,
+                lambda staging: run_external_btd(
                     grids, history_fraction=fraction, max_epochs=50, batch_size=32,
-                    device=device, seed=seed, checkpoint_root=output,
+                    device=device, seed=seed, checkpoint_root=staging,
                     source_artifact=str(_accepted_source_path(mapping, next(item for item in matrix_cells() if item["domain"] == "industrial_external" and item["seed"] == seed and item["history_fraction"] == fraction and item["method"] == "btd_fl_direct_transfer"))),
                     frozen_commits=FROZEN_COMMITS,
-                )
+                ), f"industrial BTD seed={seed} fraction={fraction}",
+            )
+            if ext_btd is not None:
                 _record_report_metrics(observed, ext_btd, domain="industrial_external", fraction=fraction, seed=seed, family="btd")
             industrial_fomo_source = _accepted_source_path(mapping, next(item for item in matrix_cells() if item["domain"] == "industrial_external" and item["seed"] == seed and item["history_fraction"] == fraction and item["method"] == "fedfomo_style"))
             industrial_fomo_cells = _block_cells(
                 domain="industrial_external", seed=seed, fraction=fraction,
                 methods=("fedfomo_style",),
             )
-            industrial_fomo_ready, industrial_fomo_failures = _block_ready(output, industrial_fomo_cells)
-            if resume and industrial_fomo_ready:
-                _append_log(output, f"skip valid industrial FedFomo block seed={seed} fraction={fraction}")
-            else:
-                if resume and industrial_fomo_failures:
-                    _append_log(output, f"rerun incomplete industrial FedFomo block seed={seed} fraction={fraction}: {industrial_fomo_failures[0]}")
-                ext_fomo = run_external_fedfomo(
+            ext_fomo = _run_protected_block(
+                output, industrial_fomo_cells,
+                lambda staging: run_external_fedfomo(
                     grids, history_fraction=fraction, rounds=10, local_epochs=5, batch_size=32,
-                    device=device, seed=seed, max_epochs_metadata=50, checkpoint_root=output,
+                    device=device, seed=seed, max_epochs_metadata=50, checkpoint_root=staging,
                     checkpoint_domain="industrial_external", source_artifact=str(industrial_fomo_source),
                     frozen_commits=FROZEN_COMMITS,
-                )
+                ), f"industrial FedFomo seed={seed} fraction={fraction}",
+            )
+            if ext_fomo is not None:
                 _record_report_metrics(observed, ext_fomo, domain="industrial_external", fraction=fraction, seed=seed, family="fedfomo")
             _write_progress(
                 output, mapping_coverage=len(mapping), started_at=started_at,
