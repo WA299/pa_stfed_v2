@@ -26,6 +26,7 @@ from code.federated.accepted_results import (
     resolve_all_accepted_results,
 )
 from code.federated.checkpointing import checkpoint_path, load_checkpoint, matrix_cells, sha256_file, validate_matrix_identity
+from code.runtime_logging import emit_training_log
 DEFAULT_OUTPUT = ROOT / "artifacts" / "frozen_pretest_checkpoints"
 PROGRESS_NAME = "reconstruction_progress.json"
 LOG_NAME = "reconstruction.log"
@@ -160,6 +161,12 @@ def _run_protected_block(
     ready, failures = _block_ready(output, cells)
     if ready:
         _append_log(output, f"skip validated checkpoint block {label}")
+        progress = _write_progress(output, mapping_coverage=180, started_at=_utc_now(), current={"stage": "block_skipped", "label": label})
+        emit_training_log(
+            "reconstruction_block_skipped", scenario=label,
+            completed_checkpoints=progress["completed_cells"], total_checkpoints=progress["total_cells"],
+            protected=len(cells),
+        )
         return None
     _append_log(output, f"rebuild checkpoint block {label}; valid existing cells will be protected; first issue={failures[0] if failures else 'unknown'}")
     with tempfile.TemporaryDirectory(prefix=".checkpoint-stage-", dir=str(output)) as staging_name:
@@ -167,6 +174,12 @@ def _run_protected_block(
         report = run(staging)
         promoted = _promote_staged_block(staging, output, cells)
     _append_log(output, f"checkpoint block {label} complete; promoted={len(promoted)}; preserved={len(cells) - len(promoted)}")
+    progress = _write_progress(output, mapping_coverage=180, started_at=_utc_now(), current={"stage": "block_complete", "label": label})
+    emit_training_log(
+        "reconstruction_block_complete", scenario=label,
+        completed_checkpoints=progress["completed_cells"], total_checkpoints=progress["total_cells"],
+        promoted=len(promoted), preserved=len(cells) - len(promoted),
+    )
     return report
 
 
@@ -477,8 +490,16 @@ def run_frozen_reconstruction(
     output.mkdir(parents=True, exist_ok=True)
     started_at = _utc_now()
     _write_mapping_manifest(output, mapping)
-    _write_progress(output, mapping_coverage=len(mapping), started_at=started_at, status="running")
     _append_log(output, f"reconstruction started; mapping coverage={len(mapping)}/180; resume={resume}")
+    start_progress = _write_progress(
+        output, mapping_coverage=len(mapping), started_at=started_at,
+        current={"stage": "reconstruction_start"}, status="running",
+    )
+    emit_training_log(
+        "reconstruction_start", scenario="pretest_checkpoint_reconstruction",
+        completed_checkpoints=start_progress["completed_cells"], total_checkpoints=start_progress["total_cells"],
+        resume=resume,
+    )
     observed: dict[str, Mapping[str, Any]] = {}
     # Kept separate by role: this is the historical BTD input required by
     # load_frozen_reference, while final parity maps to the direct-transfer
@@ -489,9 +510,14 @@ def run_frozen_reconstruction(
 
     for fraction in (0.25, 0.50):
         for seed in (42, 123, 2026):
-            _write_progress(
+            group_progress = _write_progress(
                 output, mapping_coverage=len(mapping), started_at=started_at,
                 current={"seed": seed, "history_fraction": fraction, "stage": "load_reference_grids"},
+            )
+            emit_training_log(
+                "reconstruction_group_start", scenario="pretest_checkpoint_reconstruction",
+                seed=seed, history_fraction=fraction,
+                completed_checkpoints=group_progress["completed_cells"], total_checkpoints=group_progress["total_cells"],
             )
             references = {name: loader.load(name) for name in CLIENT_NAMES}
             replay_reference_grids = references
@@ -608,9 +634,14 @@ def run_frozen_reconstruction(
             )
             if ext_fomo is not None:
                 _record_report_metrics(observed, ext_fomo, domain="industrial_external", fraction=fraction, seed=seed, family="fedfomo")
-            _write_progress(
+            group_progress = _write_progress(
                 output, mapping_coverage=len(mapping), started_at=started_at,
                 current={"seed": seed, "history_fraction": fraction, "stage": "target_blocks_complete"},
+            )
+            emit_training_log(
+                "reconstruction_group_complete", scenario="pretest_checkpoint_reconstruction",
+                seed=seed, history_fraction=fraction,
+                completed_checkpoints=group_progress["completed_cells"], total_checkpoints=group_progress["total_cells"],
             )
 
     _append_log(output, "all training blocks complete; starting serialized checkpoint replay")

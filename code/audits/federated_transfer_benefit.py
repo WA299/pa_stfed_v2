@@ -4,6 +4,7 @@ from __future__ import annotations
 import copy
 import math
 import random
+import time
 from dataclasses import dataclass
 from typing import Any, Mapping
 
@@ -14,6 +15,7 @@ from code.models.centralized_gru import evaluate_validation, masked_scaled_mae
 from code.models.puc_rstattn_v2_ablation import PUCRSTAttnV2Ablation
 from code.federated.parameter_groups import parameter_groups
 from scripts.run_puc_rstattn_v2 import _batch_indices, _to_batch
+from code.runtime_logging import emit_training_log
 
 HISTORY = 168
 HISTORY_FRACTION = 0.25
@@ -123,20 +125,31 @@ def make_proxy(grid: Any, seed: int = SEED) -> Any:
     return PUCRSTAttnV2Ablation("temporal_residual_only", grid.num_nodes, np.empty((2, 0), dtype=np.int64), np.empty((0, 3), dtype=np.float32), grid.load_bus_mask, np.empty(0, dtype=np.float32))
 
 
-def train_proxy(grid: Any, fit_indices: np.ndarray, calibration_indices: np.ndarray, scaler: Any, initial_state: Mapping[str, Any] | None = None, device: str = "cpu", max_epochs: int = MAX_EPOCHS, patience: int = PATIENCE, history_start_index: int | None = None, batch_size: int = BATCH_SIZE, seed: int = SEED) -> tuple[Any, dict[str, Any]]:
+def train_proxy(grid: Any, fit_indices: np.ndarray, calibration_indices: np.ndarray, scaler: Any, initial_state: Mapping[str, Any] | None = None, device: str = "cpu", max_epochs: int = MAX_EPOCHS, patience: int = PATIENCE, history_start_index: int | None = None, batch_size: int = BATCH_SIZE, seed: int = SEED, log_enabled: bool = True, log_file: str | None = None, log_context: Mapping[str, Any] | None = None) -> tuple[Any, dict[str, Any]]:
     import torch
     model = make_proxy(grid, seed=seed).to(device)
     if initial_state is not None: model.load_state_dict(copy.deepcopy(initial_state))
     fit_ds = IndexDataset(grid, fit_indices, history_start_index); optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE); load_mask = torch.as_tensor(grid.load_bus_mask, dtype=torch.bool, device=device); best_state, best_mae, stale, selected_epoch = None, float("inf"), 0, None
+    started = time.perf_counter()
     for epoch in range(1, max_epochs + 1):
         model.train()
         for batch in _batch_indices(len(fit_ds), batch_size):
             x, y = _to_batch(fit_ds, scaler, batch); optimizer.zero_grad(set_to_none=True); final, _, details = model(torch.from_numpy(x).to(device), return_details=True); target = torch.from_numpy(y).to(device); loss = masked_scaled_mae(final, target, load_mask) + ANCHOR_WEIGHT * masked_scaled_mae(details["y_gru"], target, load_mask); loss.backward(); optimizer.step()
         current = _evaluate(model, grid, calibration_indices, scaler, device, history_start_index, batch_size)["node_macro"]["mae"]
+        stop_after_log = False
         if current < best_mae: best_mae = current; best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}; selected_epoch = int(epoch); stale = 0
         else:
             stale += 1
-            if stale >= patience: break
+            stop_after_log = stale >= patience
+        emit_training_log(
+            "proxy_epoch_complete", enabled=log_enabled, log_file=log_file,
+            context=log_context, seed=seed, epoch=f"{epoch}/{max_epochs}",
+            method=(log_context or {}).get("method", "proxy"),
+            target_grid=getattr(grid, "grid_name", getattr(grid, "name", None)),
+            calibration_mae=f"{current:.8g}", best_mae=f"{best_mae:.8g}",
+            elapsed=f"{time.perf_counter() - started:.2f}s",
+        )
+        if stop_after_log: break
     if best_state is not None: model.load_state_dict(best_state)
     return model, {"best_calibration_node_mae": float(best_mae), "epochs_run": epoch, "selected_epoch": selected_epoch}
 

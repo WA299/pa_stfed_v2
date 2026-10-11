@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import time
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -16,6 +17,7 @@ from code.federated.checkpointing import checkpoint_path, export_model_checkpoin
 from code.federated.seeding import reproducibility_metadata, set_global_seed
 from code.models.centralized_gru import masked_scaled_mae
 from scripts.run_puc_rstattn_v2 import _batch_indices, _to_batch
+from code.runtime_logging import emit_training_log
 
 EPSILON = 1e-12
 ANCHOR_WEIGHT = 0.2
@@ -62,10 +64,11 @@ def _load_trainable_state(model: Any, state: Mapping[str, torch.Tensor]) -> None
             params[name].copy_(value.to(params[name].device))
 
 
-def _local_train(model: Any, client: Any, epochs: int, batch_size: int, device: str) -> None:
+def _local_train(model: Any, client: Any, epochs: int, batch_size: int, device: str, *, round_index: int, total_rounds: int, log_enabled: bool = True, log_file: str | None = None, log_context: Mapping[str, Any] | None = None) -> None:
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
     mask = torch.as_tensor(client.load_bus_mask, dtype=torch.bool, device=device)
-    for _ in range(epochs):
+    started = time.perf_counter()
+    for epoch in range(epochs):
         model.train()
         for batch in _batch_indices(len(client.train_dataset), batch_size):
             x, y = _to_batch(client.train_dataset, client.scaler, batch)
@@ -74,6 +77,12 @@ def _local_train(model: Any, client: Any, epochs: int, batch_size: int, device: 
             target = torch.from_numpy(y).to(device)
             loss = masked_scaled_mae(final, target, mask) + ANCHOR_WEIGHT * masked_scaled_mae(details["y_gru"], target, mask)
             loss.backward(); optimizer.step()
+        emit_training_log(
+            "fedfomo_local_epoch_complete", enabled=log_enabled, log_file=log_file,
+            context=log_context, algorithm="fedfomo_style", method="fedfomo_style", client=client.grid_name,
+            round=f"{round_index}/{total_rounds}", local_epoch=f"{epoch + 1}/{epochs}",
+            elapsed=f"{time.perf_counter() - started:.2f}s",
+        )
 
 
 def _evaluate_candidate(client: Any, state: Mapping[str, torch.Tensor], batch_size: int, device: str, seed: int = 42) -> float:
@@ -82,7 +91,7 @@ def _evaluate_candidate(client: Any, state: Mapping[str, torch.Tensor], batch_si
     return float(_evaluate(model, client.grid, client.calibration_indices, client.scaler, device, client.history_start, batch_size)["node_macro"]["mae"])
 
 
-def run_fedfomo_scenario(grids: Mapping[str, Any], scarce_target: str, rounds: int, local_epochs: int, batch_size: int, device: str, epsilon: float, seed: int = 42, history_fraction: float = 0.25, client_names: tuple[str, ...] | None = None, checkpoint_root: Path | None = None, checkpoint_domain: str = "reference_grid", source_artifact: str = "fedfomo_runner", frozen_commits: Mapping[str, str] | None = None) -> dict[str, Any]:
+def run_fedfomo_scenario(grids: Mapping[str, Any], scarce_target: str, rounds: int, local_epochs: int, batch_size: int, device: str, epsilon: float, seed: int = 42, history_fraction: float = 0.25, client_names: tuple[str, ...] | None = None, checkpoint_root: Path | None = None, checkpoint_domain: str = "reference_grid", source_artifact: str = "fedfomo_runner", frozen_commits: Mapping[str, str] | None = None, log_enabled: bool = True, log_file: str | None = None) -> dict[str, Any]:
     names = tuple(CLIENT_NAMES if client_names is None else client_names)
     if scarce_target not in names or set(names) != set(grids):
         raise ValueError("FedFomo client_names must exactly match grids and include the scarce target")
@@ -102,12 +111,19 @@ def run_fedfomo_scenario(grids: Mapping[str, Any], scarce_target: str, rounds: i
     states = {client.grid_name: _trainable_state(client.model) for client in clients}
     history = []
     for round_index in range(1, rounds + 1):
+        round_started = time.perf_counter()
         previous = {name: {key: value.clone() for key, value in state.items()} for name, state in states.items()}
         for client in clients:
             _load_trainable_state(client.model, previous[client.grid_name])
             set_global_seed(seed)
-            _local_train(client.model, client, local_epochs, batch_size, device)
+            _local_train(client.model, client, local_epochs, batch_size, device, round_index=round_index, total_rounds=rounds, log_enabled=log_enabled, log_file=log_file, log_context={"scenario": "industrial_external" if checkpoint_domain == "industrial_external" else "reference_grid", "seed": seed, "history_fraction": history_fraction, "target_grid": scarce_target})
             states[client.grid_name] = _trainable_state(client.model)
+            emit_training_log(
+                "fedfomo_client_local_complete", enabled=log_enabled, log_file=log_file,
+                context={"scenario": "industrial_external" if checkpoint_domain == "industrial_external" else "reference_grid", "seed": seed, "history_fraction": history_fraction, "target_grid": scarce_target},
+                algorithm="fedfomo_style", method="fedfomo_style", client=client.grid_name,
+                round=f"{round_index}/{rounds}", local_epochs=f"{local_epochs}",
+            )
         round_weights, diagnostics = {}, {}
         for target in clients:
             anchor = previous[target.grid_name]
@@ -138,9 +154,23 @@ def run_fedfomo_scenario(grids: Mapping[str, Any], scarce_target: str, rounds: i
         for target in clients:
             anchor = previous[target.grid_name]; weights = round_weights[target.grid_name]
             updated[target.grid_name] = {name: anchor[name] + sum(weights[candidate] * (states[candidate][name] - anchor[name]) for candidate in weights) for name in anchor} if weights else {name: value.clone() for name, value in anchor.items()}
+            emit_training_log(
+                "fedfomo_weight_update_complete", enabled=log_enabled, log_file=log_file,
+                context={"scenario": "industrial_external" if checkpoint_domain == "industrial_external" else "reference_grid", "seed": seed, "history_fraction": history_fraction, "target_grid": scarce_target},
+                algorithm="fedfomo_style", method="fedfomo_style", target_client=target.grid_name,
+                round=f"{round_index}/{rounds}", weighted_candidates=len(weights),
+                fallback=not bool(weights),
+            )
         states = updated
         for client in clients:
             _load_trainable_state(client.model, states[client.grid_name])
+        emit_training_log(
+            "fedfomo_round_complete", enabled=log_enabled, log_file=log_file,
+            context={"scenario": "industrial_external" if checkpoint_domain == "industrial_external" else "reference_grid", "seed": seed, "history_fraction": history_fraction, "target_grid": scarce_target},
+            algorithm="fedfomo_style", method="fedfomo_style", round=f"{round_index}/{rounds}",
+            clients=len(clients), weighted_clients=sum(bool(value) for value in round_weights.values()),
+            elapsed=f"{time.perf_counter() - round_started:.2f}s",
+        )
         history.append({"round": round_index, "peer_weights": round_weights, "diagnostics": diagnostics})
     split = scarce_split(grids[scarce_target], history_fraction)
     target_client = next(client for client in clients if client.grid_name == scarce_target)

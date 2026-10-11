@@ -121,8 +121,8 @@ def _cpu_state(model: Any) -> dict[str, Any]:
     return {key: value.detach().cpu().clone() for key, value in model.state_dict().items()}
 
 
-def _train_proxy_once(grid: Any, fit_indices: np.ndarray, calibration_indices: np.ndarray, scaler: Any, device: str, max_epochs: int, batch_size: int, initial_state: Mapping[str, Any] | None = None, seed: int = 42) -> tuple[dict[str, Any], dict[str, Any]]:
-    model, training = train_proxy(grid, fit_indices, calibration_indices, scaler, initial_state=initial_state, device=device, max_epochs=max_epochs, history_start_index=getattr(scaler, "fit_start_index", None), batch_size=batch_size, seed=seed)
+def _train_proxy_once(grid: Any, fit_indices: np.ndarray, calibration_indices: np.ndarray, scaler: Any, device: str, max_epochs: int, batch_size: int, initial_state: Mapping[str, Any] | None = None, seed: int = 42, log_context: Mapping[str, Any] | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
+    model, training = train_proxy(grid, fit_indices, calibration_indices, scaler, initial_state=initial_state, device=device, max_epochs=max_epochs, history_start_index=getattr(scaler, "fit_start_index", None), batch_size=batch_size, seed=seed, log_context=log_context)
     state = _cpu_state(model)
     del model
     return state, dict(training)
@@ -141,11 +141,11 @@ def _same_snapshot(left: Mapping[str, Any], right: Mapping[str, Any]) -> bool:
     return all(bool(np.array_equal(left[name].numpy(), right[name].numpy())) for name in left)
 
 
-def _train_full_donor_states(grids: dict[str, Any], device: str, max_epochs: int, batch_size: int, seed: int = 42) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
+def _train_full_donor_states(grids: dict[str, Any], device: str, max_epochs: int, batch_size: int, seed: int = 42, log_context: Mapping[str, Any] | None = None) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
     states, metadata = {}, {}
     for name in CLIENT_NAMES:
         grid = grids[name]; fit, calibration = donor_split(grid); scaler = fit_fit_only_scaler(grid, fit); graph = build_conditional_utility_graph(grid); model = full_model(grid, graph, device, seed=seed)
-        state, training = train_full_model(model, grid, fit, calibration, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed)
+        state, training = train_full_model(model, grid, fit, calibration, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed, log_context={**dict(log_context or {}), "target_grid": name, "method": "btd_donor_full_model"})
         params = dict(model.named_parameters())
         states[name] = {key: value.detach().cpu().clone() for key, value in state.items() if key in params}
         metadata[name] = {"source": "donor_full_history_model", **training}
@@ -166,7 +166,7 @@ def _copy_compatible_trainables(model: Any, donor_state: Mapping[str, Any]) -> t
 def _run_federated(grids: dict[str, Any], target: str, method: str, device: str, rounds: int, local_epochs: int, batch_size: int, seed: int = 42, history_fraction: float = 0.25, checkpoint_root: Path | None = None, source_artifact: str = "formal_federated_runner", frozen_commits: Mapping[str, str] | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
     clients, split, _graph, graph_metadata = prepare_scenario_clients(grids, target, device, seed, history_fraction)
     algorithm = {"fedavg": "standard", "fedprox": "fedprox", "fedper": "fedper"}[method]
-    report = FederatedTrainer(clients, "fedavg_all", rounds=rounds, local_epochs=local_epochs, batch_size=batch_size, learning_rate=1e-3, seed=seed, device=device, algorithm=algorithm, evaluate_validation_during_training=False).run()
+    report = FederatedTrainer(clients, "fedavg_all", rounds=rounds, local_epochs=local_epochs, batch_size=batch_size, learning_rate=1e-3, seed=seed, device=device, algorithm=algorithm, evaluate_validation_during_training=False, log_context={"scenario": "reference_grid", "seed": seed, "history_fraction": history_fraction, "target_grid": target, "method": method}).run()
     target_client = next(client for client in clients if client.grid_name == target)
     metrics = _method_metrics(target_client.model, grids[target], split, target_client.scaler, device, batch_size)
     if checkpoint_root is not None:
@@ -192,7 +192,10 @@ def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str |
     donor_states, donor_metadata = {}, {}
     for name in CLIENT_NAMES:
         grid = grids[name]; fit, calibration = donor_split(grid); scaler = fit_fit_only_scaler(grid, fit)
-        state, training = _train_proxy_once(grid, fit, calibration, scaler, device, max_epochs, batch_size, seed=seed)
+        state, training = _train_proxy_once(
+            grid, fit, calibration, scaler, device, max_epochs, batch_size, seed=seed,
+            log_context={"scenario": "reference_grid", "seed": seed, "history_fraction": "full", "target_grid": name, "method": "btd_donor_proxy"},
+        )
         proxy = make_proxy(grid, seed=seed); proxy.load_state_dict(state)
         from code.audits.btd_full_backbone_bridge import temporal_state_from_model
         donor_states[name] = temporal_state_from_model(proxy)
@@ -200,26 +203,36 @@ def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str |
         del proxy
     donor_full_states, donor_full_metadata = ({}, {})
     if btd_variant == "btd_full_model_transfer":
-        donor_full_states, donor_full_metadata = _train_full_donor_states(grids, device, max_epochs, batch_size, seed)
+        donor_full_states, donor_full_metadata = _train_full_donor_states(
+            grids, device, max_epochs, batch_size, seed,
+            {"scenario": "reference_grid", "seed": seed, "history_fraction": "full"},
+        )
 
     scenarios = {}
     for target in CLIENT_NAMES:
         grid = grids[target]; split = scarce_split(grid, history_fraction); scaler = fit_fit_only_scaler(grid, split.fit_indices, split.available_start); graph = build_scarce_target_graph(grid, split)
-        local_proxy_state, local_proxy_training = _train_proxy_once(grid, split.fit_indices, split.calibration_indices, scaler, device, max_epochs, batch_size, seed=seed)
+        local_proxy_state, local_proxy_training = _train_proxy_once(
+            grid, split.fit_indices, split.calibration_indices, scaler, device, max_epochs, batch_size, seed=seed,
+            log_context={"scenario": "reference_grid", "seed": seed, "history_fraction": history_fraction, "target_grid": target, "method": "btd_local_proxy"},
+        )
         local_proxy = make_proxy(grid, seed=seed); local_proxy.load_state_dict(local_proxy_state); local_calibration_mae = float(local_proxy_training["best_calibration_node_mae"])
         adapted_by_donor, calibration_benefits = {}, {}
         for donor in CLIENT_NAMES:
             if donor == target: continue
             donor_temporal = {name: value for name, value in donor_states[donor].items() if name in parameter_groups(local_proxy)["temporal"]}
             initial_proxy = make_proxy(grid, seed=seed); inject_temporal_state(initial_proxy, donor_temporal); initial_state = _cpu_state(initial_proxy); del initial_proxy
-            adapted_state, adaptation_training = _train_proxy_once(grid, split.fit_indices, split.calibration_indices, scaler, device, max_epochs, batch_size, initial_state, seed=seed)
+            adapted_state, adaptation_training = _train_proxy_once(
+                grid, split.fit_indices, split.calibration_indices, scaler, device, max_epochs, batch_size,
+                initial_state, seed=seed,
+                log_context={"scenario": "reference_grid", "seed": seed, "history_fraction": history_fraction, "target_grid": target, "method": "btd_benefit_probe", "donor": donor},
+            )
             adapted_proxy = make_proxy(grid, seed=seed); adapted_proxy.load_state_dict(adapted_state); adapted_mae = float(adaptation_training["best_calibration_node_mae"]); del adapted_proxy
             calibration_benefits[donor] = benefit(local_calibration_mae, adapted_mae)
             adapted_by_donor[donor] = {"state": adapted_state, "calibration_node_mae": adapted_mae, "training": {"donor": donor, "source": "current_formal_run_donor_proxy", **adaptation_training}}
         selected_donor, selected_benefit, fallback, selection_rule = select_formal_donor(calibration_benefits, btd_variant)
 
         local_model = full_model(grid, graph, device, seed=seed); local_spatial = _spatial_buffer_snapshot(local_model); inject_temporal_state(local_model, {name: value for name, value in local_proxy_state.items() if name in parameter_groups(local_model)["temporal"]})
-        local_state, local_full_training = train_full_model(local_model, grid, split.fit_indices, split.calibration_indices, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed); local_model.load_state_dict(local_state); local_metrics = _method_metrics(local_model, grid, split, scaler, device, batch_size)
+        local_state, local_full_training = train_full_model(local_model, grid, split.fit_indices, split.calibration_indices, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed, log_context={"scenario": "reference_grid", "seed": seed, "history_fraction": history_fraction, "target_grid": target, "method": "local"}); local_model.load_state_dict(local_state); local_metrics = _method_metrics(local_model, grid, split, scaler, device, batch_size)
         if checkpoint_root is not None:
             local_cell = next(item for item in matrix_cells() if item["domain"] == "reference_grid" and item["target"] == target and item["seed"] == seed and item["history_fraction"] == history_fraction and item["method"] == "local")
             export_model_checkpoint(root=checkpoint_root, cell=local_cell, model=local_model, grid=grid, scaler=scaler, graph_metadata=graph.diagnostics, source_artifact=source_artifact, frozen_commits=frozen_commits or {}, selected_epoch=local_full_training.get("selected_epoch"), epochs_run=local_full_training.get("epochs_run"))
@@ -229,10 +242,10 @@ def run_formal_benchmark(grids: dict[str, Any], selected_donors: dict[str, str |
             btd_metrics, btd_training = copy.deepcopy(local_metrics), {"fallback_exact_local": True, "full": copy.deepcopy(local_full_training)}
         elif btd_variant == "btd_full_model_transfer":
             btd_model = full_model(grid, graph, device, seed=seed); assert _same_snapshot(_spatial_buffer_snapshot(btd_model), local_spatial)
-            transferred = _copy_compatible_trainables(btd_model, donor_full_states[selected_donor]); state, training = train_full_model(btd_model, grid, split.fit_indices, split.calibration_indices, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed); btd_model.load_state_dict(state); btd_metrics = _method_metrics(btd_model, grid, split, scaler, device, batch_size); btd_training = {"full": training, "transferred_parameter_names": list(transferred)}; del btd_model
+            transferred = _copy_compatible_trainables(btd_model, donor_full_states[selected_donor]); state, training = train_full_model(btd_model, grid, split.fit_indices, split.calibration_indices, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed, log_context={"scenario": "reference_grid", "seed": seed, "history_fraction": history_fraction, "target_grid": target, "method": "btd_full_model_transfer", "donor": selected_donor}); btd_model.load_state_dict(state); btd_metrics = _method_metrics(btd_model, grid, split, scaler, device, batch_size); btd_training = {"full": training, "transferred_parameter_names": list(transferred)}; del btd_model
         else:
             btd_model = full_model(grid, graph, device, seed=seed); assert _same_snapshot(_spatial_buffer_snapshot(btd_model), local_spatial)
-            inject_temporal_state(btd_model, {name: value for name, value in adapted_by_donor[selected_donor]["state"].items() if name in parameter_groups(btd_model)["temporal"]}); state, training = train_full_model(btd_model, grid, split.fit_indices, split.calibration_indices, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed); btd_model.load_state_dict(state); btd_metrics = _method_metrics(btd_model, grid, split, scaler, device, batch_size); btd_training = {"adaptation": adapted_by_donor[selected_donor]["training"], "full": training, "transferred_parameter_names": list(parameter_groups(btd_model)["temporal"])}; del btd_model
+            inject_temporal_state(btd_model, {name: value for name, value in adapted_by_donor[selected_donor]["state"].items() if name in parameter_groups(btd_model)["temporal"]}); state, training = train_full_model(btd_model, grid, split.fit_indices, split.calibration_indices, scaler, device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed, log_context={"scenario": "reference_grid", "seed": seed, "history_fraction": history_fraction, "target_grid": target, "method": "btd_fl", "donor": selected_donor}); btd_model.load_state_dict(state); btd_metrics = _method_metrics(btd_model, grid, split, scaler, device, batch_size); btd_training = {"adaptation": adapted_by_donor[selected_donor]["training"], "full": training, "transferred_parameter_names": list(parameter_groups(btd_model)["temporal"])}; del btd_model
         methods = {"scarce_local": local_metrics}; federated = {}
         for method in ("fedavg", "fedprox", "fedper"):
             methods[method], federated[method] = _run_federated(grids, target, method, device, rounds, local_epochs, batch_size, seed, history_fraction, checkpoint_root, source_artifact, frozen_commits)
@@ -304,6 +317,7 @@ def run_formal_baselines(grids: dict[str, Any], device: str = "cpu", rounds: int
         local_proxy_state, local_proxy_training = _train_proxy_once(
             grid, split.fit_indices, split.calibration_indices, scaler, device,
             max_epochs, batch_size, seed=seed,
+            log_context={"scenario": "reference_grid", "seed": seed, "history_fraction": history_fraction, "target_grid": target, "method": "local_proxy"},
         )
         local_model = full_model(grid, graph, device, seed=seed)
         inject_temporal_state(local_model, {
@@ -313,6 +327,7 @@ def run_formal_baselines(grids: dict[str, Any], device: str = "cpu", rounds: int
         local_state, local_training = train_full_model(
             local_model, grid, split.fit_indices, split.calibration_indices, scaler,
             device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed,
+            log_context={"scenario": "reference_grid", "seed": seed, "history_fraction": history_fraction, "target_grid": target, "method": "local"},
         )
         local_model.load_state_dict(local_state)
         if checkpoint_root is not None:

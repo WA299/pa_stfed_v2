@@ -36,6 +36,7 @@ from code.federated.parameter_groups import parameter_groups
 from code.federated.checkpointing import checkpoint_path, export_model_checkpoint, matrix_cells, replay_checkpoint
 from code.federated.trainer import FederatedTrainer
 from code.models.puc_rstattn_v2_conditional_utility import build_conditional_utility_graph
+from code.runtime_logging import emit_training_log
 
 REFERENCE_CLIENT_NAMES = (
     "39_bus_semi_urban_reference_grid",
@@ -106,6 +107,7 @@ def _train_proxy_state(
     batch_size: int,
     seed: int,
     initial_state: Mapping[str, Any] | None = None,
+    log_context: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     model, training = train_proxy(
         grid,
@@ -118,6 +120,7 @@ def _train_proxy_state(
         history_start_index=getattr(scaler, "fit_start_index", None),
         batch_size=batch_size,
         seed=seed,
+        log_context=log_context,
     )
     cpu_state, _ = _formal_helpers()
     return cpu_state(model), dict(training)
@@ -196,10 +199,12 @@ def _local_target(
     batch_size: int,
     seed: int,
     checkpoint_export: Mapping[str, Any] | None = None,
+    log_context: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     scaler = fit_fit_only_scaler(grid, split.fit_indices, split.available_start)
     local_proxy_state, proxy_training = _train_proxy_state(
-        grid, split.fit_indices, split.calibration_indices, scaler, device, max_epochs, batch_size, seed
+        grid, split.fit_indices, split.calibration_indices, scaler, device, max_epochs, batch_size, seed,
+        log_context=log_context,
     )
     model = full_model(grid, graph, device, seed=seed)
     inject_temporal_state(model, local_proxy_state)
@@ -213,6 +218,7 @@ def _local_target(
         max_epochs=max_epochs,
         batch_size=batch_size,
         seed=seed,
+        log_context=log_context,
     )
     model.load_state_dict(best_state)
     metrics = _target_metrics(model, grid, split, scaler, device, batch_size)
@@ -266,6 +272,13 @@ def _run_federated(
         algorithm=algorithm,
         evaluate_validation_during_training=False,
         expected_client_count=5,
+        log_context={
+            "scenario": "industrial_external",
+            "seed": seed,
+            "history_fraction": history_fraction,
+            "target_grid": INDUSTRIAL_TARGET,
+            "method": method,
+        },
     ).run()
     target_client = next(client for client in clients if client.grid_name == INDUSTRIAL_TARGET)
     metrics = _target_metrics(target_client.model, grids[INDUSTRIAL_TARGET], split, target_client.scaler, device, batch_size)
@@ -330,6 +343,8 @@ def run_external_baselines(
     source_artifact: str = "industrial_external_baselines",
     frozen_commits: Mapping[str, str] | None = None,
 ) -> dict[str, Any]:
+    log_context = {"scenario": "industrial_external", "seed": seed, "history_fraction": history_fraction}
+    emit_training_log("industrial_baselines_start", context=log_context, target_grid=INDUSTRIAL_TARGET)
     _, set_global_seed = _seed_helpers()
     set_global_seed(seed)
     grid = grids[INDUSTRIAL_TARGET]
@@ -341,6 +356,7 @@ def run_external_baselines(
     local_metrics, local_training = _local_target(
         grid, split, graph, device, max_epochs, batch_size, seed,
         {"root": checkpoint_root, "cell": local_cell, "source_artifact": source_artifact, "frozen_commits": frozen_commits or {}} if checkpoint_root is not None else None,
+        log_context={**log_context, "target_grid": INDUSTRIAL_TARGET, "method": "local"},
     )
     methods["industrial_scarce_local"] = local_metrics
     federated: dict[str, Any] = {}
@@ -349,6 +365,7 @@ def run_external_baselines(
             grids, method, history_fraction, rounds, local_epochs, batch_size, device, seed,
             Path(checkpoint_root) if checkpoint_root is not None else None, source_artifact, frozen_commits,
         )
+        emit_training_log("industrial_baseline_complete", context=log_context, target_grid=INDUSTRIAL_TARGET, method=method)
     scenario = {
         "methods": methods,
         "metadata": {
@@ -396,6 +413,8 @@ def run_external_btd(
     source_artifact: str = "industrial_external_btd",
     frozen_commits: Mapping[str, str] | None = None,
 ) -> dict[str, Any]:
+    log_context = {"scenario": "industrial_external", "seed": seed, "history_fraction": history_fraction, "method": "btd_fl_direct_transfer"}
+    emit_training_log("industrial_btd_start", context=log_context, target_grid=INDUSTRIAL_TARGET)
     _, set_global_seed = _seed_helpers()
     set_global_seed(seed)
     target_grid = grids[INDUSTRIAL_TARGET]
@@ -406,14 +425,19 @@ def run_external_btd(
     donor_states: dict[str, dict[str, Any]] = {}
     donor_metadata: dict[str, Any] = {}
     for donor in REFERENCE_CLIENT_NAMES:
+        emit_training_log("industrial_donor_training_start", context=log_context, target_grid=INDUSTRIAL_TARGET, donor=donor)
         donor_grid = grids[donor]
         fit, calibration = donor_split(donor_grid)
         scaler = fit_fit_only_scaler(donor_grid, fit)
-        state, training = _train_proxy_state(donor_grid, fit, calibration, scaler, device, max_epochs, batch_size, seed)
+        state, training = _train_proxy_state(
+            donor_grid, fit, calibration, scaler, device, max_epochs, batch_size, seed,
+            log_context={**log_context, "history_fraction": "full", "target_grid": donor, "method": "btd_donor_proxy"},
+        )
         proxy = make_proxy(donor_grid, seed=seed)
         proxy.load_state_dict(state)
         donor_states[donor] = temporal_state_from_model(proxy)
         donor_metadata[donor] = {"fit_target_count": len(fit), "calibration_target_count": len(calibration), **training}
+        emit_training_log("industrial_donor_training_complete", context=log_context, target_grid=INDUSTRIAL_TARGET, donor=donor, best_mae=f"{training['best_calibration_node_mae']:.8g}")
 
     local_state, local_training = _train_proxy_state(
         target_grid,
@@ -424,6 +448,7 @@ def run_external_btd(
         max_epochs,
         batch_size,
         seed,
+        log_context={**log_context, "target_grid": INDUSTRIAL_TARGET, "method": "btd_local_proxy"},
     )
     local_proxy = make_proxy(target_grid, seed=seed)
     local_proxy.load_state_dict(local_state)
@@ -431,6 +456,7 @@ def run_external_btd(
     benefits: dict[str, float] = {}
     probes: dict[str, Any] = {}
     for donor in REFERENCE_CLIENT_NAMES:
+        emit_training_log("industrial_benefit_probe_start", context=log_context, target_grid=INDUSTRIAL_TARGET, donor=donor)
         initial = make_proxy(target_grid, seed=seed)
         inject_temporal_state(initial, donor_states[donor])
         adapted_state, adaptation = _train_proxy_state(
@@ -443,11 +469,14 @@ def run_external_btd(
             batch_size,
             seed,
             initial_state=_formal_helpers()[0](initial),
+            log_context={**log_context, "target_grid": INDUSTRIAL_TARGET, "donor": donor, "method": "btd_benefit_probe"},
         )
         adapted_mae = float(adaptation["best_calibration_node_mae"])
         benefits[donor] = benefit(local_calibration_mae, adapted_mae)
         probes[donor] = {"adapted_calibration_node_mae": adapted_mae, "training": adaptation}
+        emit_training_log("industrial_benefit_probe_complete", context=log_context, target_grid=INDUSTRIAL_TARGET, donor=donor, benefit=f"{benefits[donor]:.8g}")
     selected_donor, maximum_benefit, fallback = select_external_donor(benefits)
+    emit_training_log("industrial_donor_selected", context=log_context, target_grid=INDUSTRIAL_TARGET, selected_donor=selected_donor, selected_benefit=f"{maximum_benefit:.8g}", fallback=fallback)
 
     local_model = full_model(target_grid, target_graph, device, seed=seed)
     inject_temporal_state(local_model, local_state)
@@ -461,6 +490,7 @@ def run_external_btd(
         max_epochs=max_epochs,
         batch_size=batch_size,
         seed=seed,
+        log_context={**log_context, "target_grid": INDUSTRIAL_TARGET, "method": "local"},
     )
     local_model.load_state_dict(local_best)
     local_metrics = _target_metrics(local_model, target_grid, target_split, target_scaler, device, batch_size)
@@ -472,6 +502,7 @@ def run_external_btd(
     else:
         model = full_model(target_grid, target_graph, device, seed=seed)
         transferred_names = list(inject_temporal_state(model, donor_states[selected_donor]))
+        emit_training_log("industrial_temporal_transfer", context=log_context, target_grid=INDUSTRIAL_TARGET, donor=selected_donor, parameter_count=len(transferred_names))
         best_state, full_training = train_full_model(
             model,
             target_grid,
@@ -482,6 +513,7 @@ def run_external_btd(
             max_epochs=max_epochs,
             batch_size=batch_size,
             seed=seed,
+            log_context={**log_context, "target_grid": INDUSTRIAL_TARGET, "donor": selected_donor, "method": "btd_full_target"},
         )
         model.load_state_dict(best_state)
         metrics = _target_metrics(model, target_grid, target_split, target_scaler, device, batch_size)
@@ -507,6 +539,7 @@ def run_external_btd(
             cell=cell, grid=target_grid, scaler=target_scaler,
         )
         metrics = _target_metrics(final_model, target_grid, target_split, target_scaler, device, batch_size)
+    emit_training_log("industrial_btd_complete", context=log_context, target_grid=INDUSTRIAL_TARGET, selected_donor=selected_donor, fallback=fallback)
     scenario = {
         "metrics": metrics,
         "metadata": {

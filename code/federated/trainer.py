@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import random
+import time
 from dataclasses import dataclass
 from typing import Any, Mapping
 
@@ -12,6 +13,7 @@ from scripts.run_puc_rstattn_v2 import _batch_indices, _to_batch
 
 from .aggregation import ALGORITHMS, SHARING_MODES, aggregate_named_parameters, normalize_sample_weights, sharing_groups
 from .parameter_groups import fedper_parameter_groups, parameter_groups
+from code.runtime_logging import emit_training_log
 
 CLIENT_GRID_NAMES = (
     "39_bus_semi_urban_reference_grid",
@@ -145,6 +147,9 @@ class FederatedTrainer:
         algorithm: str = "standard",
         evaluate_validation_during_training: bool = True,
         expected_client_count: int = 4,
+        log_enabled: bool = True,
+        log_file: str | None = None,
+        log_context: Mapping[str, Any] | None = None,
     ) -> None:
         if mode not in SHARING_MODES:
             raise ValueError(f"unknown sharing mode: {mode}")
@@ -159,6 +164,7 @@ class FederatedTrainer:
         self.clients = clients
         self.mode = mode
         self.algorithm = algorithm
+        self.log_algorithm = {"standard": "FedAvg", "fedprox": "FedProx", "fedper": "FedPer"}[algorithm]
         self.rounds = int(rounds)
         self.local_epochs = int(local_epochs)
         self.batch_size = int(batch_size)
@@ -195,6 +201,10 @@ class FederatedTrainer:
             for client in clients
         }
         self.optimizers: dict[str, Any] = {}
+        self.log_enabled = bool(log_enabled)
+        self.log_file = log_file
+        self.log_context = dict(log_context or {})
+        self._active_round = 0
 
     def _make_round_optimizers(self) -> None:
         """Create fresh Adam state after each communication boundary."""
@@ -215,8 +225,10 @@ class FederatedTrainer:
         model = client.model
         optimizer = self.optimizers[client.grid_name]
         final_losses, anchor_losses, total_losses, proximal_losses = [], [], [], []
+        local_started = time.perf_counter()
         for _epoch in range(self.local_epochs):
             model.train()
+            epoch_final_losses, epoch_anchor_losses, epoch_total_losses = [], [], []
             for indices in _batch_indices(len(client.train_dataset), self.batch_size):
                 x, y = _to_batch(client.train_dataset, client.scaler, indices)
                 optimizer.zero_grad(set_to_none=True)
@@ -241,8 +253,24 @@ class FederatedTrainer:
                 final_losses.append(float(final_loss.detach()))
                 anchor_losses.append(float(anchor_loss.detach()))
                 total_losses.append(float(total_loss.detach()))
+                epoch_final_losses.append(final_losses[-1])
+                epoch_anchor_losses.append(anchor_losses[-1])
+                epoch_total_losses.append(total_losses[-1])
                 if self.algorithm == "fedprox":
                     proximal_losses.append(float(proximal_loss.detach()))
+            if epoch_total_losses:
+                emit_training_log(
+                    "federated_local_epoch_complete", enabled=self.log_enabled,
+                    log_file=self.log_file, context=self.log_context,
+                    algorithm=self.log_algorithm,
+                    method=self.log_context.get("method", self.log_algorithm),
+                    target_grid=self.log_context.get("target_grid", client.grid_name),
+                    round=f"{self._active_round}/{self.rounds}",
+                    client=client.grid_name, local_epoch=f"{_epoch + 1}/{self.local_epochs}",
+                    train_loss=f"{np.mean(epoch_total_losses):.8g}",
+                    train_mae=f"{np.mean(epoch_final_losses):.8g}",
+                    elapsed=f"{time.perf_counter() - local_started:.2f}s",
+                )
         if not total_losses:
             raise ValueError(f"client {client.grid_name} has no training samples")
         return {
@@ -257,6 +285,17 @@ class FederatedTrainer:
         shared_groups = sharing_groups(self.mode)
         round_history = []
         for round_index in range(1, self.rounds + 1):
+            round_started = time.perf_counter()
+            self._active_round = round_index
+            emit_training_log(
+                "federated_round_start", enabled=self.log_enabled,
+                log_file=self.log_file, context=self.log_context,
+                algorithm=self.log_algorithm,
+                method=self.log_context.get("method", self.log_algorithm),
+                target_grid=self.log_context.get("target_grid"),
+                round=f"{round_index}/{self.rounds}",
+                clients=len(self.clients), local_epochs=self.local_epochs,
+            )
             self._make_round_optimizers()
             snapshots = {
                 client.grid_name: _parameter_snapshot(
@@ -334,6 +373,20 @@ class FederatedTrainer:
                     "primary_selection_metric": macro["node_macro"]["mae"],
                 })
             round_history.append(round_record)
+            summary_fields = {
+                "algorithm": self.log_algorithm,
+                "method": self.log_context.get("method", self.log_algorithm),
+                "round": f"{round_index}/{self.rounds}",
+                "clients": len(self.clients),
+                "mean_train_loss": f"{np.mean([item['train_total_loss'] for item in local_training.values()]):.8g}",
+                "elapsed": f"{time.perf_counter() - round_started:.2f}s",
+            }
+            if self.evaluate_validation_during_training:
+                summary_fields["validation_mae"] = f"{macro['node_macro']['mae']:.8g}"
+            emit_training_log(
+                "federated_round_complete", enabled=self.log_enabled,
+                log_file=self.log_file, context=self.log_context, **summary_fields,
+            )
 
         return {
             "experiment": "topology_heterogeneous_puc_rstattn_v2_conditional_utility_federated",

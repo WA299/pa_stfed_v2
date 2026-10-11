@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import copy
+import time
 from typing import Any, Mapping
 
 import numpy as np
@@ -29,6 +30,7 @@ from code.audits.strong_temporal_conditional_utility_audit import (
 from code.models.centralized_gru import masked_scaled_mae
 from code.models.puc_rstattn import build_relation_features
 from code.models.puc_rstattn_v2_conditional_utility import PUCRSTAttnV2ConditionalUtility
+from code.runtime_logging import emit_training_log
 
 GRAPH_TOP_K = 3
 
@@ -102,7 +104,9 @@ def inject_temporal_state(model: Any, state: Mapping[str, Any]) -> tuple[str, ..
 
 def train_full_model(model: Any, grid: Any, fit_indices: np.ndarray, calibration_indices: np.ndarray,
                      scaler: Any, device: str = "cpu", max_epochs: int = 50,
-                     patience: int = PATIENCE, batch_size: int = BATCH_SIZE, seed: int = SEED) -> tuple[dict[str, Any], dict[str, Any]]:
+                     patience: int = PATIENCE, batch_size: int = BATCH_SIZE, seed: int = SEED,
+                     log_enabled: bool = True, log_file: str | None = None,
+                     log_context: Mapping[str, Any] | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
     import torch
     torch.manual_seed(int(seed))
     model = model.to(device)
@@ -110,6 +114,7 @@ def train_full_model(model: Any, grid: Any, fit_indices: np.ndarray, calibration
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
     mask = torch.as_tensor(grid.load_bus_mask, dtype=torch.bool, device=device)
     best_state, best_mae, stale, selected_epoch = None, float("inf"), 0, None
+    started = time.perf_counter()
     for epoch in range(1, max_epochs + 1):
         model.train()
         for batch in __import__("scripts.run_puc_rstattn_v2", fromlist=["_batch_indices"])._batch_indices(len(fit_ds), batch_size):
@@ -121,11 +126,21 @@ def train_full_model(model: Any, grid: Any, fit_indices: np.ndarray, calibration
             loss.backward(); optimizer.step()
         calibration = _evaluate(model, grid, calibration_indices, scaler, device, batch_size=batch_size)
         current = calibration["node_macro"]["mae"]
+        stop_after_log = False
         if current < best_mae:
             best_mae = current; best_state = {key: value.detach().cpu().clone() for key, value in model.state_dict().items()}; selected_epoch = int(epoch); stale = 0
         else:
             stale += 1
-            if stale >= patience: break
+            stop_after_log = stale >= patience
+        emit_training_log(
+            "full_model_epoch_complete", enabled=log_enabled, log_file=log_file,
+            context=log_context, seed=seed, epoch=f"{epoch}/{max_epochs}",
+            method=(log_context or {}).get("method", "full_model"),
+            target_grid=getattr(grid, "grid_name", getattr(grid, "name", None)),
+            calibration_mae=f"{current:.8g}", best_mae=f"{best_mae:.8g}",
+            elapsed=f"{time.perf_counter() - started:.2f}s",
+        )
+        if stop_after_log: break
     if best_state is None: raise RuntimeError("full model did not produce a checkpoint")
     model.load_state_dict(best_state)
     return best_state, {"best_calibration_node_mae": float(best_mae), "epochs_run": int(epoch), "selected_epoch": selected_epoch}

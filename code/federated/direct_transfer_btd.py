@@ -32,12 +32,14 @@ from code.federated.parameter_groups import parameter_groups
 from code.federated.checkpointing import checkpoint_path, export_model_checkpoint, matrix_cells, replay_checkpoint
 from code.federated.seeding import reproducibility_metadata, set_global_seed
 from code.models.puc_rstattn_v2_conditional_utility import build_conditional_utility_graph
+from code.runtime_logging import emit_training_log
 
 
 def _train_proxy_state(
     grid: Any, fit: np.ndarray, calibration: np.ndarray, scaler: Any,
     device: str, max_epochs: int, batch_size: int,
     initial_state: Mapping[str, Any] | None = None, seed: int = 42,
+    log_context: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     from code.audits.federated_transfer_benefit import train_proxy
 
@@ -45,7 +47,7 @@ def _train_proxy_state(
         grid, fit, calibration, scaler, initial_state=initial_state,
         device=device, max_epochs=max_epochs,
         history_start_index=getattr(scaler, "fit_start_index", None),
-        batch_size=batch_size, seed=seed,
+        batch_size=batch_size, seed=seed, log_context=log_context,
     )
     state = _cpu_state(model)
     del model
@@ -61,7 +63,8 @@ def _train_full_history_donors(
         fit, calibration = donor_split(grid)
         scaler = fit_fit_only_scaler(grid, fit)
         state, training = _train_proxy_state(
-            grid, fit, calibration, scaler, device, max_epochs, batch_size, seed=seed
+            grid, fit, calibration, scaler, device, max_epochs, batch_size, seed=seed,
+            log_context={"scenario": "reference_grid", "seed": seed, "history_fraction": "full", "target_grid": donor, "method": "btd_donor_proxy"},
         )
         proxy = make_proxy(grid, seed=seed)
         proxy.load_state_dict(state)
@@ -115,6 +118,8 @@ def run_direct_transfer(
     # seeds are reset at the run boundary for reproducibility.
     if int(seed) != 42:
         set_global_seed(seed)
+    log_context = {"scenario": "reference_grid", "seed": seed, "history_fraction": history_fraction, "method": "btd_fl_direct_transfer"}
+    emit_training_log("btd_run_start", context=log_context, target_grid="all")
     # The historical seed-42 reference is optional for reconstruction.  It
     # is used only for reporting the accepted comparator/selection audit, not
     # for current-run donor selection or model training.
@@ -126,6 +131,7 @@ def run_direct_transfer(
     scenarios: dict[str, Any] = {}
 
     for target in CLIENT_NAMES:
+        emit_training_log("btd_target_start", context=log_context, target_grid=target)
         grid = grids[target]
         split = scarce_split(grid, history_fraction)
         scaler = fit_fit_only_scaler(grid, split.fit_indices, split.available_start)
@@ -134,6 +140,7 @@ def run_direct_transfer(
         local_state, local_training = _train_proxy_state(
             grid, split.fit_indices, split.calibration_indices, scaler,
             device, max_epochs, batch_size, seed=seed,
+            log_context={**log_context, "target_grid": target, "method": "btd_local_proxy"},
         )
         local_calibration_mae = float(local_training["best_calibration_node_mae"])
 
@@ -142,6 +149,7 @@ def run_direct_transfer(
         for donor in CLIENT_NAMES:
             if donor == target:
                 continue
+            emit_training_log("btd_benefit_probe_start", context=log_context, target_grid=target, donor=donor)
             probe = make_proxy(grid, seed=seed)
             inject_temporal_state(probe, donor_states[donor])
             initial = _cpu_state(probe)
@@ -149,9 +157,11 @@ def run_direct_transfer(
             adapted_state, adaptation = _train_proxy_state(
                 grid, split.fit_indices, split.calibration_indices, scaler,
                 device, max_epochs, batch_size, initial, seed=seed,
+                log_context={**log_context, "target_grid": target, "donor": donor, "method": "btd_benefit_probe"},
             )
             probe_mae = float(adaptation["best_calibration_node_mae"])
             benefits[donor] = benefit(local_calibration_mae, probe_mae)
+            emit_training_log("btd_benefit_probe_complete", context=log_context, target_grid=target, donor=donor, calibration_mae=f"{probe_mae:.8g}", benefit=f"{benefits[donor]:.8g}")
             probe_metadata[donor] = {
                 "donor_proxy_source": "current_direct_transfer_run_full_history_temporal_proxy",
                 "adapted_probe_calibration_node_mae": probe_mae,
@@ -161,6 +171,7 @@ def run_direct_transfer(
             del adapted_state
 
         selected, selected_benefit, fallback, selection_rule = select_formal_donor(benefits)
+        emit_training_log("btd_donor_selected", context=log_context, target_grid=target, selected_donor=selected, selected_benefit=f"{selected_benefit:.8g}", fallback=fallback)
         local_model = full_model(grid, graph, device, seed=seed)
         initial_snapshot = _snapshot_non_temporal(local_model)
         if fallback:
@@ -175,6 +186,7 @@ def run_direct_transfer(
             best_state, full_training = train_full_model(
                 model, grid, split.fit_indices, split.calibration_indices, scaler,
                 device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed,
+                log_context={**log_context, "target_grid": target, "method": "btd_local_fallback"},
             )
             model.load_state_dict(best_state)
             metrics = _method_metrics(model, grid, split, scaler, device, batch_size)
@@ -183,12 +195,14 @@ def run_direct_transfer(
             model = local_model
             selected_state = donor_states[selected]
             transferred_names = inject_temporal_state(model, selected_state)
+            emit_training_log("btd_temporal_transfer", context=log_context, target_grid=target, donor=selected, parameter_count=len(transferred_names))
             after_snapshot = _snapshot_non_temporal(model)
             if not _equal_tensor_maps(initial_snapshot, after_snapshot):
                 raise AssertionError("direct temporal transfer changed target spatial parameters or topology buffers")
             best_state, full_training = train_full_model(
                 model, grid, split.fit_indices, split.calibration_indices, scaler,
                 device=device, max_epochs=max_epochs, batch_size=batch_size, seed=seed,
+                log_context={**log_context, "target_grid": target, "donor": selected, "method": "btd_full_target"},
             )
             model.load_state_dict(best_state)
             metrics = _method_metrics(model, grid, split, scaler, device, batch_size)
@@ -250,6 +264,7 @@ def run_direct_transfer(
                 name: main_target[name] for name in ("scarce_local", "fedavg", "fedprox", "fedper", "btd_fl")
             }
         scenarios[target] = scenario_payload
+        emit_training_log("btd_target_complete", context=log_context, target_grid=target, selected_donor=selected, fallback=fallback)
         del model
 
     metrics_by_target = {name: item["metrics"] for name, item in scenarios.items()}
